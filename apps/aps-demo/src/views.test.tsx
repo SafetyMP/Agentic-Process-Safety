@@ -22,14 +22,14 @@ const bundle = readFileSync(join(dirname(require.resolve('playwright-core')), 'l
 const injectedLiteral = bundle.split('\n').find(line => line.startsWith('    source5 = '))!;
 const injectedSource = runInNewContext(injectedLiteral.trim().slice('source5 = '.length, -1)) as string;
 const exactLabels = new Function('module', 'CSS', injectedSource + `
-  return (root, text) => Array.from(root.querySelectorAll('select')).filter(element =>
-    getElementLabels(new Map(), element).some(createTextMatcher(JSON.stringify(text) + 's', true).matcher));
+  return (root, text, exact = true) => Array.from(root.querySelectorAll('select,input')).filter(element =>
+    getElementLabels(new Map(), element).some(createTextMatcher(exact ? JSON.stringify(text) + 's' : text, true).matcher));
 `)({ exports: {} }, { escape: (id: string) => {
   // jsdom lacks CSS.escape. These fixed IDs require no escaping; reject any
   // other syntax rather than substituting an approximate selector engine.
   if (!/^[a-z][a-z-]*$/.test(id)) throw new Error('CSS.escape required for this ID');
   return id;
-} }) as (root: Document, text: string) => HTMLSelectElement[];
+} }) as (root: Document, text: string, exact?: boolean) => (HTMLSelectElement | HTMLInputElement)[];
 
 beforeAll(() => {
   Object.defineProperty(window, 'matchMedia', { writable: true, value: vi.fn().mockImplementation(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })) });
@@ -67,6 +67,46 @@ describe('evidence-bound interactive views', () => {
       expect(modes).toHaveLength(1);
       fireEvent.change(modes[0], { target: { value: "C" } });
       expect(exactLabels(document, "Governance mode")[0].value).toBe("C");
+    }
+  });
+  it('selects every theme through exact Playwright labels on every route and restores after reload', () => {
+    localStorage.removeItem('aps-theme');
+    for (const route of ['overview', 'hazop', 'governance', 'simulator', 'assurance']) {
+      window.location.hash = `#/${route}`;
+      const view = render(<App/>);
+      for (const theme of ['light', 'dark', 'system']) {
+        const controls = exactLabels(document, 'Theme');
+        expect(controls).toHaveLength(1);
+        fireEvent.change(controls[0], { target: { value: theme } });
+        expect(exactLabels(document, 'Theme')[0].value).toBe(theme);
+        expect(document.documentElement.dataset.theme).toBe(theme === 'system' ? 'light' : theme);
+        expect(localStorage.getItem('aps-theme')).toBe(theme);
+      }
+      fireEvent.change(exactLabels(document, 'Theme')[0], { target: { value: 'dark' } });
+      view.unmount();
+      const reloaded = render(<App/>);
+      expect(exactLabels(document, 'Theme')[0].value).toBe('dark');
+      expect(document.documentElement.dataset.theme).toBe('dark');
+      reloaded.unmount();
+    }
+  });
+  it('resolves every original e2e label with the installed Playwright matching semantics', () => {
+    const routes: [string, [string, boolean][]][] = [
+      ['overview', []],
+      ['hazop', [['Agent node', true], ['Search findings', false], ['Guideword / deviation', false], ['Sort findings', false]]],
+      ['governance', [['Scenario', true], ['Governance mode', false]]],
+      ['simulator', [['Scenario', true], ['Governance mode', false], ['Deterministic seed', false], ['Predefined fault', false]]],
+      ['assurance', [['Filter recorded arm', false], ['Sort recorded trials', false]]],
+    ];
+    for (const [route, labels] of routes) {
+      window.location.hash = `#/${route}`;
+      const view = render(<App/>);
+      for (const [name, exact] of [...labels, ['Theme', true] as [string, boolean]]) {
+        const controls = exactLabels(document, name, exact);
+        expect(controls, `${route}: ${name}`).toHaveLength(1);
+        expect(controls[0].disabled).toBe(false);
+      }
+      view.unmount();
     }
   });
   it('recovers malformed links and keeps empty filters safe', () => {
