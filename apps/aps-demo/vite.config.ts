@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  base: '/agentic-process-safety/', plugins: [tailwindcss()], esbuild: { jsx: 'automatic' },
+  base: './', plugins: [tailwindcss()], esbuild: { jsx: 'automatic' },
   build: {
     sourcemap: false,
     modulePreload: { polyfill: false },

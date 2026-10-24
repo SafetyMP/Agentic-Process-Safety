@@ -1,6 +1,7 @@
 {
   "name": "aps-phase-one",
   "private": true,
+  "homepage": "https://safetymp.github.io/Agentic-Process-Safety/",
   "type": "module",
   "workspaces": ["apps/aps-demo"],
   "scripts": {

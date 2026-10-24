@@ -1,6 +1,7 @@
 {
   "name": "@aps/static-demo",
   "private": true,
+  "homepage": "https://safetymp.github.io/Agentic-Process-Safety/",
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",

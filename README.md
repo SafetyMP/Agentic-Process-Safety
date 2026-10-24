@@ -1,6 +1,6 @@
 # Agentic Process Safety — Phases 1, 2 and 3
 
-The static demonstration targets [safetymp.github.io/agentic-process-safety](https://safetymp.github.io/agentic-process-safety/). **Deployment has not been verified.** The isolated React/TypeScript app in `apps/aps-demo` runs entirely in the visitor's browser: no account, API key, paid inference, backend, telemetry or installation is required. The original Python/OPA research implementation remains separate.
+The static demonstration targets [safetymp.github.io/Agentic-Process-Safety](https://safetymp.github.io/Agentic-Process-Safety/). **Deployment has not been verified.** The isolated React/TypeScript app in `apps/aps-demo` runs entirely in the visitor's browser: no account, API key, paid inference, backend, telemetry or installation is required. The original Python/OPA research implementation remains separate.
 
 ## Static demonstration
 
@@ -40,7 +40,9 @@ npm run demo:e2e
 npm run demo:preview
 ```
 
-Open the printed local origin at `/agentic-process-safety/`. Vite's fixed base and hash routes support direct links such as `/agentic-process-safety/#/governance`; refresh requests only the static index. Browser acceptance serves built `dist` at the true prefix with no SPA fallback. It checks all sections, nine stories × three modes, review branches, walkthrough, filters, seed/reset/pause, trace links, theme persistence, mobile overflow and forbidden runtime network traffic. Screenshots are written to `docs/screenshots/` only by actual browser execution. **Screenshots and visual inspection remain pending**: the authorized Firefox installation failed after official CDN transfer timeouts and DNS failures; the subsequent runner selected Firefox explicitly but found no executable. Prior Chromium host failures remain unresolved. No browser pass or accessibility conformance is claimed. See [current browser evidence](docs/STATIC_DEMO_BROWSER_QA.md) and [acceptance status](docs/STATIC_DEMO_ACCEPTANCE.md).
+Open the printed local origin at `/`. Vite uses relative asset URLs (`base: './'`) so the same built files resolve under the canonical `/Agentic-Process-Safety/` project path and the unchanged Linux browser test prefix `/agentic-process-safety/`. Hash routes support direct links such as `https://safetymp.github.io/Agentic-Process-Safety/#/governance`; refreshing requests the static index. The lowercase public Pages URL returns 404; portable assets do not create a hosting alias. Root and app package `homepage` fields document the canonical URL; workspace names, scripts and the root lockfile remain unchanged.
+
+Historical Linux Chromium run 40113543611 passed the original browser assertions at its lowercase local test prefix and produced seven reviewed captures. That does not prove the live site works: canonical HTML requests lowercase absolute assets, which return 404. The path fix requires a new publication, source-bound CI and live HTTP asset checks. Local HTTP and built-artifact checks do not establish DOM rendering or accessibility conformance.
 
 ### Methodology and authenticity
 
@@ -58,15 +60,11 @@ All hazards remain unverified, all requirements proposed, ratings null and actua
 
 [deploy-pages.yml](.github/workflows/deploy-pages.yml) validates production integrity, snapshots and available sources, lint, types, tests, build, static safety and real built-site browser checks before uploading only `apps/aps-demo/dist`. It runs on `main` pushes or manual dispatch. Build has `contents: read`; deployment alone has `pages: write` and `id-token: write`, requires build and uses the `github-pages` environment. Official Actions are pinned to verified repository tag commits; concurrency prevents simultaneous deployments. Browser failures prevent deployment.
 
-GitHub authentication is unavailable in the current workspace and no remote is configured. To publish safely:
+The canonical project URL is `https://safetymp.github.io/Agentic-Process-Safety/`. Authenticated read-only metadata confirms the existing public repository and workflow Pages configuration; the latest published parent is `9910d10e924d2ee8cfe7e1dc400fbc2066cefbb7`. Its successful Linux CI did not detect the live case-sensitive asset-path failure. Publication of the portable-base fix remains pending.
 
-1. Run `gh auth login`, then inspect `gh auth status`, `gh api user` and `gh repo view safetymp/agentic-process-safety --json nameWithOwner,viewerPermission,defaultBranchRef`. Verify intended identity and write permissions.
-2. Inspect remote history (`git ls-remote https://github.com/safetymp/agentic-process-safety.git`), configure the verified remote and fetch it. Reconcile existing history on a branch; do not infer an empty target or force-push.
-3. Review `git status`, the source diff, lockfile, all immutable checks and file sizes. Selectively stage reviewed public source, fixtures, docs, screenshots, root manifests and `.github/workflows/deploy-pages.yml`. Never use blanket `git add`; exclude local policy evidence, keys, databases, `.harness`, raw logs and caches. Preserve the protected public production source when preparing the initial repository history.
-4. Commit the reviewed publication, enable repository **Settings → Pages → GitHub Actions**, and push the safely reconciled `main` (or dispatch the workflow there).
-5. Inspect successful build/deploy jobs and their actual Pages URL, then verify the live URL, direct hash refresh and static network behavior before claiming deployment.
+Use the separately retained, bounded operator handoff for this repair. It specifies one normal follow-up commit from that exact parent, frozen source inventory, original local preflight, preserved LICENSE and checks, and distinct evidence outputs. Existing history and QA archives must be retained. Do not infer deployment success from local tests or historical CI.
 
-For updates, keep exact frontend dependency pins and the root lock consistent, rerun `npm ci` and all checks, and review dependency advisories. Fixture refreshes require explicit source selection, allowlist review, updated hashes and rechecked aggregates; never replace research evidence with browser output. Preserve original backend verification below. Remaining release gaps are real browser execution/screenshots/visual QA, independent accessibility review, and authenticated publication/live verification. The [Linux evidence and publication handoff](docs/STATIC_DEMO_CI_HANDOFF.md) specifies exact authenticated identity/history checks, source/dist/commit/workflow/run-bound retained QA artifacts, screenshot review and an unapproved contract proposal. No local acceptance has been waived and no CI run is claimed.
+For updates, keep exact frontend dependency pins and the root lock consistent, rerun the original checks, and review dependency advisories. Fixture refreshes require explicit source selection, allowlist review, updated hashes and rechecked aggregates; never replace research evidence with browser output. Preserve original backend verification below. New source-bound Linux CI, seven-capture review, strict evidence verification and canonical live HTML/every referenced asset hash checks are required after publication. A local DOM browser check has not been performed for this fix.
 
 An auditable, deterministic HAZOP screening engine and sandbox procurement swarm. Five workers model demand forecasting, inventory, supplier selection, finance approval and purchase execution under an orchestrator. All tools are simulated. No real purchase or payment can be made by this implementation.
 
