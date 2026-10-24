@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within, waitFor } from '@testing-library/react';
 import { App } from './App.tsx';
 import { Hazop } from './routes/Hazop.tsx';
 import { Governance } from './routes/Governance.tsx';
@@ -41,6 +41,35 @@ beforeAll(() => {
 afterEach(() => { cleanup(); window.location.hash = ''; vi.useRealTimers(); });
 
 describe('evidence-bound interactive views', () => {
+  it('keeps rendered chart tick text readable on both theme panels', async () => {
+    // Supply layout notifications only; render the real chart and its actual axis props.
+    vi.stubGlobal('ResizeObserver', class {
+      callback: ResizeObserverCallback;
+      constructor(callback: ResizeObserverCallback) { this.callback = callback; }
+      observe(target: Element) { this.callback([{ target, contentRect: target.getBoundingClientRect() } as ResizeObserverEntry], this as unknown as ResizeObserver); }
+      unobserve() {} disconnect() {}
+    });
+    const { container } = render(<Assurance state={initialState()} params={new URLSearchParams()}/>);
+    await waitFor(() => {
+      for (const axis of ['xAxis', 'yAxis']) expect(container.querySelectorAll(`.${axis} .recharts-cartesian-axis-tick-value`).length).toBeGreaterThan(0);
+    });
+    const css = readFileSync(join(process.cwd(), 'src/styles.css'), 'utf8');
+    const luminance = (hex: string) => {
+      if (hex.length === 4) hex = '#' + [...hex.slice(1)].map(c => c + c).join('');
+      const channels = hex.replace('#', '').match(/.{2}/g)!.map(c => parseInt(c, 16) / 255).map(c => c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4);
+      return channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722;
+    };
+    for (const selector of [':root', ':root[data-theme=dark]']) {
+      const declaration = css.slice(css.indexOf(selector + ' {')).split('}')[0];
+      const token = (name: string) => declaration.match(new RegExp(`--${name}:\\s*(#[a-f0-9]{3,6})`))![1];
+      const panel = token('panel') === '#fff' ? '#ffffff' : token('panel');
+      for (const tick of container.querySelectorAll('.recharts-cartesian-axis-tick-value')) {
+        const fill = tick.getAttribute('fill') === 'var(--muted)' ? token('muted') : tick.getAttribute('fill')!;
+        const values = [luminance(fill), luminance(panel)].sort((a, b) => b - a);
+        expect((values[0] + .05) / (values[1] + .05)).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
   it('keeps exact Playwright labels usable after malformed-route reload and filter changes', () => {
     window.location.hash = '#/hazop?hazard=unknown&node=invalid';
     const view = render(<App/>);

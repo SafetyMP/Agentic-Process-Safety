@@ -18,6 +18,20 @@ const captures = ['overview', 'hazop', 'governance', 'simulator', 'assurance', '
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const equal = (a, b, label) => assert.deepEqual(a, b, label);
 const nonempty = s => typeof s === 'string' && s.trim().length >= 12;
+// Candidate only: fold ASCII owner/repository segments, never workflow paths or refs.
+export function githubRepository(value) {
+  assert.match(value, /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/, 'Repository segments');
+  return value.toLowerCase();
+}
+export function githubWorkflowRef(value) {
+  assert.equal(typeof value, 'string', 'Workflow ref string');
+  const match = /^([^/]+\/[^/]+)(\/.*)$/.exec(value);
+  assert.ok(match, 'Workflow ref segments');
+  return githubRepository(match[1]) + match[2];
+}
+export function verifyRepositoryId(value) {
+  equal(value, 1430231911, 'Repository ID');
+}
 export function evidenceEntries(listing) {
   return listing.toString().trim().split('\n').filter(p => !p.endsWith('/'));
 }
@@ -57,13 +71,13 @@ async function verify() {
   for (const [path, digest] of Object.entries(pins)) equal(hash(await readFile(path)), digest, `Reviewed runner/workflow changed: ${path}`);
   const review = JSON.parse(await readFile('.harness/linux-ci-review.json', 'utf8'));
   equal(review.schema, 'aps-linux-ci-review-1', 'Review schema');
-  equal(review.repository, repository, 'Reviewed repository');
+  equal(githubRepository(review.repository), repository, 'Reviewed repository');
   assert.match(review.commit, /^[a-f0-9]{40}$/, 'Reviewed commit');
   for (const key of ['runId', 'runAttempt', 'artifactId']) assert.match(String(review[key]), /^[1-9][0-9]*$/, key);
-  equal(review.workflowRef, `${repository}/${workflow}@refs/heads/main`, 'Reviewed workflow ref');
+  equal(githubWorkflowRef(review.workflowRef), `${repository}/${workflow}@refs/heads/main`, 'Reviewed workflow ref');
   assert.ok(nonempty(review.reviewer) && nonempty(review.limitations), 'Actual reviewer and limitations required');
   equal(Object.keys(review.screenshots).sort(), [...captures].sort(), 'All seven visual reviews required');
-  const repo = api(''); equal(repo.visibility, 'public', 'Only reviewed public target permitted');
+  const repo = api(''); verifyRepositoryId(repo.id); equal(repo.visibility, 'public', 'Only reviewed public target permitted');
   const run = api(`/actions/runs/${review.runId}/attempts/${review.runAttempt}`);
   equal(run.head_sha, review.commit, 'Run commit'); equal(run.head_branch, 'main', 'Reviewed branch');
   equal(run.path, workflow, 'Run workflow');
@@ -97,8 +111,8 @@ async function verify() {
   const result = JSON.parse(bytes('.harness/ci-qa/browser-result.json'));
   equal(identity.schema, 'aps-source-bound-qa-1', 'Identity schema');
   equal(identity.platform, 'linux', 'Linux identity'); equal(result.platform, 'linux', 'Linux browser');
-  equal(identity.commit, review.commit, 'Identity commit'); equal(identity.repository, repository, 'Identity repository');
-  equal(identity.workflowRef, review.workflowRef, 'Identity workflow ref');
+  equal(identity.commit, review.commit, 'Identity commit'); equal(githubRepository(identity.repository), repository, 'Identity repository');
+  equal(githubWorkflowRef(identity.workflowRef), githubWorkflowRef(review.workflowRef), 'Identity workflow ref');
   equal(identity.workflow, 'Validate and deploy static APS demo', 'Workflow name');
   equal(identity.runId, String(review.runId), 'Identity run'); equal(identity.runAttempt, String(review.runAttempt), 'Identity attempt');
   verifyNodeVersion(identity.node);
