@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "error": {
+      "enum": [
+        "invalid_endpoint",
+        "invalid_transport",
+        "unavailable"
+      ]
+    },
+    "executed": {
+      "const": false
+    }
+  },
+  "required": [
+    "error",
+    "executed"
+  ],
+  "additionalProperties": false
+}

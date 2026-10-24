@@ -1,0 +1,514 @@
+{
+  "artifacts": [
+    {
+      "bytes": 2817,
+      "classification": "recorded policy cases",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "artifacts/phase2/policy-simulation.json",
+      "sha256": "21de8a350551b3053525d8c47873e8b4f040275b8029c4665175c1fa85484f65"
+    },
+    {
+      "bytes": 13420,
+      "classification": "16 proposed requirements and gaps",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "artifacts/phase2/traceability.json",
+      "sha256": "a1c5fea281fe1fd6192d6cf72f4972ec2a1ff2005a6fbee94da25a424e835eb5"
+    },
+    {
+      "bytes": 6253,
+      "classification": "recorded Phase 3 evidence; SQLite and raw spans audit only",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "artifacts/phase3/acceptance-T95NAQ0y/acceptance.json",
+      "sha256": "641f4cc764f7efb013dcad7a256aa9b1821fa8181294f0043bc288c648c561cb"
+    },
+    {
+      "bytes": 146,
+      "classification": "recorded Phase 3 evidence; SQLite and raw spans audit only",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "artifacts/phase3/acceptance-T95NAQ0y/checks.tsv",
+      "sha256": "831cdfd180c8dd2795bd7fad3aad39f8cf7d13e8610b1d96b03b43d5be74c817"
+    },
+    {
+      "bytes": 1511901,
+      "classification": "recorded Phase 3 evidence; SQLite and raw spans audit only",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "artifacts/phase3/acceptance-T95NAQ0y/dashboard/data.json",
+      "sha256": "1b799f4ab01bd0c62a61900a166b3537be20abfe0a5cbf78f38a24d860b5796a"
+    },
+    {
+      "bytes": 530511,
+      "classification": "recorded Phase 3 evidence; SQLite and raw spans audit only",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "artifacts/phase3/acceptance-T95NAQ0y/report.md",
+      "sha256": "cc7a25018ac9fde20f4769e0938beee98a7319007007231d21c659144beace36"
+    },
+    {
+      "bytes": 864256,
+      "classification": "recorded Phase 3 evidence; SQLite and raw spans audit only",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "artifacts/phase3/acceptance-T95NAQ0y/run/evidence.sqlite",
+      "sha256": "62c6d4738ba55ccffc9f8b73f5b450df1b71914bbd006bee11ab9ffd07fd6f85"
+    },
+    {
+      "bytes": 197994,
+      "classification": "recorded Phase 3 evidence; SQLite and raw spans audit only",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "artifacts/phase3/acceptance-T95NAQ0y/run/spans.jsonl",
+      "sha256": "1c5275a4dd7925bb823b95af5d822eaa35cccb0a8da68bd98c912d9b76383364"
+    },
+    {
+      "bytes": 893,
+      "classification": "recorded Phase 3 evidence; SQLite and raw spans audit only",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "artifacts/phase3/acceptance-T95NAQ0y/run/summary.json",
+      "sha256": "ef42778c5ed3f683eaabea07a37e8ce1cc6d4f6cd1e48fef6439b27806122a15"
+    },
+    {
+      "bytes": 29140,
+      "classification": "recorded Phase 3 evidence; SQLite and raw spans audit only",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "artifacts/phase3/acceptance-T95NAQ0y/run/workload.json",
+      "sha256": "46311e3dc6f7aad1d58dfb330731134050988ad4177dd1a5bfb96f352866b25b"
+    },
+    {
+      "bytes": 170342,
+      "classification": "96 unverified generated findings",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "artifacts/report.json",
+      "sha256": "3fcd69ccc94394e236d25e1d9a7f301b3fd8d749c1b1d1d7c331c427b7e7df74"
+    },
+    {
+      "bytes": 4171,
+      "classification": "topology input",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "examples/procurement.json",
+      "sha256": "4a08d286e1dba42c5cc07a0a6ebd6da9e9f93dcd2ff555aadc6e5215ed897f99"
+    },
+    {
+      "bytes": 4515,
+      "classification": "authored reference scenarios",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "examples/scenarios.json",
+      "sha256": "93324df6c530697736d19b6bd38df6123f4b5f66232def9ef446f9f24a21bb8d"
+    },
+    {
+      "bytes": 12362,
+      "classification": "production enforcement",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "packages/governance/aps_governance/gateway.py",
+      "sha256": "4f4de53375962c78254460a36cd8f13ed186d253f75eb2d45069ea862649bfd4"
+    },
+    {
+      "bytes": 5542,
+      "classification": "deterministic fault generator",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "packages/governance/aps_governance/workloads.py",
+      "sha256": "b26f016632ef6b07629be60ff99b0aa7217a5c0e92d0e44e325302dd1cbdfce6"
+    },
+    {
+      "bytes": 1974,
+      "classification": "Node-only Python adapter",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "packages/simulator/src/simulate.ts",
+      "sha256": "2169755495b787e0bcdd9cfffec6eef1a361b3a5c9cb613a5c9bc65bb29fa3df"
+    },
+    {
+      "bytes": 6430,
+      "classification": "policy test inputs",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "policies/v1/cases.json",
+      "sha256": "7672849a7d8380eb398850e8cc9b738ada6761e7855e9f65b4595fbbe5451712"
+    },
+    {
+      "bytes": 450,
+      "classification": "policy constants",
+      "limitations": [
+        "Existing bytes only; no fresh execution or cryptographic revalidation this work unit",
+        "Extract allowlisted sanitized fields; no raw secrets, SQLite, spans or logs in site",
+        "No approval, certification or general safety implied"
+      ],
+      "path": "policies/v1/config.json",
+      "sha256": "a2b10473676f9071c354eed740d9229bc9720eef7e4e01750ea866cf43448f42"
+    }
+  ],
+  "capacity": {
+    "exclusions": [
+      ".git",
+      ".harness",
+      ".venv",
+      "__pycache__",
+      "node_modules"
+    ],
+    "headroom": {
+      "aggregate_bytes": 6465305,
+      "files": 7096,
+      "largest_file_bytes": 14915914
+    },
+    "included_by_top_level": {
+      ".gitignore": {
+        "bytes": 159,
+        "files": 1
+      },
+      ".hypothesis": {
+        "bytes": 77034,
+        "files": 71
+      },
+      "README.md": {
+        "bytes": 5025,
+        "files": 1
+      },
+      "aps-pilot-pj3fr4ev": {
+        "bytes": 111120,
+        "files": 2
+      },
+      "aps-policy-7mj8opol": {
+        "bytes": 1704,
+        "files": 1
+      },
+      "artifacts": {
+        "bytes": 126358289,
+        "files": 2702
+      },
+      "dependencies": {
+        "bytes": 496302,
+        "files": 9
+      },
+      "docs": {
+        "bytes": 300723,
+        "files": 36
+      },
+      "examples": {
+        "bytes": 8686,
+        "files": 2
+      },
+      "package-lock.json": {
+        "bytes": 13173,
+        "files": 1
+      },
+      "package.json": {
+        "bytes": 796,
+        "files": 1
+      },
+      "packages": {
+        "bytes": 158055,
+        "files": 29
+      },
+      "policies": {
+        "bytes": 8584,
+        "files": 3
+      },
+      "pyproject.toml": {
+        "bytes": 518,
+        "files": 1
+      },
+      "requirements.lock": {
+        "bytes": 359,
+        "files": 1
+      },
+      "schemas": {
+        "bytes": 44218,
+        "files": 18
+      },
+      "scripts": {
+        "bytes": 10926,
+        "files": 5
+      },
+      "tests": {
+        "bytes": 94556,
+        "files": 17
+      },
+      "tmphfhe_pew": {
+        "bytes": 61908,
+        "files": 2
+      },
+      "tsconfig.json": {
+        "bytes": 288,
+        "files": 1
+      }
+    },
+    "included_bytes": 127752423,
+    "included_files": 2904,
+    "large_file_threshold_bytes": 1048576,
+    "large_files": [
+      {
+        "bytes": 1511901,
+        "path": "artifacts/phase3/acceptance-T95NAQ0y/dashboard/data.json"
+      },
+      {
+        "bytes": 1861296,
+        "path": "artifacts/phase3/acceptance-T95NAQ0y/dashboard/index.html"
+      },
+      {
+        "bytes": 1511887,
+        "path": "artifacts/phase3/acceptance-XvueoH13/dashboard/data.json"
+      },
+      {
+        "bytes": 1861282,
+        "path": "artifacts/phase3/acceptance-XvueoH13/dashboard/index.html"
+      },
+      {
+        "bytes": 1511885,
+        "path": "artifacts/phase3/acceptance-dJS7WO4H/dashboard/data.json"
+      },
+      {
+        "bytes": 1861280,
+        "path": "artifacts/phase3/acceptance-dJS7WO4H/dashboard/index.html"
+      },
+      {
+        "bytes": 1511900,
+        "path": "artifacts/phase3/acceptance-ffrAJ54B/dashboard/data.json"
+      },
+      {
+        "bytes": 1861295,
+        "path": "artifacts/phase3/acceptance-ffrAJ54B/dashboard/index.html"
+      },
+      {
+        "bytes": 1511907,
+        "path": "artifacts/phase3/acceptance-k1FQQ67v/dashboard/data.json"
+      },
+      {
+        "bytes": 1861302,
+        "path": "artifacts/phase3/acceptance-k1FQQ67v/dashboard/index.html"
+      },
+      {
+        "bytes": 1511885,
+        "path": "artifacts/phase3/acceptance-mMUq5Pqe/dashboard/data.json"
+      },
+      {
+        "bytes": 1861280,
+        "path": "artifacts/phase3/acceptance-mMUq5Pqe/dashboard/index.html"
+      },
+      {
+        "bytes": 1511887,
+        "path": "artifacts/phase3/acceptance-sf99nFBL/dashboard/data.json"
+      },
+      {
+        "bytes": 1861282,
+        "path": "artifacts/phase3/acceptance-sf99nFBL/dashboard/index.html"
+      }
+    ],
+    "limits": {
+      "aggregate_bytes": 134217728,
+      "files": 10000,
+      "per_file_bytes": 16777216
+    },
+    "publish_scope": "Future apps/aps-demo/dist only; remeasure after build",
+    "snapshot_scope": "Regular non-symlink files grouped by top-level path; excludes directories by exact name; taken before final manifest replacement",
+    "violations": {
+      "aggregate": false,
+      "files": false,
+      "per_file": []
+    }
+  },
+  "deployment": {
+    "auth": false,
+    "default_branch": null,
+    "deployment_performed": false,
+    "expected_url": "https://safetymp.github.io/agentic-process-safety/",
+    "gaps": [
+      "Authentication unavailable",
+      "Target permissions, default branch and Pages settings unknown",
+      "No configured remote"
+    ],
+    "gh_available": true,
+    "pages_settings": null,
+    "read_only_query": "Skipped because gh authentication unavailable",
+    "target_repository": "safetymp/agentic-process-safety",
+    "viewer_permissions": null
+  },
+  "git": {
+    "branch": "main",
+    "dirty": true,
+    "reconciliation": "No remotes; unborn main, zero tracked files. Inspect target history before future push; no git mutation.",
+    "remotes": [],
+    "tracked_changes_count": 0,
+    "tracked_count": 0,
+    "untracked_count": 129,
+    "untracked_top_level": [
+      ".gitignore",
+      "README.md",
+      "aps-policy-7mj8opol",
+      "artifacts",
+      "dependencies",
+      "docs",
+      "examples",
+      "package-lock.json",
+      "package.json",
+      "packages",
+      "policies",
+      "pyproject.toml",
+      "requirements.lock",
+      "schemas",
+      "scripts",
+      "tests",
+      "tmphfhe_pew",
+      "tsconfig.json"
+    ]
+  },
+  "historical_baseline": {
+    "job_id": "77372a3458124ace9de0ace075092267",
+    "status": "Coordinator reported verified before change; historical, not current site completion"
+  },
+  "latest_recorded_evidence": {
+    "acceptance_passed": true,
+    "directory": "artifacts/phase3/acceptance-T95NAQ0y",
+    "older_failed_examples": [
+      "acceptance-Si2NdFhU",
+      "acceptance-t82mY6ia"
+    ],
+    "reexecuted_this_unit": false,
+    "selection": "Latest local checks.tsv modification time",
+    "stages": {
+      "dashboard": "0",
+      "evidence-acceptance": "0",
+      "experiment": "0",
+      "node-tests": "0",
+      "phase3-tests": "0",
+      "technical-report": "0",
+      "test-attestation": "0",
+      "trusted-regression": "0",
+      "typecheck": "0"
+    }
+  },
+  "production_digest": "3577671495d2080cef3db985b3d30b3735750e2de894e481a6c0f52e70e24497",
+  "production_files": {
+    "packages/engine/aps/__init__.py": "7c2d0270120bd3c45de1f94474ddfca1c21266ae99fd04510bd62df8020ffe6a",
+    "packages/engine/aps/cli.py": "71c1a2474919c6d2c6d88d0da7d2b38ef25e68ce369fe5d4cbb7bce7ec8818e2",
+    "packages/engine/aps/core.py": "851bb928b7d843bce32ca9cea0dbd946574d249673d8e0ec98d9f018c5815ce6",
+    "packages/governance/aps_governance/__init__.py": "80741991fbd002ce4d2791a736b36d1978404eab78f87d0fe386c410a08c36da",
+    "packages/governance/aps_governance/acceptance.py": "f21534cbdc4b2825135c5ac007c06e91884136dd222d0aa9f09b7310fa8c6364",
+    "packages/governance/aps_governance/admin.py": "932bcf7673fd626306da7d4a6bcc8530989bf9d4f20ccc7cb184969ac907cc7b",
+    "packages/governance/aps_governance/attestation.py": "ebd8914b19fd42387f070a9dd2dfe3603d93240d89f6bc5d0dc2ea7486883142",
+    "packages/governance/aps_governance/benchmark.py": "832a894259cf5925c67668a10001eda4d21edb0eabcabdc5defe2f489ebcc3ad",
+    "packages/governance/aps_governance/cli.py": "f9d213fa4867ecfc46de9a093eefb9625acfd4ecd67f2a2291c694efe4a360c6",
+    "packages/governance/aps_governance/contracts.py": "6e50227cfbdea937e47eedbd170dcd1c8dc443b986afeb70545b54ca195a0e5b",
+    "packages/governance/aps_governance/dashboard.py": "42c9226c49ca858747c5a4676929b427bb3fe071cfe5f351a41f2b90fcd7ba34",
+    "packages/governance/aps_governance/demo.py": "8bdf641d16ba08786dd40113fb1ab1f810e26a41dfe9cbd1394418d0f02a25ed",
+    "packages/governance/aps_governance/evidence.py": "28e38696d10afbb382a92c0d0b79bc4a5eabe9054376c3a34c9b6291edaea19d",
+    "packages/governance/aps_governance/experiment.py": "b64bdd80d9535046c4920b60c938df61e0f0829d0625aeccd8a2e4935b9fa62d",
+    "packages/governance/aps_governance/gateway.py": "4f4de53375962c78254460a36cd8f13ed186d253f75eb2d45069ea862649bfd4",
+    "packages/governance/aps_governance/metrics.py": "89c1ed8c16c5f0981f764f915cff6fc33283b3b9d151f31247859134fd4155f0",
+    "packages/governance/aps_governance/observations.py": "96d1d97bc76a03b642dc58ed78e5e2f4198e44bd10ce74ccdeeb20dd77ac6a51",
+    "packages/governance/aps_governance/overhead.py": "3074d8ed2e53c89f595043d0b0748440999aa88a18af098e208da37be65faa8c",
+    "packages/governance/aps_governance/policy.py": "148179c5de94fe8e626e8ab1a53e0c7e6ce547ccc2c083c7e9e4ee01102d7cdc",
+    "packages/governance/aps_governance/regression.py": "74158c29133f5a21ac7003ab39a7998a82cf48f2bf9c457048884ccfd52eb601",
+    "packages/governance/aps_governance/report.py": "ebff0b0defcab72cbd8ce54abfd2fe143824bf6210b31ad4c39dc174d2c9f922",
+    "packages/governance/aps_governance/service.py": "89d2effa740d27fd287ad67e2f82beae0e4348abbeb76aeae4ab51bd119f572a",
+    "packages/governance/aps_governance/signing.py": "8bced19e233816312f333738bfec890b4d427704a91ccfe5585fa790e872d94a",
+    "packages/governance/aps_governance/store.py": "b086b8c5ef9a827eada9fd1522dba6213c2f1119f0a3ac41818cc0902015fc47",
+    "packages/governance/aps_governance/telemetry.py": "c3d7b991860a213390030437d5647b4c5acc030e0f959a91b8aba7a6e86e176e",
+    "packages/governance/aps_governance/traceability.py": "2e4bb55641489ec252fc2e5ba04e69ba545136f9d8c226362c0d3d0ac2d8dbf4",
+    "packages/governance/aps_governance/workloads.py": "b26f016632ef6b07629be60ff99b0aa7217a5c0e92d0e44e325302dd1cbdfce6",
+    "packages/simulator/src/simulate.test.ts": "bad1222971eaa77561e3cf15ff4dd03bef7b9585f2ad5c962c169e6162baa270",
+    "packages/simulator/src/simulate.ts": "2169755495b787e0bcdd9cfffec6eef1a361b3a5c9cb613a5c9bc65bb29fa3df",
+    "policies/v1/cases.json": "7672849a7d8380eb398850e8cc9b738ada6761e7855e9f65b4595fbbe5451712",
+    "policies/v1/config.json": "a2b10473676f9071c354eed740d9229bc9720eef7e4e01750ea866cf43448f42",
+    "policies/v1/procurement.rego": "e5964265f4606426190c9c93b58ae5717720c02e1effeb4be4c555cd5c024b94",
+    "pyproject.toml": "88c008c95e627ae0ee08241159212995cff631081565ea5c9c6975cbff7abcb8",
+    "requirements.lock": "1cc28fe1ae4252da33e0e9609ba23098d60b07612335f79c82510e6f24f4a77f",
+    "schemas/authorization-receipt.schema.json": "d262b20ac331feefb83baacadc9ab19b4809ed11102fdc49df3d79b06b267850",
+    "schemas/enforcement-latency.schema.json": "6d8b0fb3ba564d21073b63c2d3482eb003bfb07e3de983857f7990563d02404e",
+    "schemas/governance-error.schema.json": "768671e6cd1d5f1b9ce54a63e1c54ae9cec3681459455819933ecab154d99935",
+    "schemas/governance-policy.schema.json": "23a75fc4a9a3bbb2bebdfea5d539acbbbd726613d79a8dd3746dc8f47c1afc45",
+    "schemas/governance-request.schema.json": "f684f8112411082b3c47f78d0ccc144da0a7f972ab48bc8eded28ca10cf5d6d2",
+    "schemas/governance-response.schema.json": "372062063a0708a96a4299e10ca0b97cea2e52fb1b0880953b0c2c1c4a30856d",
+    "schemas/hazard.schema.json": "18ba84cf3897da5cad818d02e1a52c646826aabd9739363e9db15871df92d9df",
+    "schemas/integration-latency.schema.json": "449571855bafb73b4bd93f68f5bf7747402ede42e186429718c1fc78b29d1d7a",
+    "schemas/policy-cases.schema.json": "bfba96f6eda01caf2c35a18967629acaea78365e284024e4f77d547a0b92d8ef",
+    "schemas/policy-decision.schema.json": "85f053275ffa00726d9aeed6d7501106d9a49ca6377d3f83d42ba05e2aedf5c1",
+    "schemas/policy-input.schema.json": "2739390b8a104466bfb4c6b40f14d80dd7cf91788e6f1a7d3aec0980d9027633",
+    "schemas/policy-manifest.schema.json": "c2a57fb14cf065a0c4257917bd9c8577dba58f3ccf8741cc29624bbe2efe8820",
+    "schemas/policy-simulation.schema.json": "551eb9401dbad940ea40a09da9630a5109fb645940c0c70d50a4c3f2a10ebbd8",
+    "schemas/report.schema.json": "de5cabfad2132eda9cfabc233b4706e682551c530e12531ff0130a1966c69ddd",
+    "schemas/scenarios.schema.json": "828c958c0ef2dc1bf365006cdc0dae41a9f96ffbb4938d3b583b129c6f82c2cf",
+    "schemas/simulation.schema.json": "eb6bccb00741307a897e55f935e592574b8a5f3484d94ecf0e3b63c2fc741871",
+    "schemas/topology.schema.json": "a9c380691bc2a787757b5cc0437d013eb90f0c2a3d55d76b4209ab365e5a96cb",
+    "schemas/traceability.schema.json": "d2dd95d09155e1a48a6fa33af51d1990f636ea38da4300c80f84df3680e129a7",
+    "scripts/verify.sh": "8deb958ae8d193957017d878d8e87293c35c49b89d326506efcc87beb6eb0d15",
+    "tests/test_engine.py": "764c61f999be1cf195151f44b0d3b619d1f6ff9cf61611aa808a51c37efccc85",
+    "tests/test_governance.py": "237aa24f7f49da59d0a8d5eea5fdfa336854429af80f6ab7e62dfb11480264d7",
+    "tests/test_governance_http.py": "656db3e5a986328c134d53ff06a13dbac05b7bee4544a4386dc60b564c81d6ea",
+    "tests/test_governance_promotion.py": "d741c8709a06f2d2321e407b1aa7c8e4f4c0ebcdac20159fc006d30ff3eaf74b",
+    "tests/test_governance_properties.py": "0c0779a80d47b4f34b5b25da49ae6a5153563b146bf076be9c41efe98e411ad7",
+    "tests/test_phase3_acceptance.py": "a70177ffd058f97b8dabadc3bebb770994bbc3476256b5b8dd0bf046f60dc5f8",
+    "tests/test_phase3_attestation.py": "5d033ada81a8691405877e7d874591bbd108460dab58604dd071228bdcb290ed",
+    "tests/test_phase3_dashboard.py": "57caa1c80f9047addb0bee28ff1b583f686d939dd7a650fc72f252c54316571c",
+    "tests/test_phase3_evidence.py": "62900e1867c1d0fb1b69f3493b09dce5235195d18a9ae0d8b30ea44cb059b55d",
+    "tests/test_phase3_experiment.py": "7e1f89432921da90f5f9a118e821c00838c66bc7dbea891036ab8ad143d88d6f",
+    "tests/test_phase3_metrics.py": "02a0f68c4cfc1b67db586c14129fc477f32306bc0c5008c550e78dcf448d7825",
+    "tests/test_phase3_observations.py": "3881cf96ebf60641c3abfadeb8ac0e052a9ac41494b359d7800ebba0f488c4bb",
+    "tests/test_phase3_overhead.py": "2de3e90f39dfba6d56c3a712816aea23971475d54ff21c874e7316f726240654",
+    "tests/test_phase3_regression.py": "511b1f25445d063d82ea4eeb41d86a3aabc41199a6296e446fe474edff09c852",
+    "tests/test_phase3_report.py": "7dbe47bc42529c0d1c5dd90f9432c6905931529f058b70c6a76e755d33949ac1",
+    "tests/test_phase3_telemetry.py": "2e32b7242edec4e1ce303ba9d22353e7f5632f500e176ad8b6f2d66e2346112e",
+    "tests/test_phase3_workloads.py": "a11f7d49ac2c00b95f41f20c7cdb9c0973ab4d2778d7377d207969aded9055a2"
+  }
+}

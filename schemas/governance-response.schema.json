@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "receipt": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "2.0"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "previous_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "request_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "actor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "task_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "resource": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "action": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "policy_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "policy_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "decision": {
+          "enum": [
+            "allow",
+            "deny",
+            "review_required"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "executed": {
+          "type": "boolean"
+        },
+        "cached": {
+          "type": "boolean"
+        },
+        "result_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "issued_at": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "key_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "signature": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9+/]{86}==$"
+        }
+      },
+      "required": [
+        "schema_version",
+        "sequence",
+        "previous_hash",
+        "request_hash",
+        "actor",
+        "task_id",
+        "resource",
+        "action",
+        "policy_version",
+        "policy_digest",
+        "decision",
+        "reason",
+        "executed",
+        "cached",
+        "result_hash",
+        "issued_at",
+        "key_id",
+        "signature"
+      ],
+      "additionalProperties": false
+    },
+    "state": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "version": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "demand": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "stock": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "quantity": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "quote": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "supplier": {
+              "type": "string"
+            },
+            "authorization": {
+              "type": "string"
+            },
+            "orders": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^SIMULATED:"
+              }
+            }
+          },
+          "required": [
+            "version",
+            "demand",
+            "stock",
+            "quantity",
+            "quote",
+            "supplier",
+            "authorization",
+            "orders"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "receipt",
+    "state"
+  ],
+  "additionalProperties": false
+}

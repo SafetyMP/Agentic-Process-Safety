@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "nonce": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "actor": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "resource": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "action": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "state_version": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000000
+    },
+    "delegation_depth": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000000
+    },
+    "context_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "target": {
+          "type": "string",
+          "maxLength": 256
+        }
+      },
+      "required": [
+        "value",
+        "target"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "request_id",
+    "nonce",
+    "idempotency_key",
+    "actor",
+    "task_id",
+    "resource",
+    "action",
+    "state_version",
+    "delegation_depth",
+    "context_id",
+    "payload"
+  ],
+  "additionalProperties": false
+}

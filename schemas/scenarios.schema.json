@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1
+      },
+      "node": {
+        "type": "string",
+        "minLength": 1
+      },
+      "deviation": {
+        "type": "string",
+        "enum": [
+          "NO",
+          "MORE",
+          "LESS",
+          "REVERSE",
+          "AS_WELL_AS",
+          "OTHER_THAN",
+          "EARLY",
+          "LATE",
+          "BEFORE",
+          "AFTER",
+          "GOAL_DRIFT",
+          "AUTHORITY_ESCALATION",
+          "RECURSIVE_DELEGATION",
+          "CONTEXT_CONTAMINATION",
+          "CONFLICTING_OBJECTIVES",
+          "STATE_DIVERGENCE"
+        ]
+      },
+      "cause": {
+        "type": "string",
+        "minLength": 1
+      },
+      "consequence": {
+        "type": "string",
+        "minLength": 1
+      },
+      "control": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "id",
+      "node",
+      "deviation",
+      "cause",
+      "consequence",
+      "control"
+    ],
+    "additionalProperties": false
+  },
+  "minItems": 15
+}

@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "topology_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "hazards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "node": {
+            "type": "string",
+            "minLength": 1
+          },
+          "intent": {
+            "type": "string",
+            "minLength": 1
+          },
+          "deviation": {
+            "type": "string",
+            "enum": [
+              "NO",
+              "MORE",
+              "LESS",
+              "REVERSE",
+              "AS_WELL_AS",
+              "OTHER_THAN",
+              "EARLY",
+              "LATE",
+              "BEFORE",
+              "AFTER",
+              "GOAL_DRIFT",
+              "AUTHORITY_ESCALATION",
+              "RECURSIVE_DELEGATION",
+              "CONTEXT_CONTAMINATION",
+              "CONFLICTING_OBJECTIVES",
+              "STATE_DIVERGENCE"
+            ]
+          },
+          "causes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "consequences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "safeguards": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "candidate_controls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "assumptions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "provenance": {
+            "type": "object",
+            "properties": {
+              "generator": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_kind": {
+                "type": "string",
+                "enum": [
+                  "ai_generated"
+                ]
+              },
+              "topology_sha256": {
+                "type": "string",
+                "minLength": 1
+              },
+              "rule_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "scenario_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "generator",
+              "source_kind",
+              "topology_sha256",
+              "rule_version",
+              "scenario_id"
+            ],
+            "additionalProperties": false
+          },
+          "review_state": {
+            "type": "string",
+            "enum": [
+              "unverified",
+              "accepted",
+              "rejected",
+              "assessed",
+              "approved_requirement"
+            ]
+          },
+          "severity": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1,
+            "maximum": 5
+          },
+          "likelihood": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1,
+            "maximum": 5
+          },
+          "residual_risk": {
+            "type": "string",
+            "enum": [
+              "undecided",
+              "acceptable",
+              "unacceptable"
+            ]
+          },
+          "review_history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "actor": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "human_attested": {
+                  "const": true
+                },
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "accept",
+                    "reject",
+                    "assess",
+                    "approve_requirement"
+                  ]
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "at": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "severity": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 1,
+                  "maximum": 5
+                },
+                "likelihood": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 1,
+                  "maximum": 5
+                },
+                "residual_risk": {
+                  "type": "string",
+                  "enum": [
+                    "undecided",
+                    "acceptable",
+                    "unacceptable"
+                  ]
+                }
+              },
+              "required": [
+                "actor",
+                "human_attested",
+                "action",
+                "reason",
+                "at",
+                "severity",
+                "likelihood",
+                "residual_risk"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "id",
+          "node",
+          "intent",
+          "deviation",
+          "causes",
+          "consequences",
+          "safeguards",
+          "candidate_controls",
+          "assumptions",
+          "provenance",
+          "review_state",
+          "severity",
+          "likelihood",
+          "residual_risk",
+          "review_history"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "cascades": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hazard_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "effect": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "hazard_id",
+          "path",
+          "effect"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "topology_id",
+    "hazards",
+    "cascades",
+    "requirements"
+  ],
+  "additionalProperties": false
+}

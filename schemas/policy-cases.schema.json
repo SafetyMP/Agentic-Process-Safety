@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "minLength": 1
+      },
+      "facts": {
+        "type": "object",
+        "properties": {
+          "actor": {
+            "type": "string",
+            "minLength": 1
+          },
+          "action": {
+            "type": "string",
+            "minLength": 1
+          },
+          "approver": {
+            "type": "string",
+            "minLength": 1
+          },
+          "identity_ok": {
+            "type": "boolean"
+          },
+          "context_ok": {
+            "type": "boolean"
+          },
+          "capability_ok": {
+            "type": "boolean"
+          },
+          "state_ok": {
+            "type": "boolean"
+          },
+          "stage_ok": {
+            "type": "boolean"
+          },
+          "payload_ok": {
+            "type": "boolean"
+          },
+          "approval_ok": {
+            "type": "boolean"
+          },
+          "human_ok": {
+            "type": "boolean"
+          },
+          "depth": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000
+          },
+          "spent": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000
+          },
+          "budget": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000000
+          }
+        },
+        "required": [
+          "actor",
+          "action",
+          "approver",
+          "identity_ok",
+          "context_ok",
+          "capability_ok",
+          "state_ok",
+          "stage_ok",
+          "payload_ok",
+          "approval_ok",
+          "human_ok",
+          "depth",
+          "amount",
+          "spent",
+          "budget"
+        ],
+        "additionalProperties": false
+      },
+      "expected": {
+        "enum": [
+          "allow",
+          "deny",
+          "review_required"
+        ]
+      }
+    },
+    "required": [
+      "id",
+      "facts",
+      "expected"
+    ],
+    "additionalProperties": false
+  },
+  "minItems": 1
+}

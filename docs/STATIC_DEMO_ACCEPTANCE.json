@@ -1,0 +1,186 @@
+{
+  "schema_version": "aps-static-demo-acceptance-1",
+  "status": "incomplete",
+  "authority": "Worker evidence only; no independent human review or current controller receipt",
+  "production_digest": "3577671495d2080cef3db985b3d30b3735750e2de894e481a6c0f52e70e24497",
+  "runtime_backend_required": false,
+  "requirements": [
+    {
+      "requirement": "70 immutable production files and original scripts",
+      "check": "npm run demo:production:check",
+      "evidence": ".harness/demo-production-step15.log",
+      "status": "passed"
+    },
+    {
+      "requirement": "Original backend regression",
+      "check": "bash scripts/verify.sh",
+      "evidence": "Coordinator reports original baseline verified; not rerun in this unit",
+      "status": "prior_report_only"
+    },
+    {
+      "requirement": "Committed sanitized provenance snapshots",
+      "check": "npm run demo:fixtures:check",
+      "evidence": "9 snapshot hashes; foreign keys and aggregates; .harness/demo-fixtures-step15.log",
+      "status": "passed"
+    },
+    {
+      "requirement": "Source-backed finite risk scenario coverage",
+      "check": "Fixture workload case/digest/arm matching and component test",
+      "evidence": "workload.json: 9 research fault families + benign, 30 matched records; Coverage.tsx",
+      "status": "passed"
+    },
+    {
+      "requirement": "Exact nine browser stories across three modes",
+      "check": "npm run demo:test",
+      "evidence": "27 simulation and 27 trace cases plus component mode/story branches; .harness/demo-test-step15.log",
+      "status": "passed"
+    },
+    {
+      "requirement": "Unified ordered decision and trace evaluator",
+      "check": "npm run demo:test",
+      "evidence": "simulation.ts; review terminal status and short circuit checks",
+      "status": "passed"
+    },
+    {
+      "requirement": "Boundary decisions",
+      "check": "npm run demo:test",
+      "evidence": "59/60 expiry, 500/501 spend, 3/4 depth; simulation.test.ts",
+      "status": "passed"
+    },
+    {
+      "requirement": "Determinism, pause, reset, bounds and review branching",
+      "check": "npm run demo:test",
+      "evidence": "106 total tests pass; .harness/demo-test-step15.log",
+      "status": "passed"
+    },
+    {
+      "requirement": "Five interactive views and shared walkthrough state",
+      "check": "Component tests and pending browser assertions",
+      "evidence": "views.test.tsx; scripts/e2e.mjs",
+      "status": "component_pass_browser_pending"
+    },
+    {
+      "requirement": "Explicit absent test mappings",
+      "check": "Component test rejects ::none selector",
+      "evidence": "TestEvidence.tsx; views.test.tsx",
+      "status": "passed"
+    },
+    {
+      "requirement": "Recorded/prevented counts and evidence separation",
+      "check": "Fixtures and component tests",
+      "evidence": "A10/10 B6/9 C0/8 unsafe; prevented 0/10,3/9,8/8; Coverage.tsx",
+      "status": "passed"
+    },
+    {
+      "requirement": "Lint",
+      "check": "npm run demo:lint",
+      "evidence": ".harness/demo-lint-step15.log",
+      "status": "passed"
+    },
+    {
+      "requirement": "App and root TypeScript semantics",
+      "check": "npm run demo:typecheck; npm run typecheck",
+      "evidence": ".harness/demo-types-step15.log (both app and root)",
+      "status": "passed"
+    },
+    {
+      "requirement": "Production subpath build",
+      "check": "npm run demo:build",
+      "evidence": ".harness/demo-build-step15.log",
+      "status": "passed"
+    },
+    {
+      "requirement": "Static/no-backend asset contract",
+      "check": "npm run demo:static:check",
+      "evidence": "7 files, 970570 bytes; .harness/demo-static-step15.log",
+      "status": "passed"
+    },
+    {
+      "requirement": "Real browser controls, refresh and network contract",
+      "check": "npm run demo:e2e",
+      "evidence": ".harness/demo-e2e-step15.log: explicit macOS Firefox, executable absent; no page created. No further downloads or diagnosis.",
+      "status": "blocked"
+    },
+    {
+      "requirement": "Five section screenshots and responsive theme examples",
+      "check": "Actual Playwright screenshots and visual inspection",
+      "evidence": "docs/screenshots has no captured screenshots",
+      "status": "pending"
+    },
+    {
+      "requirement": "Responsive, keyboard and contrast QA",
+      "check": "Real browser and manual visual inspection",
+      "evidence": "Assertions prepared; no accessibility conformance claimed",
+      "status": "pending"
+    },
+    {
+      "requirement": "Least-privilege official Pages workflow",
+      "check": "Review trigger, job dependencies, permissions and official repository tags",
+      "evidence": ".github/workflows/deploy-pages.yml; configure-pages now in pages:write deploy job; build explicitly gates on Chromium; prior official tag SHAs verified via git ls-remote",
+      "status": "prepared_not_executed"
+    },
+    {
+      "requirement": "README architecture, methodology, maintenance and truthful limitations",
+      "check": "Documentation review",
+      "evidence": "README.md; STATIC_DEMO_ACCEPTANCE.md",
+      "status": "prepared"
+    },
+    {
+      "requirement": "Authenticated publication and actual live verification",
+      "check": "gh auth status; remote inspection",
+      "evidence": ".harness/demo-auth-step15.log: no authenticated hosts; no remote configured",
+      "status": "blocked"
+    },
+    {
+      "requirement": "Malformed hazard/node deep links and empty-filter recovery",
+      "check": "demo:test and unchanged e2e runner plus added malformed-link refresh assertion",
+      "evidence": "views.test.tsx regression passed; browser assertion pending",
+      "status": "component_pass_browser_pending"
+    },
+    {
+      "requirement": "Source-bound Linux CI QA retention",
+      "check": "qa-evidence.mjs and pinned official upload-artifact step",
+      "evidence": "docs/STATIC_DEMO_CI_HANDOFF.md; .harness/ci-qa/identity.json locally generated with null commit; no CI run",
+      "status": "prepared_not_executed"
+    }
+  ],
+  "deployment": {
+    "attempted": false,
+    "status": "prepared_workflow_not_deployed",
+    "auth": "Step 15 read-only recheck: no logged-in GitHub hosts, no remote, unborn main; no identity available",
+    "target": "https://safetymp.github.io/agentic-process-safety/",
+    "workflow": ".github/workflows/deploy-pages.yml",
+    "steps": [
+      "Authenticate and verify identity and repository write permission",
+      "Inspect target history and reconcile safely without force push",
+      "Selectively stage reviewed public source and docs without local secrets or scratch",
+      "Enable Settings Pages GitHub Actions",
+      "Push reconciled main or manually dispatch validated workflow",
+      "Verify actual successful deployment URL, hash refresh and static network behavior"
+    ],
+    "handoff": "docs/STATIC_DEMO_CI_HANDOFF.md"
+  },
+  "evidence_categories": [
+    "Recorded experimental results",
+    "Replayed test evidence",
+    "Illustrative browser simulation"
+  ],
+  "gaps": [
+    "Browser assertions and screenshots have not executed successfully",
+    "Authorized Firefox 1555 installation failed after bounded official CDN attempts: inactivity timeouts and ENOTFOUND; no Firefox version executed",
+    "Independent verifier Chromium ICU/GPU failure remains unresolved; local resources exist, installation damage is not proved",
+    "Worker Chromium MachPort denial is a separate execution-environment failure",
+    "No independent visual/accessibility review",
+    "No GitHub authentication or live deployment proof",
+    "All hazards unverified and requirements proposed",
+    "Production objective arbitration absent; goal-conflict budget test is narrower",
+    "Local key/receipt trust does not establish external identity",
+    "Finite oracle experiments do not establish real-world effectiveness",
+    "Four OPA-only paired timings do not establish whole-stack overhead"
+  ],
+  "contract_proposal": {
+    "status": "unapproved_no_contract_change",
+    "document": "docs/STATIC_DEMO_CI_HANDOFF.md",
+    "local_acceptance": "demo:e2e still fails; existing evidence preserved"
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "clock": {
+      "type": "string",
+      "minLength": 1
+    },
+    "python": {
+      "type": "string",
+      "minLength": 1
+    },
+    "platform": {
+      "type": "string",
+      "minLength": 1
+    },
+    "opa": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope": {
+      "type": "string",
+      "minLength": 1
+    },
+    "warmup": {
+      "type": "string",
+      "minLength": 1
+    },
+    "results": {
+      "type": "object",
+      "properties": {
+        "allow_idempotent": {
+          "type": "object",
+          "properties": {
+            "samples": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "p50_ms": {
+              "type": "number",
+              "minimum": 0
+            },
+            "p95_ms": {
+              "type": "number",
+              "minimum": 0
+            },
+            "p99_ms": {
+              "type": "number",
+              "minimum": 0
+            },
+            "min_ms": {
+              "type": "number",
+              "minimum": 0
+            },
+            "max_ms": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "samples",
+            "p50_ms",
+            "p95_ms",
+            "p99_ms",
+            "min_ms",
+            "max_ms"
+          ],
+          "additionalProperties": false
+        },
+        "deny_policy": {
+          "type": "object",
+          "properties": {
+            "samples": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "p50_ms": {
+              "type": "number",
+              "minimum": 0
+            },
+            "p95_ms": {
+              "type": "number",
+              "minimum": 0
+            },
+            "p99_ms": {
+              "type": "number",
+              "minimum": 0
+            },
+            "min_ms": {
+              "type": "number",
+              "minimum": 0
+            },
+            "max_ms": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "samples",
+            "p50_ms",
+            "p95_ms",
+            "p99_ms",
+            "min_ms",
+            "max_ms"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "allow_idempotent",
+        "deny_policy"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "clock",
+    "python",
+    "platform",
+    "opa",
+    "scope",
+    "warmup",
+    "results"
+  ],
+  "additionalProperties": false
+}

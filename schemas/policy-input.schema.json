@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "actor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "action": {
+      "type": "string",
+      "minLength": 1
+    },
+    "approver": {
+      "type": "string"
+    },
+    "identity_ok": {
+      "type": "boolean"
+    },
+    "context_ok": {
+      "type": "boolean"
+    },
+    "capability_ok": {
+      "type": "boolean"
+    },
+    "state_ok": {
+      "type": "boolean"
+    },
+    "stage_ok": {
+      "type": "boolean"
+    },
+    "payload_ok": {
+      "type": "boolean"
+    },
+    "approval_ok": {
+      "type": "boolean"
+    },
+    "human_ok": {
+      "type": "boolean"
+    },
+    "depth": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000000
+    },
+    "amount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000000
+    },
+    "spent": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000000
+    },
+    "budget": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000000
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "max_depth": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "spend_cap": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "human_threshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "approval_ttl": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 300
+        },
+        "review_timeout": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 300
+        },
+        "allowlists": {
+          "type": "object",
+          "properties": {
+            "orchestrator": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            },
+            "demand": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            },
+            "inventory": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            },
+            "supplier": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            },
+            "finance": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            },
+            "purchase": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            }
+          },
+          "required": [
+            "orchestrator",
+            "demand",
+            "inventory",
+            "supplier",
+            "finance",
+            "purchase"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "version",
+        "max_depth",
+        "spend_cap",
+        "human_threshold",
+        "approval_ttl",
+        "review_timeout",
+        "allowlists"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "actor",
+    "action",
+    "approver",
+    "identity_ok",
+    "context_ok",
+    "capability_ok",
+    "state_ok",
+    "stage_ok",
+    "payload_ok",
+    "approval_ok",
+    "human_ok",
+    "depth",
+    "amount",
+    "spent",
+    "budget",
+    "config"
+  ],
+  "additionalProperties": false
+}

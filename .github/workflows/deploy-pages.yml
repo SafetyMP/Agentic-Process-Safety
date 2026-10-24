@@ -1,0 +1,67 @@
+name: Validate and deploy static APS demo
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run demo:production:check
+      - run: npm run demo:fixtures:check
+      # Audits available originals and explicitly reports absent ignored sources.
+      - run: npm run demo:fixtures:audit
+      - run: npm run demo:lint
+      - run: npm run demo:typecheck && npm run typecheck
+      - run: npm run demo:test
+      - run: npm run demo:build
+      - run: npm run demo:static:check
+      - name: Bind QA to source, workflow, run and built content
+        run: node apps/aps-demo/scripts/qa-evidence.mjs
+      - name: Install pinned Playwright browser locally
+        run: mkdir -p .harness/tmp && npx playwright install --with-deps chromium --only-shell
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: .harness/playwright
+          TMPDIR: ${{ github.workspace }}/.harness/tmp
+      - run: npm run demo:e2e
+        env:
+          APS_BROWSER: chromium
+      - name: Retain source-bound browser evidence (including failed runs)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: aps-browser-qa-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            .harness/ci-qa/*.json
+            docs/screenshots/*.jpg
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: apps/aps-demo/dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+      - name: Deploy validated artifact
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

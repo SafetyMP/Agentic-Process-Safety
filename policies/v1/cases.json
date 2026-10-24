@@ -1,0 +1,296 @@
+[
+  {
+    "id": "allow-normal",
+    "facts": {
+      "actor": "purchase",
+      "action": "purchase_mock",
+      "approver": "finance",
+      "identity_ok": true,
+      "context_ok": true,
+      "capability_ok": true,
+      "state_ok": true,
+      "stage_ok": true,
+      "payload_ok": true,
+      "approval_ok": true,
+      "human_ok": false,
+      "depth": 1,
+      "amount": 400,
+      "spent": 0,
+      "budget": 1000
+    },
+    "expected": "allow"
+  },
+  {
+    "id": "deny-identity_ok",
+    "facts": {
+      "actor": "purchase",
+      "action": "purchase_mock",
+      "approver": "finance",
+      "identity_ok": false,
+      "context_ok": true,
+      "capability_ok": true,
+      "state_ok": true,
+      "stage_ok": true,
+      "payload_ok": true,
+      "approval_ok": true,
+      "human_ok": false,
+      "depth": 1,
+      "amount": 400,
+      "spent": 0,
+      "budget": 1000
+    },
+    "expected": "deny"
+  },
+  {
+    "id": "deny-context_ok",
+    "facts": {
+      "actor": "purchase",
+      "action": "purchase_mock",
+      "approver": "finance",
+      "identity_ok": true,
+      "context_ok": false,
+      "capability_ok": true,
+      "state_ok": true,
+      "stage_ok": true,
+      "payload_ok": true,
+      "approval_ok": true,
+      "human_ok": false,
+      "depth": 1,
+      "amount": 400,
+      "spent": 0,
+      "budget": 1000
+    },
+    "expected": "deny"
+  },
+  {
+    "id": "deny-capability_ok",
+    "facts": {
+      "actor": "purchase",
+      "action": "purchase_mock",
+      "approver": "finance",
+      "identity_ok": true,
+      "context_ok": true,
+      "capability_ok": false,
+      "state_ok": true,
+      "stage_ok": true,
+      "payload_ok": true,
+      "approval_ok": true,
+      "human_ok": false,
+      "depth": 1,
+      "amount": 400,
+      "spent": 0,
+      "budget": 1000
+    },
+    "expected": "deny"
+  },
+  {
+    "id": "deny-state_ok",
+    "facts": {
+      "actor": "purchase",
+      "action": "purchase_mock",
+      "approver": "finance",
+      "identity_ok": true,
+      "context_ok": true,
+      "capability_ok": true,
+      "state_ok": false,
+      "stage_ok": true,
+      "payload_ok": true,
+      "approval_ok": true,
+      "human_ok": false,
+      "depth": 1,
+      "amount": 400,
+      "spent": 0,
+      "budget": 1000
+    },
+    "expected": "deny"
+  },
+  {
+    "id": "deny-stage_ok",
+    "facts": {
+      "actor": "purchase",
+      "action": "purchase_mock",
+      "approver": "finance",
+      "identity_ok": true,
+      "context_ok": true,
+      "capability_ok": true,
+      "state_ok": true,
+      "stage_ok": false,
+      "payload_ok": true,
+      "approval_ok": true,
+      "human_ok": false,
+      "depth": 1,
+      "amount": 400,
+      "spent": 0,
+      "budget": 1000
+    },
+    "expected": "deny"
+  },
+  {
+    "id": "deny-payload_ok",
+    "facts": {
+      "actor": "purchase",
+      "action": "purchase_mock",
+      "approver": "finance",
+      "identity_ok": true,
+      "context_ok": true,
+      "capability_ok": true,
+      "state_ok": true,
+      "stage_ok": true,
+      "payload_ok": false,
+      "approval_ok": true,
+      "human_ok": false,
+      "depth": 1,
+      "amount": 400,
+      "spent": 0,
+      "budget": 1000
+    },
+    "expected": "deny"
+  },
+  {
+    "id": "deny-approval_ok",
+    "facts": {
+      "actor": "purchase",
+      "action": "purchase_mock",
+      "approver": "finance",
+      "identity_ok": true,
+      "context_ok": true,
+      "capability_ok": true,
+      "state_ok": true,
+      "stage_ok": true,
+      "payload_ok": true,
+      "approval_ok": false,
+      "human_ok": false,
+      "depth": 1,
+      "amount": 400,
+      "spent": 0,
+      "budget": 1000
+    },
+    "expected": "deny"
+  },
+  {
+    "id": "deny-depth",
+    "facts": {
+      "actor": "purchase",
+      "action": "purchase_mock",
+      "approver": "finance",
+      "identity_ok": true,
+      "context_ok": true,
+      "capability_ok": true,
+      "state_ok": true,
+      "stage_ok": true,
+      "payload_ok": true,
+      "approval_ok": true,
+      "human_ok": false,
+      "depth": 4,
+      "amount": 400,
+      "spent": 0,
+      "budget": 1000
+    },
+    "expected": "deny"
+  },
+  {
+    "id": "deny-amount",
+    "facts": {
+      "actor": "purchase",
+      "action": "purchase_mock",
+      "approver": "finance",
+      "identity_ok": true,
+      "context_ok": true,
+      "capability_ok": true,
+      "state_ok": true,
+      "stage_ok": true,
+      "payload_ok": true,
+      "approval_ok": true,
+      "human_ok": false,
+      "depth": 1,
+      "amount": 1001,
+      "spent": 0,
+      "budget": 1000
+    },
+    "expected": "deny"
+  },
+  {
+    "id": "deny-approver",
+    "facts": {
+      "actor": "purchase",
+      "action": "purchase_mock",
+      "approver": "purchase",
+      "identity_ok": true,
+      "context_ok": true,
+      "capability_ok": true,
+      "state_ok": true,
+      "stage_ok": true,
+      "payload_ok": true,
+      "approval_ok": true,
+      "human_ok": false,
+      "depth": 1,
+      "amount": 400,
+      "spent": 0,
+      "budget": 1000
+    },
+    "expected": "deny"
+  },
+  {
+    "id": "deny-action",
+    "facts": {
+      "actor": "purchase",
+      "action": "policy_admin",
+      "approver": "finance",
+      "identity_ok": true,
+      "context_ok": true,
+      "capability_ok": true,
+      "state_ok": true,
+      "stage_ok": true,
+      "payload_ok": true,
+      "approval_ok": true,
+      "human_ok": false,
+      "depth": 1,
+      "amount": 400,
+      "spent": 0,
+      "budget": 1000
+    },
+    "expected": "deny"
+  },
+  {
+    "id": "review-above-threshold",
+    "facts": {
+      "actor": "purchase",
+      "action": "purchase_mock",
+      "approver": "finance",
+      "identity_ok": true,
+      "context_ok": true,
+      "capability_ok": true,
+      "state_ok": true,
+      "stage_ok": true,
+      "payload_ok": true,
+      "approval_ok": true,
+      "human_ok": false,
+      "depth": 1,
+      "amount": 501,
+      "spent": 0,
+      "budget": 1000
+    },
+    "expected": "review_required"
+  },
+  {
+    "id": "allow-human-reviewed",
+    "facts": {
+      "actor": "purchase",
+      "action": "purchase_mock",
+      "approver": "finance",
+      "identity_ok": true,
+      "context_ok": true,
+      "capability_ok": true,
+      "state_ok": true,
+      "stage_ok": true,
+      "payload_ok": true,
+      "approval_ok": true,
+      "human_ok": true,
+      "depth": 1,
+      "amount": 501,
+      "spent": 0,
+      "budget": 1000
+    },
+    "expected": "allow"
+  }
+]

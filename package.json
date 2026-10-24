@@ -1,0 +1,33 @@
+{
+  "name": "aps-phase-one",
+  "private": true,
+  "type": "module",
+  "workspaces": ["apps/aps-demo"],
+  "scripts": {
+    "demo:dev": "npm run dev --workspace apps/aps-demo",
+    "demo:build": "npm run build --workspace apps/aps-demo",
+    "demo:preview": "npm run preview --workspace apps/aps-demo",
+    "demo:e2e": "node apps/aps-demo/scripts/e2e.mjs",
+    "demo:static:check": "node apps/aps-demo/scripts/static.mjs",
+    "demo:test:views": "npm run test:views --workspace apps/aps-demo",
+    "demo:lint": "npm run lint --workspace apps/aps-demo",
+    "demo:typecheck": "npm run typecheck --workspace apps/aps-demo",
+    "demo:test": "npm run test --workspace apps/aps-demo",
+    "demo:test:simulation": "npm run test:simulation --workspace apps/aps-demo",
+    "demo:fixtures:check": "node apps/aps-demo/scripts/fixtures.mjs",
+    "demo:fixtures:audit": "node apps/aps-demo/scripts/fixtures.mjs --audit-local",
+    "demo:production:check": "node apps/aps-demo/scripts/production.mjs",
+    "demo": "node --experimental-strip-types packages/simulator/src/simulate.ts",
+    "test": "node --experimental-strip-types --test packages/simulator/src/simulate.test.ts",
+    "typecheck": "tsc --noEmit",
+    "governance:demo": "PYTHONPATH=packages/engine:packages/governance .venv/bin/python -m aps_governance.demo --audit-dir artifacts/phase2",
+    "governance:simulate": "PYTHONPATH=packages/engine:packages/governance .venv/bin/python -m aps_governance.cli simulate-policy --bundle policies/v1 --cases policies/v1/cases.json --out artifacts/phase2/policy-simulation.json"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}

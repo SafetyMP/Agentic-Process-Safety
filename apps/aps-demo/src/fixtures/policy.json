@@ -1,0 +1,1 @@
+{"version":"procurement-v1","max_depth":3,"spend_cap":1000,"human_threshold":500,"approval_ttl":60,"review_timeout":120,"allowlists":{"demand":["demand_mock"],"inventory":["inventory_mock"],"supplier":["supplier_mock"],"finance":["finance_mock"],"purchase":["purchase_mock"],"orchestrator":["delegate_mock"]}}
