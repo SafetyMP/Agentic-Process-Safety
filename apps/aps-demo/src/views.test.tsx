@@ -10,6 +10,26 @@ import { stories, type Mode } from './domain/scenarios.ts';
 import { initialState, reducer } from './domain/simulation.ts';
 import { scopeHazard } from './data.ts';
 import { TestEvidence } from './components/TestEvidence.tsx';
+import { readFileSync } from 'node:fs';
+import { runInNewContext } from 'node:vm';
+import { createRequire } from 'node:module';
+import { dirname, join } from 'node:path';
+
+// Exercise the installed Playwright engine's label text and exact matcher, rather
+// than Testing Library's different handling of text inside nested selects.
+const require = createRequire(join(process.cwd(), 'package.json'));
+const bundle = readFileSync(join(dirname(require.resolve('playwright-core')), 'lib/coreBundle.js'), 'utf8');
+const injectedLiteral = bundle.split('\n').find(line => line.startsWith('    source5 = '))!;
+const injectedSource = runInNewContext(injectedLiteral.trim().slice('source5 = '.length, -1)) as string;
+const exactLabels = new Function('module', 'CSS', injectedSource + `
+  return (root, text) => Array.from(root.querySelectorAll('select')).filter(element =>
+    getElementLabels(new Map(), element).some(createTextMatcher(JSON.stringify(text) + 's', true).matcher));
+`)({ exports: {} }, { escape: (id: string) => {
+  // jsdom lacks CSS.escape. These fixed IDs require no escaping; reject any
+  // other syntax rather than substituting an approximate selector engine.
+  if (!/^[a-z][a-z-]*$/.test(id)) throw new Error('CSS.escape required for this ID');
+  return id;
+} }) as (root: Document, text: string) => HTMLSelectElement[];
 
 beforeAll(() => {
   Object.defineProperty(window, 'matchMedia', { writable: true, value: vi.fn().mockImplementation(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })) });
@@ -21,6 +41,20 @@ beforeAll(() => {
 afterEach(() => { cleanup(); window.location.hash = ''; vi.useRealTimers(); });
 
 describe('evidence-bound interactive views', () => {
+  it('keeps exact Playwright labels usable after malformed-route reload and filter changes', () => {
+    window.location.hash = '#/hazop?hazard=unknown&node=invalid';
+    const view = render(<App/>);
+    view.unmount(); // Fresh mount models reload; actual browser reload remains in unchanged CI.
+    render(<App/>);
+    const nodes = exactLabels(document, 'Agent node');
+    expect(nodes).toHaveLength(1);
+    expect(nodes[0].value).toBe('all');
+    fireEvent.change(nodes[0], { target: { value: 'supplier' } });
+    expect(screen.getByText('16 / 96 findings')).toBeTruthy();
+    expect(exactLabels(document, 'Agent node')[0].value).toBe('supplier');
+    expect(exactLabels(document, 'Guideword / deviation')).toHaveLength(1);
+    expect(exactLabels(document, 'Sort findings')).toHaveLength(1);
+  });
   it('recovers malformed links and keeps empty filters safe', () => {
     render(<Hazop params={new URLSearchParams('hazard=unknown&node=invalid')}/>);
     expect(screen.getByText('96 / 96 findings')).toBeTruthy();
