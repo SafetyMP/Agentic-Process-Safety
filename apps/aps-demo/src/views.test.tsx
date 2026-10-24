@@ -55,6 +55,20 @@ describe('evidence-bound interactive views', () => {
     expect(exactLabels(document, 'Guideword / deviation')).toHaveLength(1);
     expect(exactLabels(document, 'Sort findings')).toHaveLength(1);
   });
+  it("keeps exact Playwright model labels usable across scenario and mode changes", () => {
+    window.location.hash = "#/governance";
+    render(<App/>);
+    for (const story of stories) {
+      const controls = exactLabels(document, "Scenario");
+      expect(controls).toHaveLength(1);
+      fireEvent.change(controls[0], { target: { value: story.id } });
+      expect(exactLabels(document, "Scenario")[0].value).toBe(story.id);
+      const modes = exactLabels(document, "Governance mode");
+      expect(modes).toHaveLength(1);
+      fireEvent.change(modes[0], { target: { value: "C" } });
+      expect(exactLabels(document, "Governance mode")[0].value).toBe("C");
+    }
+  });
   it('recovers malformed links and keeps empty filters safe', () => {
     render(<Hazop params={new URLSearchParams('hazard=unknown&node=invalid')}/>);
     expect(screen.getByText('96 / 96 findings')).toBeTruthy();

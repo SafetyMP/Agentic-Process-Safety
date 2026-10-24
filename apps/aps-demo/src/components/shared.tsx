@@ -13,9 +13,9 @@ export function Stat({ label, value, note }: { label: string; value: ReactNode; 
   return <article className="stat"><span>{label}</span><strong>{value}</strong><small>{note}</small></article>;
 }
 export function ModelControls({ state, dispatch }: { state: State; dispatch: (a: Action) => void }) {
-  return <div className="control-grid"><label>Scenario<select value={state.story} onChange={e => dispatch({ type: 'configure', story: e.target.value as StoryId })}>{stories.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}</select></label>
-    <label>Governance mode<select value={state.mode} onChange={e => dispatch({ type: 'configure', mode: e.target.value as Mode })}>{Object.entries(modes).map(([id, name]) => <option key={id} value={id}>{id} · {name}</option>)}</select></label>
-    <label>Deterministic seed<input type="number" min="0" max="2147483647" value={state.seed} onChange={e => dispatch({ type: 'configure', seed: e.target.value })} /></label></div>;
+  return <div className="control-grid"><label><span id="model-scenario">Scenario</span><select aria-labelledby="model-scenario" value={state.story} onChange={e => dispatch({ type: 'configure', story: e.target.value as StoryId })}>{stories.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}</select></label>
+    <label><span id="model-mode">Governance mode</span><select aria-labelledby="model-mode" value={state.mode} onChange={e => dispatch({ type: 'configure', mode: e.target.value as Mode })}>{Object.entries(modes).map(([id, name]) => <option key={id} value={id}>{id} · {name}</option>)}</select></label>
+    <label><span id="model-seed">Deterministic seed</span><input aria-labelledby="model-seed" type="number" min="0" max="2147483647" value={state.seed} onChange={e => dispatch({ type: 'configure', seed: e.target.value })} /></label></div>;
 }
 export function Review({ state, dispatch }: { state: State; dispatch: (a: Action) => void }) {
   return state.pending ? <div className="notice"><strong>Review required · SIMULATED</strong><p>This choice records a browser outcome. It issues no production authorization.</p><div className="button-row"><button onClick={() => dispatch({ type: 'resolve', approved: true })}>Approve simulated request</button><button onClick={() => dispatch({ type: 'resolve', approved: false })}>Deny simulated request</button></div></div> : null;
