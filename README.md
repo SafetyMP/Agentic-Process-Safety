@@ -1,5 +1,7 @@
 # Agentic Process Safety — Phases 1, 2 and 3
 
+Research sandbox; hazards remain unverified and human approvals pending. See [Contributing](CONTRIBUTING.md), [Code of conduct](CODE_OF_CONDUCT.md), [Security](SECURITY.md) and [Support](SUPPORT.md). Project-owned material is offered under [Apache-2.0](LICENSE), subject to preserved third-party terms and the pending source-data/rights review in the [readiness audit](docs/open-source-readiness.md). No remote settings, release rights or industrial suitability are certified.
+
 The static demonstration targets [safetymp.github.io/Agentic-Process-Safety](https://safetymp.github.io/Agentic-Process-Safety/). **Deployment has not been verified.** The isolated React/TypeScript app in `apps/aps-demo` runs entirely in the visitor's browser: no account, API key, paid inference, backend, telemetry or installation is required. The original Python/OPA research implementation remains separate.
 
 ## Static demonstration
@@ -124,3 +126,7 @@ HAZARD_ID=APS_REPLACE_WITH_ACTUAL_ID
 ```
 
 AI-generated findings remain marked as such even after review. Approval requires acceptance, a human assessment and acceptable residual risk. Local attestations do not authenticate a human or protect against fabricated files. This is a Phase 1/2/3 sandbox prototype; it makes no safety certification claim. Human risk acceptance and production decisions remain mandatory and unapproved.
+
+### Readiness revision evidence limit
+
+This PR adds community documentation and npm license metadata. The retained Linux browser evidence is bound to the earlier source manifest; metadata changes make it stale. No current browser acceptance, CI success, deployment or human approval is claimed. See the [readiness audit](docs/open-source-readiness.md) for validation and owner gates.

@@ -1,0 +1,19 @@
+name: Bug report
+description: Report a reproducible sandbox defect without sensitive data.
+body:
+  - type: markdown
+    attributes:
+      value: "For vulnerabilities follow SECURITY.md. Never post secrets, operational data or blind reference answers."
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Synthetic reproduction and environment
+      description: Include revision, OS, runtime versions and exact commands.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
