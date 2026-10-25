@@ -43,6 +43,66 @@ jobs:
       - run: npm run demo:test
       - run: npm run demo:build
       - run: npm run demo:static:check
+      # These steps observe only the reviewed same-repository release PR. They cannot deploy.
+      - name: Bind predeployment QA to built source
+        if: &release-pr >-
+          github.event_name == 'pull_request' && github.repository_id == '1430231911' &&
+          github.event.pull_request.base.ref == 'main' &&
+          github.event.pull_request.base.repo.full_name == github.repository &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event.pull_request.head.ref == 'release/aps-github-validation-v1'
+        run: node apps/aps-demo/scripts/qa-evidence.mjs
+      - name: Record actual PR checkout and workflow identities
+        id: validation
+        if: *release-pr
+        run: node apps/aps-demo/scripts/validation-evidence.mjs prepare
+      - name: Install pinned Chromium shell for release PR
+        if: *release-pr
+        run: mkdir -p .harness/tmp && npx playwright install --with-deps chromium --only-shell
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: .harness/playwright
+          TMPDIR: ${{ github.workspace }}/.harness/tmp
+      - name: Test predeployment and postdeployment rejection cases
+        if: *release-pr
+        run: node --test scripts/verify-linux-predeploy-evidence.test.mjs scripts/verify-linux-ci-evidence.test.mjs
+      - name: Validate built release PR in Chromium
+        if: *release-pr
+        run: npm run demo:e2e
+        env:
+          APS_BROWSER: chromium
+      - name: Finalize predeployment observations even after failure
+        if: >-
+          always() && github.event_name == 'pull_request' && github.repository_id == '1430231911' &&
+          github.event.pull_request.base.ref == 'main' &&
+          github.event.pull_request.base.repo.full_name == github.repository &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event.pull_request.head.ref == 'release/aps-github-validation-v1'
+        run: node apps/aps-demo/scripts/validation-evidence.mjs finalize
+      - name: Retain predeployment evidence including failed runs
+        if: >-
+          always() && github.event_name == 'pull_request' && github.repository_id == '1430231911' &&
+          github.event.pull_request.base.ref == 'main' &&
+          github.event.pull_request.base.repo.full_name == github.repository &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event.pull_request.head.ref == 'release/aps-github-validation-v1'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2; ordinary artifact only
+        with:
+          name: aps-predeploy-${{ steps.validation.outputs.checkout_sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .harness/ci-qa/identity.json
+            .harness/ci-qa/browser-result.json
+            .harness/ci-qa/validation.json
+            docs/screenshots/overview.jpg
+            docs/screenshots/hazop.jpg
+            docs/screenshots/governance.jpg
+            docs/screenshots/simulator.jpg
+            docs/screenshots/assurance.jpg
+            docs/screenshots/mobile-light.jpg
+            docs/screenshots/mobile-dark.jpg
+            apps/aps-demo/dist/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
   python:
     name: Python engine
     runs-on: ubuntu-24.04
