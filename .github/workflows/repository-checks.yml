@@ -27,6 +27,13 @@ jobs:
       # The root simulator tests invoke the Python governance gateway.
       - run: python3 -m venv .venv
       - run: .venv/bin/pip install -r requirements.lock
+      - name: Install pinned OPA for simulator gateway tests
+        run: |
+          mkdir -p .harness/ci-bin
+          curl --fail --silent --show-error --location https://github.com/open-policy-agent/opa/releases/download/v1.21.4/opa_linux_amd64_static --output .harness/ci-bin/opa
+          echo '2ab571f367f293bb19523b76f92f1945bbf245003392c7f392903f95c2b9b630  .harness/ci-bin/opa' | sha256sum --check
+          chmod +x .harness/ci-bin/opa
+          echo "$GITHUB_WORKSPACE/.harness/ci-bin" >> "$GITHUB_PATH"
       - run: npm test
       - run: npm run typecheck
       - run: npm run demo:fixtures:check

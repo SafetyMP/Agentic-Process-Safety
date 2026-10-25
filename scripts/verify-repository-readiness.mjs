@@ -41,6 +41,8 @@ export function verify(root) {
   const pythonInstall = workflow.indexOf('- run: .venv/bin/pip install -r requirements.lock');
   const pythonVenv = workflow.indexOf('- run: python3 -m venv .venv');
   if (pythonVenv < 0 || pythonInstall < pythonVenv || simulatorTest < pythonInstall) errors.push('Missing Python gateway prerequisites before simulator tests');
+  const opaInstall = workflow.indexOf('https://github.com/open-policy-agent/opa/releases/download/v1.21.4/opa_linux_amd64_static');
+  if (opaInstall < 0 || opaInstall > simulatorTest || !workflow.includes('2ab571f367f293bb19523b76f92f1945bbf245003392c7f392903f95c2b9b630  .harness/ci-bin/opa') || !workflow.includes('sha256sum --check')) errors.push('Missing pinned OPA gateway prerequisite');
   for (const required of ['pull_request:', 'contents: read', 'persist-credentials: false', 'timeout-minutes:', 'node scripts/verify-repository-readiness.mjs', 'npm run demo:production:check', 'npm run demo:test', 'test_engine.py']) if (!workflow.includes(required)) errors.push('Missing CI guard/check: ' + required);
   if (/pull_request_target|workflow_run|secrets\s*[.:]|permissions:\s*write-all|(?:contents|packages|id-token|pages):\s*write|\$\{\{\s*github\.event/.test(workflow)) errors.push('Unsafe CI trust or privilege configuration');
   for (const action of workflow.matchAll(/uses:\s*(\S+)/g)) if (!/@[a-f0-9]{40}$/.test(action[1])) errors.push('Unpinned action: ' + action[1]);

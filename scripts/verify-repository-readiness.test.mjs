@@ -28,5 +28,6 @@ test('negative cases reject broken links, privilege escalation, unpinned actions
     mutate('LICENSE', s => s.slice(0, 100), 'Apache license text truncated');
     mutate('.github/ISSUE_TEMPLATE/bug.yml', s => s.replace('description:', 'omitted:'), 'Invalid issue form');
     mutate('.github/workflows/repository-checks.yml', s => s.replace('- run: .venv/bin/pip install -r requirements.lock', '- run: echo skipped'), 'Missing Python gateway prerequisites');
+    mutate('.github/workflows/repository-checks.yml', s => s.replace('sha256sum --check', 'echo unchecked'), 'Missing pinned OPA gateway prerequisite');
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
