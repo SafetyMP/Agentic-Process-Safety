@@ -13,12 +13,19 @@ export function Stat({ label, value, note }: { label: string; value: ReactNode; 
   return <article className="stat"><span>{label}</span><strong>{value}</strong><small>{note}</small></article>;
 }
 export function ModelControls({ state, dispatch }: { state: State; dispatch: (a: Action) => void }) {
-  return <div className="control-grid"><label><span id="model-scenario">Scenario</span><select aria-labelledby="model-scenario" value={state.story} onChange={e => dispatch({ type: 'configure', story: e.target.value as StoryId })}>{stories.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}</select></label>
+  return <><p className="muted">Changing scenario, mode or seed clears this policy illustration and its decision history.</p><div className="control-grid"><label><span id="model-scenario">Scenario</span><select aria-labelledby="model-scenario" value={state.story} onChange={e => dispatch({ type: 'configure', story: e.target.value as StoryId })}>{stories.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}</select></label>
     <label><span id="model-mode">Governance mode</span><select aria-labelledby="model-mode" value={state.mode} onChange={e => dispatch({ type: 'configure', mode: e.target.value as Mode })}>{Object.entries(modes).map(([id, name]) => <option key={id} value={id}>{id} · {name}</option>)}</select></label>
-    <label><span id="model-seed">Deterministic seed</span><input aria-labelledby="model-seed" type="number" min="0" max="2147483647" value={state.seed} onChange={e => dispatch({ type: 'configure', seed: e.target.value })} /></label></div>;
+    <label><span id="model-seed">Deterministic seed</span><input aria-labelledby="model-seed" type="number" min="0" max="2147483647" value={state.seed} onChange={e => dispatch({ type: 'configure', seed: e.target.value })} /></label></div></>;
 }
 export function Review({ state, dispatch }: { state: State; dispatch: (a: Action) => void }) {
-  return state.pending ? <div className="notice"><strong>Review required · SIMULATED</strong><p>This choice records a browser outcome. It issues no production authorization.</p><div className="button-row"><button onClick={() => dispatch({ type: 'resolve', approved: true })}>Approve simulated request</button><button onClick={() => dispatch({ type: 'resolve', approved: false })}>Deny simulated request</button></div></div> : null;
+  if (!state.pending) return null;
+  const story = stories.find(s => s.id === (state.fault ?? state.story))!;
+  return <section className="notice" aria-label="Simulated review decision"><strong>Review required · SIMULATED</strong>
+    <p>{story.objective}. {story.operation}.</p>
+    <dl className="detail-grid"><div><dt>Request actor</dt><dd>{state.pending.actor}</dd></div><div><dt>Amount</dt><dd>{state.pending.amount} simulated units</dd></div><div><dt>Trigger</dt><dd>{state.events.at(-1)?.reason ?? 'Unknown'}</dd></div><div><dt>Scope</dt><dd>Current single-request browser illustration only</dd></div></dl>
+    <p>Approve records this request as executed in the illustration. Deny records it as stopped. Neither issues production authorization or resolves the production objective-arbitration gap.</p>
+    <div className="button-row"><button onClick={() => dispatch({ type: 'resolve', approved: true })}>Approve simulated request</button><button onClick={() => dispatch({ type: 'resolve', approved: false })}>Deny simulated request</button></div></section>;
+
 }
 export function EventLog({ state }: { state: State }) {
   const trace = decisionTrace(state.mode, requestFor(state.fault ?? state.story, state.seed));

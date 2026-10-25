@@ -10,9 +10,9 @@ process.chdir(fileURLToPath(new URL('../', import.meta.url)));
 const repository = 'safetymp/agentic-process-safety';
 const workflow = '.github/workflows/deploy-pages.yml';
 const pins = {
-  'apps/aps-demo/scripts/e2e.mjs': '6086f2d7c5f8956d11b1cc04777f3ed527b80a2c96b87b728b3d31728bdaace2',
+  'apps/aps-demo/scripts/e2e.mjs': '995502d5984fc3e40debdfcea32d210c12256400593f209348e8da1978fb3101',
   'apps/aps-demo/scripts/qa-evidence.mjs': '859c2a56553c93ad0f6a1e874ced2bfa51dbc1f7a9ec97ba15ba236783f01926',
-  [workflow]: '2725d66974b527c775f377dd2a4409bfc47658b6702cbc14b6ec1b5be9db8215',
+  [workflow]: '8a0a0126bfeba484e1b086cf8faecf872847c05146224bc237a1a331c4330e27',
 };
 const captures = ['overview', 'hazop', 'governance', 'simulator', 'assurance', 'mobile-light', 'mobile-dark'].map(n => `docs/screenshots/${n}.jpg`);
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');

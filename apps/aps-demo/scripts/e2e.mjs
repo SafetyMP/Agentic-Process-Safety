@@ -49,7 +49,48 @@ try {
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('websocket', ws => violations.push(ws.url()));
   const go = async route => { await page.goto(`${origin}${prefix}#/${route}`); await expect(page.locator('h1')).toBeVisible(); assertions++; };
-  const stat = label => page.locator('.stat').filter({ has: page.getByText(label, { exact: true }) }).locator('strong');
+  const stat = (label, scope = page) => scope.locator('.stat').filter({ has: page.getByText(label, { exact: true }) }).locator('strong');
+  // Increment only after each added check has actually completed successfully.
+  const check = async verify => { await verify(); assertions++; };
+  const navigationNames = { overview: /^Overview/, governance: /^Control Plane/, simulator: /^Swarm Simulator/, assurance: /^Assurance/ };
+  const navigateWithin = async section => {
+    await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: navigationNames[section] }).click();
+    await check(() => expect(page.locator('h1')).toBeVisible());
+  };
+  const workflowStatus = page.getByRole('status', { name: 'Workflow status', exact: true });
+  const captureGeneratedWorkflow = async () => {
+    await check(() => expect(workflowStatus).toHaveCount(1));
+    await check(() => expect(workflowStatus).toContainText('paused'));
+    await page.getByRole('button', { name: 'Prepare current replay JSON', exact: true }).click();
+    const replayText = await page.getByRole('textbox', { name: 'Prepared replay snapshot', exact: true }).inputValue();
+    const replay = JSON.parse(replayText);
+    await check(() => assert.equal(replay.simulationOnly, true));
+    return { replayText, status: await workflowStatus.innerText(), orders: await stat('Committed orders').innerText(), spent: await stat('Simulated spend').innerText(), confirmed: await stat('Task confirmed').innerText(), safe: await stat('Safe model completion').innerText() };
+  };
+  const populatePausedWorkflow = async () => {
+    await check(() => expect(stat('Committed orders')).toHaveText('0'));
+    for (let transition = 0; transition < 100 && (await stat('Committed orders').innerText()).trim() !== '1'; transition++) {
+      const step = page.getByRole('button', { name: 'Step one transition', exact: true });
+      await check(() => expect(step).toBeEnabled());
+      await step.click();
+    }
+    await check(() => expect(stat('Committed orders')).toHaveText('1'));
+    await check(() => expect(stat('Simulated spend')).toHaveText('400'));
+    await check(() => expect(stat('Task confirmed')).toHaveText('No'));
+    await check(() => expect(stat('Safe model completion')).toHaveText('No'));
+    const snapshot = await captureGeneratedWorkflow();
+    const replay = JSON.parse(snapshot.replayText);
+    await check(() => assert.equal(replay.spec.scenario, 'nominal'));
+    await check(() => assert.equal(replay.spec.mode, 'C'));
+    await check(() => assert.ok(replay.transitionCount > 0 && replay.transitionCount <= 100));
+    await check(() => assert.ok(replay.events.some(event => event.type === 'order-committed')));
+    return snapshot;
+  };
+  const assertGeneratedWorkflowUnchanged = async baseline => {
+    const current = await captureGeneratedWorkflow();
+    // Exact replay equality retains specification, effects digest, journal and causal history.
+    await check(() => assert.deepEqual(current, baseline));
+  };
   await mkdir(screenshots, { recursive: true });
   for (const route of ['overview', 'hazop', 'governance', 'simulator', 'assurance']) {
     await go(route); await page.reload(); await expect(page.locator('h1')).toBeVisible();
@@ -60,19 +101,84 @@ try {
     const button = page.locator('.node-buttons').getByRole('button', { name: label, exact: true });
     await button.click(); await expect(button).toHaveAttribute('aria-pressed', 'true'); assertions++;
   }
+  // Populate a separate generated workflow, stopping after commit but before confirmation.
+  await navigateWithin('simulator');
+  const guideWorkflow = await populatePausedWorkflow();
+  await navigateWithin('overview');
   await page.getByRole('button', { name: 'Begin guided walkthrough' }).click();
   const guide = page.getByRole('region', { name: 'Guided walkthrough' });
-  await expect(guide).toContainText('1 OF 5');
-  for (let i = 2; i <= 4; i++) { await guide.getByRole('button', { name: 'Next', exact: true }).click(); await expect(guide).toContainText(`${i} OF 5`); }
-  await page.getByRole('button', { name: 'Evaluate simulated request', exact: true }).click();
-  await expect(page.locator('.event')).toContainText('DENY');
+  const resetChoice = page.getByRole('region', { name: 'Walkthrough reset consequence', exact: true });
+  await check(() => expect(guide).toContainText('1 OF 5'));
+  await check(() => expect(resetChoice).not.toBeVisible());
+  for (let i = 2; i <= 4; i++) {
+    await guide.getByRole('button', { name: 'Next', exact: true }).click();
+    await check(() => expect(guide).toContainText(`${i} OF 5`));
+  }
+  // Visiting the outcome step without evaluation must not invent an outcome.
+  await check(() => expect(page.locator('.event')).toHaveCount(0));
   await guide.getByRole('button', { name: 'Next', exact: true }).click();
-  await expect(page.locator('.live-outcome')).toContainText('1 unsafe attempts · 0 unsafe executed · 1 blocked');
+  await check(() => expect(guide).toContainText('5 OF 5'));
+  await check(() => expect(guide).toContainText('No SIMULATED outcome yet'));
+  await check(() => expect(guide).toContainText('You advanced without evaluating'));
+  await check(() => expect(page.locator('.live-outcome')).toContainText('0 unsafe attempts · 0 unsafe executed · 0 blocked'));
+  await check(() => expect(page.locator('.live-outcome .event')).toHaveCount(0));
   await guide.getByRole('button', { name: 'Back', exact: true }).click();
-  await expect(page.locator('.event')).toContainText('DENY');
+  await check(() => expect(guide).toContainText('4 OF 5'));
+  await page.getByRole('button', { name: 'Evaluate simulated request', exact: true }).click();
+  await check(() => expect(page.locator('.event')).toContainText('DENY'));
+  await guide.getByRole('button', { name: 'Next', exact: true }).click();
+  await check(() => expect(page.locator('.live-outcome')).toContainText('1 unsafe attempts · 0 unsafe executed · 1 blocked'));
+  await guide.getByRole('button', { name: 'Back', exact: true }).click();
+  await check(() => expect(page.locator('.event')).toContainText('DENY'));
+  const retainedUrl = page.url();
+  const retainedDecision = await page.locator('.event').innerText();
+  const assertPolicyDecisionRetained = async () => {
+    await check(() => expect(page).toHaveURL(retainedUrl));
+    await check(() => expect(page.locator('.event')).toHaveCount(1));
+    await check(() => expect(page.locator('.event')).toHaveText(retainedDecision, { useInnerText: true }));
+    await check(() => expect(page.locator('.event')).toContainText('Operation not executed'));
+  };
+  const assertPolicyCountsRetained = async () => {
+    await navigateWithin('assurance');
+    await check(() => expect(page.locator('.live-outcome')).toContainText('1 unsafe attempts · 0 unsafe executed · 1 blocked'));
+    await navigateWithin('governance');
+    await assertPolicyDecisionRetained();
+  };
   await guide.getByRole('button', { name: 'Restart', exact: true }).click();
-  await expect(page.getByRole('region', { name: 'Shared simulated run' })).toContainText('0 blocked');
-  await guide.getByRole('button', { name: 'Close walkthrough' }).click(); assertions += 8;
+  await check(() => expect(resetChoice).toBeVisible());
+  await check(() => expect(resetChoice).toContainText('clears the current single-request policy illustration'));
+  await assertPolicyDecisionRetained();
+  await assertPolicyCountsRetained();
+  await check(() => expect(resetChoice).toBeVisible());
+  await resetChoice.getByRole('button', { name: 'Keep current policy run', exact: true }).click();
+  await check(() => expect(resetChoice).not.toBeVisible());
+  await assertPolicyDecisionRetained();
+  await assertPolicyCountsRetained();
+  await navigateWithin('simulator');
+  await assertGeneratedWorkflowUnchanged(guideWorkflow);
+  await navigateWithin('governance');
+  await assertPolicyDecisionRetained();
+  await guide.getByRole('button', { name: 'Restart', exact: true }).click();
+  await check(() => expect(resetChoice).toBeVisible());
+  await resetChoice.getByRole('button', { name: 'Start walkthrough and clear policy run', exact: true }).click();
+  await check(() => expect(resetChoice).not.toBeVisible());
+  await check(() => expect(guide).toContainText('1 OF 5'));
+  await check(() => expect(page).toHaveURL(/#\/overview$/));
+  const shared = page.getByRole('region', { name: 'Shared simulated run', exact: true });
+  await check(() => expect(shared).toContainText('mode C · seed 42 · logical tick 0'));
+  await check(() => expect(shared).toContainText('Unauthorized tool execution'));
+  await check(() => expect(shared).toContainText('0 unsafe attempts · 0 unsafe executed · 0 blocked'));
+  await navigateWithin('simulator');
+  await assertGeneratedWorkflowUnchanged(guideWorkflow);
+  // In-app navigation must expose an empty policy history without reloading the app.
+  await navigateWithin('governance');
+  await check(() => expect(page.getByLabel('Scenario', { exact: true })).toHaveValue('unauthorized'));
+  await check(() => expect(page.getByLabel('Governance mode', { exact: true })).toHaveValue('C'));
+  await check(() => expect(page.getByLabel('Deterministic seed', { exact: true })).toHaveValue('42'));
+  await check(() => expect(page.locator('.event')).toHaveCount(0));
+  await check(() => expect(page.getByText('No decision yet. Three logical steps reach the gateway.', { exact: true })).toBeVisible());
+  await guide.getByRole('button', { name: 'Close walkthrough', exact: true }).click();
+  await check(() => expect(guide).not.toBeVisible());
 
   await go('hazop?hazard=unknown&node=invalid');
   await page.reload();
@@ -121,23 +227,47 @@ try {
   for (const link of new Set(links)) { await go(link.slice(2)); assertions++; }
 
   await go('simulator');
-  await page.getByRole('button', { name: 'Reset', exact: true }).click();
-  await page.getByRole('button', { name: 'Start', exact: true }).click();
-  await page.getByRole('button', { name: 'Pause', exact: true }).click();
-  const paused = await page.getByRole('status').textContent();
+  const policyWorkflow = await populatePausedWorkflow();
+  const legacy = page.locator('details.legacy-policy');
+  await check(() => expect(legacy.locator(':scope > summary')).toHaveText('Separate single-request policy illustration'));
+  await legacy.locator(':scope > summary').click();
+  await check(() => expect(legacy).toHaveAttribute('open', ''));
+  const policyStatus = legacy.getByRole('status', { name: 'Policy illustration status', exact: true });
+  await check(() => expect(policyStatus).toHaveCount(1));
+  await legacy.getByRole('button', { name: 'Reset', exact: true }).click();
+  await legacy.getByRole('button', { name: 'Start', exact: true }).click();
+  await legacy.getByRole('button', { name: 'Pause', exact: true }).click();
+  const paused = await policyStatus.textContent();
   await page.waitForTimeout(850);
-  assert.equal(await page.getByRole('status').textContent(), paused);
-  await page.getByLabel('Predefined fault').selectOption('context');
-  await page.getByRole('button', { name: 'Inject selected fault' }).click();
-  await expect(page.getByText('Queued: Compromised shared context')).toBeVisible();
-  for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Step', exact: true }).click();
-  await expect(stat('Blocked decisions')).toHaveText('1');
-  await page.getByRole('button', { name: 'Reset', exact: true }).click();
-  await expect(stat('Blocked decisions')).toHaveText('0');
-  await page.getByLabel('Deterministic seed').fill('-10');
-  await expect(page.getByLabel('Deterministic seed')).toHaveValue('0');
-  await page.getByLabel('Governance mode').selectOption('A');
-  await expect(page.getByRole('status')).toContainText('tick 0'); assertions += 7;
+  await check(async () => assert.equal(await policyStatus.textContent(), paused));
+  await check(() => expect(policyStatus).toContainText('Paused'));
+  await assertGeneratedWorkflowUnchanged(policyWorkflow);
+  await legacy.getByLabel('Predefined fault').selectOption('context');
+  await legacy.getByRole('button', { name: 'Inject selected fault', exact: true }).click();
+  await check(() => expect(legacy.getByText('Queued override: Compromised shared context', { exact: true })).toBeVisible());
+  await check(() => expect(legacy.getByText('Evaluated override: Compromised shared context', { exact: true })).toHaveCount(0));
+  for (let i = 0; i < 3; i++) await legacy.getByRole('button', { name: 'Step', exact: true }).click();
+  await check(() => expect(legacy.getByText('Evaluated override: Compromised shared context', { exact: true })).toBeVisible());
+  await check(() => expect(legacy.getByText('Queued override: Compromised shared context', { exact: true })).toHaveCount(0));
+  await check(() => expect(legacy.locator('.event')).toHaveCount(1));
+  await check(() => expect(legacy.locator('.event')).toContainText('DENY'));
+  await check(() => expect(legacy.locator('.event')).toContainText('Operation not executed'));
+  await check(() => expect(stat('Blocked decisions', legacy)).toHaveText('1'));
+  await check(() => expect(stat('Unsafe attempts', legacy)).toHaveText('1'));
+  await check(() => expect(stat('Unsafe executed', legacy)).toHaveText('0'));
+  await assertGeneratedWorkflowUnchanged(policyWorkflow);
+  await legacy.getByRole('button', { name: 'Reset', exact: true }).click();
+  await check(() => expect(stat('Blocked decisions', legacy)).toHaveText('0'));
+  await check(() => expect(legacy.locator('.event')).toHaveCount(0));
+  await check(() => expect(legacy.getByText('No fault override queued', { exact: true })).toBeVisible());
+  await check(() => expect(policyStatus).toContainText('tick 0'));
+  await legacy.getByLabel('Deterministic seed').fill('-10');
+  await check(() => expect(legacy.getByLabel('Deterministic seed')).toHaveValue('0'));
+  await legacy.getByLabel('Governance mode').selectOption('A');
+  await check(() => expect(legacy.getByLabel('Governance mode')).toHaveValue('A'));
+  await check(() => expect(policyStatus).toContainText('tick 0'));
+  await assertGeneratedWorkflowUnchanged(policyWorkflow);
+
   await go('assurance');
   await page.getByLabel('Filter recorded arm').selectOption('C');
   await expect(page.locator('.register tbody tr')).toHaveCount(10);
@@ -167,7 +297,7 @@ try {
     assertions, errors, violations, prefix,
     screenshots: ['overview', 'hazop', 'governance', 'simulator', 'assurance', 'mobile-light', 'mobile-dark'].map(name => `docs/screenshots/${name}.jpg`),
   }, null, 2) + '\n');
-  console.log(`Built-site browser QA passed: ${assertions} checks; nine stories × three modes; direct hash refresh, walkthrough, controls, responsive themes; no console/page errors or nonstatic requests. Screenshots: docs/screenshots/*.jpg`);
+  console.log(`Built-site browser QA passed: ${assertions} checks; nine stories × three modes; direct hash refresh, explicit restart consent, legacy/workflow isolation, controls, responsive themes; no console/page errors or nonstatic requests. Screenshots: docs/screenshots/*.jpg`);
 } finally {
   await browser?.close();
   await new Promise(r => server.close(r));

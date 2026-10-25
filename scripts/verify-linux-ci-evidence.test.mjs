@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { evidenceEntries, gitBlobSha, verifyBrowserResult, verifyNodeVersion } from './verify-linux-ci-evidence.mjs';
 
 // Synthetic unit fixtures test parsing and rejection, never actual CI provenance.
@@ -34,3 +35,15 @@ for (const [name, patch] of Object.entries({
 })) test(`rejects ${name} browser evidence`, () => assert.throws(() => verifyBrowserResult({ ...result(), ...patch }, 137)));
 test('rejects differing reviewed assertion count', () => assert.throws(() => verifyBrowserResult(result(), 139)));
 test('rejects absent result', () => assert.throws(() => verifyBrowserResult(undefined, 137)));
+test('postdeployment pin migration accepts only exact reviewed e2e/Pages bytes', () => {
+  const source = readFileSync(new URL('./verify-linux-ci-evidence.mjs', import.meta.url), 'utf8');
+  const exact = ['995502d5984fc3e40debdfcea32d210c12256400593f209348e8da1978fb3101', '8a0a0126bfeba484e1b086cf8faecf872847c05146224bc237a1a331c4330e27', '859c2a56553c93ad0f6a1e874ced2bfa51dbc1f7a9ec97ba15ba236783f01926'];
+  const stale = ['6086f2d7c5f8956d11b1cc04777f3ed527b80a2c96b87b728b3d31728bdaace2', '2725d66974b527c775f377dd2a4409bfc47658b6702cbc14b6ec1b5be9db8215'];
+  const literalPins = [...source.matchAll(/: '([a-f0-9]{64})'/g)].map(match => match[1]);
+  assert.deepEqual(literalPins.sort(), [...exact].sort());
+  for (const old of stale) assert.ok(!literalPins.includes(old));
+  assert.ok(source.includes("equal(review.schema, 'aps-linux-ci-review-1'"));
+  assert.ok(source.includes("for (const name of ['build', 'deploy'])"));
+  assert.ok(source.includes("@refs/heads/main"));
+  assert.ok(!source.includes('aps-linux-predeploy-review-1'));
+});
