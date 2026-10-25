@@ -1,5 +1,5 @@
 // Untrusted CI observations, never a review, pass receipt or deployment attestation.
-/* global fetch, AbortSignal, Buffer, process, console */
+/* global fetch, AbortSignal */
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';

@@ -17,7 +17,7 @@ export const PINS = Object.freeze({
   '.github/workflows/deploy-pages.yml': '8a0a0126bfeba484e1b086cf8faecf872847c05146224bc237a1a331c4330e27',
   'apps/aps-demo/scripts/e2e.mjs': '8f7fe9cf9c3cfdb2a4e8bb4c89683011f3c9cc5d4f2ba6ece7595b7d6b12bc2a',
   'apps/aps-demo/scripts/qa-evidence.mjs': '859c2a56553c93ad0f6a1e874ced2bfa51dbc1f7a9ec97ba15ba236783f01926',
-  'apps/aps-demo/scripts/validation-evidence.mjs': 'a88b79304b21357e626383c8fb1de4b451656363cdf764bdcfa975aa7015d5a7',
+  'apps/aps-demo/scripts/validation-evidence.mjs': '9ef9428f9901d9286716a77cb377f418194365e4b8986b7d7fd3fb38f97d7186',
   'package-lock.json': '6350fea042ab97510b73aa1969e2469731753b5f95814caafa7f8d0ecbe7d303',
 });
 export const hash = bytes => createHash('sha256').update(bytes).digest('hex');
