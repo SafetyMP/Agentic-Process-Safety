@@ -229,8 +229,8 @@ try {
   await go('simulator');
   const policyWorkflow = await populatePausedWorkflow();
   const legacy = page.locator('details.legacy-policy');
-  await check(() => expect(legacy.locator('summary')).toHaveText('Separate single-request policy illustration'));
-  await legacy.locator('summary').click();
+  await check(() => expect(legacy.locator(':scope > summary')).toHaveText('Separate single-request policy illustration'));
+  await legacy.locator(':scope > summary').click();
   await check(() => expect(legacy).toHaveAttribute('open', ''));
   const policyStatus = legacy.getByRole('status', { name: 'Policy illustration status', exact: true });
   await check(() => expect(policyStatus).toHaveCount(1));
