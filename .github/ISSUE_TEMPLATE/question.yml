@@ -1,0 +1,13 @@
+name: Question or proposal
+description: Ask a usage question or propose a focused improvement.
+body:
+  - type: markdown
+    attributes:
+      value: "Read README.md and SUPPORT.md. Keep vulnerabilities and confidential pilot evidence private."
+  - type: textarea
+    id: context
+    attributes:
+      label: Question, context and proposed outcome
+      description: Include documentation consulted and a synthetic example.
+    validations:
+      required: true

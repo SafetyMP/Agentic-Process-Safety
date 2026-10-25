@@ -1,0 +1,59 @@
+name: Repository checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: repository-checks-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  readiness:
+    name: Readiness and frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6; existing deployment pin
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - run: node scripts/verify-repository-readiness.mjs
+      - run: node --test scripts/verify-repository-readiness.test.mjs
+      - run: npm ci
+      # The root simulator tests invoke the Python governance gateway.
+      - run: python3 -m venv .venv
+      - run: .venv/bin/pip install -r requirements.lock
+      - name: Install pinned OPA for simulator gateway tests
+        run: |
+          mkdir -p .harness/ci-bin
+          curl --fail --silent --show-error --location https://github.com/open-policy-agent/opa/releases/download/v1.21.4/opa_linux_amd64_static --output .harness/ci-bin/opa
+          echo '2ab571f367f293bb19523b76f92f1945bbf245003392c7f392903f95c2b9b630  .harness/ci-bin/opa' | sha256sum --check
+          chmod +x .harness/ci-bin/opa
+          echo "$GITHUB_WORKSPACE/.harness/ci-bin" >> "$GITHUB_PATH"
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run demo:fixtures:check
+      - run: npm run demo:production:check
+      - run: npm run demo:lint
+      - run: npm run demo:typecheck
+      - run: npm run demo:test
+      - run: npm run demo:build
+      - run: npm run demo:static:check
+  python:
+    name: Python engine
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      # Ubuntu supplies Python 3.12. OPA/Phase 3 remain separate local gates.
+      - run: python3 -m venv .venv
+      - run: .venv/bin/pip install -r requirements.lock
+      - run: .venv/bin/python -m unittest discover -s tests -p test_engine.py -v
+        env:
+          PYTHONPATH: packages/engine:packages/governance

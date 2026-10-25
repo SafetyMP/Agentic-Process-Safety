@@ -16,3 +16,14 @@ artifacts/*
 
 .hypothesis/
 *.egg-info/
+
+# Local metadata, secrets and generated scratch runs; preserve files locally.
+.DS_Store
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+/aps-policy-*/
+/aps-pilot-*/
+/tmp*/
