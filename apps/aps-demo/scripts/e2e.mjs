@@ -135,7 +135,7 @@ try {
   const assertPolicyDecisionRetained = async () => {
     await check(() => expect(page).toHaveURL(retainedUrl));
     await check(() => expect(page.locator('.event')).toHaveCount(1));
-    await check(() => expect(page.locator('.event')).toHaveText(retainedDecision));
+    await check(() => expect(page.locator('.event')).toHaveText(retainedDecision, { useInnerText: true }));
     await check(() => expect(page.locator('.event')).toContainText('Operation not executed'));
   };
   const assertPolicyCountsRetained = async () => {

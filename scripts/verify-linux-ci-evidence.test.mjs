@@ -37,7 +37,7 @@ test('rejects differing reviewed assertion count', () => assert.throws(() => ver
 test('rejects absent result', () => assert.throws(() => verifyBrowserResult(undefined, 137)));
 test('postdeployment pin migration accepts only exact reviewed e2e/Pages bytes', () => {
   const source = readFileSync(new URL('./verify-linux-ci-evidence.mjs', import.meta.url), 'utf8');
-  const exact = ['8f7fe9cf9c3cfdb2a4e8bb4c89683011f3c9cc5d4f2ba6ece7595b7d6b12bc2a', '8a0a0126bfeba484e1b086cf8faecf872847c05146224bc237a1a331c4330e27', '859c2a56553c93ad0f6a1e874ced2bfa51dbc1f7a9ec97ba15ba236783f01926'];
+  const exact = ['2620c92196ab45f1c9ffa13be69f0ba8cc5a32a1c85d64266c8dba7fa442a04a', '8a0a0126bfeba484e1b086cf8faecf872847c05146224bc237a1a331c4330e27', '859c2a56553c93ad0f6a1e874ced2bfa51dbc1f7a9ec97ba15ba236783f01926'];
   const stale = ['6086f2d7c5f8956d11b1cc04777f3ed527b80a2c96b87b728b3d31728bdaace2', '2725d66974b527c775f377dd2a4409bfc47658b6702cbc14b6ec1b5be9db8215'];
   const literalPins = [...source.matchAll(/: '([a-f0-9]{64})'/g)].map(match => match[1]);
   assert.deepEqual(literalPins.sort(), [...exact].sort());
