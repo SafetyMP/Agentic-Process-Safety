@@ -127,7 +127,11 @@ function inventory(rows, source) {
   equal(rows.map(row => row.path), [...paths].sort((a, b) => a.localeCompare(b)), 'Inventory ordering');
 }
 function successfulJob(job, runner) {
-  equal(job.status, 'completed'); equal(job.conclusion, 'success'); assert.ok(job.labels.includes(runner), 'Changed Linux runner');
+  equal(job.status, 'completed'); equal(job.conclusion, 'success');
+  assert.ok(Array.isArray(job.labels) && job.labels.every(label => typeof label === 'string') && job.labels.includes(runner), 'Changed Linux runner');
+  // Matching Ubuntu labels never override explicit self-hosted job metadata.
+  const selfHosted = value => typeof value === 'string' && /(?:^|[^a-z0-9])self[-_\s]*hosted(?:$|[^a-z0-9])/i.test(value);
+  assert.ok(![...job.labels, job.runner_name, job.runner_group_name].some(selfHosted), 'Self-hosted runner metadata is outside approved hosted-only scope');
   assert.ok(Array.isArray(job.steps) && job.steps.length > 0 && job.steps.every(step => step.status === 'completed' && step.conclusion === 'success'), 'Failed/skipped/incomplete step');
 }
 // api must supply authenticated GitHub GETs. The CLI below never accepts artifact policy overrides.

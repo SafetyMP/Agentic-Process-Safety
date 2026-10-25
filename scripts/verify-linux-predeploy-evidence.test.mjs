@@ -82,6 +82,30 @@ test('API run head may be the independently bound merge rather than PR head', as
   const f = fixture(); f.metadata.get('/actions/runs/123/attempts/2').head_sha = checkout; f.observed.apiRunHeadSha = checkout; f.metadata.get('/actions/artifacts/456').workflow_run.head_sha = checkout;
   await verifyPredeploy(f.build());
 });
+// CI-01 regression: both jobs must reject explicit self-hosted indicators even
+// when every other source/provenance/success field and Ubuntu label is valid.
+for (const index of [0, 1]) {
+  const runner = index === 0 ? 'ubuntu-latest' : 'ubuntu-24.04';
+  for (const label of ['self-hosted', 'SeLf-HoStEd', ' SELF-HOSTED ', 'self_hosted']) test(`CI-01 rejects job ${index} mixed labels with ${JSON.stringify(label)}`, async () => {
+    const f = fixture(); const job = f.metadata.get('/actions/runs/123/attempts/2/jobs?per_page=100').jobs[index];
+    job.labels = [runner, 'linux', label, 'X64'];
+    await assert.rejects(verifyPredeploy(f.build()), /Self-hosted runner metadata/);
+  });
+  for (const field of ['runner_name', 'runner_group_name']) test(`CI-01 rejects job ${index} explicit ${field} despite Ubuntu label`, async () => {
+    const f = fixture(); const job = f.metadata.get('/actions/runs/123/attempts/2/jobs?per_page=100').jobs[index];
+    job[field] = 'pool-SeLf-HoStEd-linux';
+    await assert.rejects(verifyPredeploy(f.build()), /Self-hosted runner metadata/);
+  });
+  for (const labels of [null, runner, [runner, 42]]) test(`CI-01 rejects job ${index} malformed labels ${JSON.stringify(labels)}`, async () => {
+    const f = fixture(); f.metadata.get('/actions/runs/123/attempts/2/jobs?per_page=100').jobs[index].labels = labels;
+    await assert.rejects(verifyPredeploy(f.build()), /Changed Linux runner/);
+  });
+  test(`CI-01 preserves hosted-shaped successful job ${index} fixture acceptance`, async () => {
+    const f = fixture(); const job = f.metadata.get('/actions/runs/123/attempts/2/jobs?per_page=100').jobs[index];
+    job.labels = [runner, 'Linux', 'X64']; job.runner_name = 'GitHub Actions 42'; job.runner_group_name = 'GitHub Actions';
+    await verifyPredeploy(f.build());
+  });
+}
 const mutations = {
   'postdeployment schema': f => { f.review.schema = 'aps-linux-ci-review-1'; },
   'unknown review field': f => { f.review.accepted = true; },
