@@ -36,6 +36,7 @@ export function WorkflowStage({ state, onCommand, onImport, onExport }: Props) {
   const [schedule, setSchedule] = useState<RunSpec['schedule']>(state.spec.schedule);
   const [selectedAgent, setSelectedAgent] = useState<AgentId>('orchestrator');
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
+  const [eventFocusRequest, setEventFocusRequest] = useState(0);
   const [messageId, setMessageId] = useState<string | null>(null);
   const [replayText, setReplayText] = useState('');
   const [exportText, setExportText] = useState('');
@@ -56,7 +57,8 @@ export function WorkflowStage({ state, onCommand, onImport, onExport }: Props) {
     const timer = window.setInterval(() => onCommand({ type: 'timer' }), pace);
     return () => window.clearInterval(timer);
   }, [view.running, pace, onCommand]);
-  useEffect(() => { if (selectedEvent && audience === 'technical') inspector.current?.focus(); }, [selectedEvent, audience]);
+  // Only an explicit inspection request moves focus, never a view-radio change.
+  useEffect(() => { if (eventFocusRequest) inspector.current?.focus(); }, [eventFocusRequest]);
   useEffect(() => { if (messageFocusRequest) messageInspector.current?.focus(); }, [messageFocusRequest]);
   function inspectEvent(id: string | null) {
     if (!id) return;
@@ -64,6 +66,7 @@ export function WorkflowStage({ state, onCommand, onImport, onExport }: Props) {
     setSelectedEvent(id);
     if (selected) {
       setSelectedAgent(selected.actor); setMessageId(selected.messageId ?? null);
+      setEventFocusRequest(count => count + 1);
       if (audience === 'executive') reveal();
     }
   }

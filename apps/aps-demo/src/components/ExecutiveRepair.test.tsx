@@ -60,3 +60,20 @@ it('every supplementary Executive route deliberately reloads before asserting de
     expect(h.audience()).toBe('Executive'); await h.go(route); expect(h.audience()).toBe('Technical');
   }
 });
+it.each(['approval-delay', 'lost-purchase-response'] as const)('%s manual audience radio selection retains focus after earlier explicit inspection', scenario => {
+  let state = createWorkflow(scenarioSpec(scenario, 'C'));
+  for (let i = 0; i < 100 && selectWorkflow(state).controls.canStep; i++) state = workflowReducer(state, { type: 'step' });
+  const view = selectWorkflow(state); const id = scenario === 'approval-delay' ? view.controls.blockedEventId! : view.controls.unknownEventId!;
+  const command = vi.fn<(c: WorkflowCommand) => void>(); const before = exportWorkflow(state);
+  render(<AudienceProvider><WorkflowStage state={state} onCommand={command} onExport={() => exportWorkflow(state)} onImport={() => ({ ok: false, message: 'Unused' })}/></AudienceProvider>);
+  const decision = screen.getByRole('region', { name: scenario === 'approval-delay' ? 'Approval refresh decision' : 'Unknown outcome decision' });
+  fireEvent.click(within(decision).getByRole('button', { name: id }));
+  const inspector = screen.getByRole('region', { name: 'Causal event inspector' });
+  expect(document.activeElement).toBe(within(inspector).getByRole('heading', { name: 'Event inspector' }));
+  for (const name of ['Executive', 'Technical', 'Executive', 'Technical']) {
+    const radio = screen.getByRole('radio', { name }); radio.focus(); fireEvent.click(radio);
+    expect(document.activeElement).toBe(radio); expect((radio as HTMLInputElement).checked).toBe(true);
+    expect(exportWorkflow(state)).toBe(before); expect(command).not.toHaveBeenCalled();
+  }
+  expect(screen.getByRole('region', { name: 'Causal event inspector' }).textContent).toContain(id);
+});
