@@ -59,7 +59,14 @@ try {
     await page.getByRole('radio', { name: 'Technical', exact: true }).check();
     await expect(page.getByRole('radio', { name: 'Technical', exact: true })).toBeChecked(); assertions++;
   };
-  const go = async route => { await page.goto(`${origin}${prefix}#/${route}`); await expect(page.locator('h1')).toBeVisible(); assertions++; await assertExecutiveDefault(route); await selectTechnical(); };
+  // goto between hash routes can retain the current document and audience.
+  // Technical regression navigation must not mistake that for a fresh default.
+  const go = async route => { await page.goto(`${origin}${prefix}#/${route}`); await expect(page.locator('h1')).toBeVisible(); assertions++; await selectTechnical(); };
+  const freshExecutive = async route => {
+    await page.goto(`${origin}${prefix}#/${route}`);
+    await page.reload(); // Deliberately create a new App/AudienceProvider lifetime.
+    await assertExecutiveDefault(route);
+  };
   const stat = (label, scope = page) => scope.locator('.stat').filter({ has: page.getByText(label, { exact: true }) }).locator('strong');
   // Increment only after each added check has actually completed successfully.
   const check = async verify => { await verify(); assertions++; };
@@ -106,7 +113,7 @@ try {
   const executiveShots = resolve('.harness/executive-review');
   await mkdir(executiveShots, { recursive: true });
   for (const route of ['overview', 'simulator', 'governance', 'hazop', 'assurance']) {
-    await page.goto(`${origin}${prefix}#/${route}`); await assertExecutiveDefault(route);
+    await freshExecutive(route);
     await page.screenshot({ path: resolve(executiveShots, `${route}.jpg`), quality: 65 });
     const executiveRadio = page.getByRole('radio', { name: 'Executive', exact: true });
     await executiveRadio.focus(); await page.keyboard.press('ArrowRight');
@@ -115,7 +122,7 @@ try {
     await page.keyboard.press('ArrowLeft'); await expect(executiveRadio).toBeChecked(); assertions++;
     await expect(executiveRadio).toBeFocused(); assertions++;
   }
-  await page.goto(`${origin}${prefix}#/simulator`); await assertExecutiveDefault('simulator');
+  await freshExecutive('simulator');
   await page.getByRole('button', { name: 'Step one transition', exact: true }).click();
   await selectTechnical();
   await page.getByRole('button', { name: 'Prepare current replay JSON', exact: true }).click();

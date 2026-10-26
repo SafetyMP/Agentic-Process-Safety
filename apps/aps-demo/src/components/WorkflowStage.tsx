@@ -29,7 +29,7 @@ export function WorkflowSummary({ state }: { state: WorkflowState }) {
 }
 
 export function WorkflowStage({ state, onCommand, onImport, onExport }: Props) {
-  const { audience } = useAudience();
+  const { audience, reveal } = useAudience();
   const view = selectWorkflow(state);
   const [scenario, setScenario] = useState<ScenarioId>(state.spec.scenario);
   const [mode, setMode] = useState<Mode>(state.spec.mode);
@@ -56,13 +56,16 @@ export function WorkflowStage({ state, onCommand, onImport, onExport }: Props) {
     const timer = window.setInterval(() => onCommand({ type: 'timer' }), pace);
     return () => window.clearInterval(timer);
   }, [view.running, pace, onCommand]);
-  useEffect(() => { if (selectedEvent) inspector.current?.focus(); }, [selectedEvent]);
+  useEffect(() => { if (selectedEvent && audience === 'technical') inspector.current?.focus(); }, [selectedEvent, audience]);
   useEffect(() => { if (messageFocusRequest) messageInspector.current?.focus(); }, [messageFocusRequest]);
   function inspectEvent(id: string | null) {
     if (!id) return;
     const selected = view.events.find(item => item.id === id);
     setSelectedEvent(id);
-    if (selected) { setSelectedAgent(selected.actor); setMessageId(selected.messageId ?? null); }
+    if (selected) {
+      setSelectedAgent(selected.actor); setMessageId(selected.messageId ?? null);
+      if (audience === 'executive') reveal();
+    }
   }
   function inspectMessage(id: string) { setMessageId(id); setMessageFocusRequest(count => count + 1); }
   function prepareReplay() {
