@@ -142,3 +142,11 @@
 @media(max-width:1200px) { .audience-bar { margin-left:205px; } }
 @media(max-width:900px) { .audience-bar { margin-left:0; position:relative; } }
 @media(max-width:500px) { .purchasing-operations,.hazop-conversation { padding:16px; }.operations-detail dl { grid-template-columns:1fr; }.operations-tabs button { flex:1 1 130px; } }
+
+.case-takeaway { font-size:21px !important; font-weight:600; margin:12px 0; }.case-run-context { color:var(--muted); font-size:14px !important; }.purchasing-operations .operations-records h4 { margin-top:22px; }.purchasing-operations .operations-tabs button { min-width:120px; }.purchasing-operations .operations-records { max-width:850px; }
+/* One visual primary activity per issue; original handlers/disabled states stay. */
+[data-audience=executive] .workflow-workspace:has(.operations-tabs) .workflow-active~.button-row>.primary { background:var(--panel); color:var(--text); border-color:var(--line); }
+[data-audience=executive] .workflow-workspace:has(.operations-tabs [role=tab]:nth-child(1)[aria-selected=true]) .operations-records:not([hidden])>button,
+[data-audience=executive] .workflow-workspace:has(.operations-tabs [role=tab]:nth-child(2)[aria-selected=true]) .workflow-active~.button-row>button:nth-child(2):not(:disabled),
+[data-audience=executive] .workflow-workspace:has(.operations-tabs [role=tab]:nth-child(2)[aria-selected=true]) .workflow-decision>button,
+[data-audience=executive] .workflow-workspace:has(.operations-tabs [role=tab]:nth-child(3)[aria-selected=true]) .operations-detail>.button-row>button:first-child { background:var(--teal); color:white; border-color:var(--teal); }
