@@ -48,7 +48,18 @@ try {
   page.on('pageerror', e => errors.push(e.message));
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('websocket', ws => violations.push(ws.url()));
-  const go = async route => { await page.goto(`${origin}${prefix}#/${route}`); await expect(page.locator('h1')).toBeVisible(); assertions++; };
+  const executiveHeadings = { overview: 'Keep purchasing moving, within agreed limits.', simulator: 'What should happen when the purchase cannot proceed as planned?', governance: 'Where must delegated purchasing stop?', hazop: 'What could make a completed purchase unacceptable?', assurance: 'What evidence would justify the next decision?' };
+  // Fresh documents must demonstrate the real default BEFORE legacy setup.
+  const assertExecutiveDefault = async route => {
+    await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
+    await expect(page.getByRole('heading', { level: 1, name: executiveHeadings[route.split('?')[0]], exact: true })).toBeVisible(); assertions++;
+    await expect(page.locator('[data-executive-uncertainty]:visible').first()).toBeVisible(); assertions++;
+  };
+  const selectTechnical = async () => {
+    await page.getByRole('radio', { name: 'Technical', exact: true }).check();
+    await expect(page.getByRole('radio', { name: 'Technical', exact: true })).toBeChecked(); assertions++;
+  };
+  const go = async route => { await page.goto(`${origin}${prefix}#/${route}`); await expect(page.locator('h1')).toBeVisible(); assertions++; await assertExecutiveDefault(route); await selectTechnical(); };
   const stat = (label, scope = page) => scope.locator('.stat').filter({ has: page.getByText(label, { exact: true }) }).locator('strong');
   // Increment only after each added check has actually completed successfully.
   const check = async verify => { await verify(); assertions++; };
@@ -91,9 +102,42 @@ try {
     // Exact replay equality retains specification, effects digest, journal and causal history.
     await check(() => assert.deepEqual(current, baseline));
   };
+  // Supplementary Executive images are OUTSIDE the seven-capture gate artifact.
+  const executiveShots = resolve('.harness/executive-review');
+  await mkdir(executiveShots, { recursive: true });
+  for (const route of ['overview', 'simulator', 'governance', 'hazop', 'assurance']) {
+    await page.goto(`${origin}${prefix}#/${route}`); await assertExecutiveDefault(route);
+    await page.screenshot({ path: resolve(executiveShots, `${route}.jpg`), quality: 65 });
+    const executiveRadio = page.getByRole('radio', { name: 'Executive', exact: true });
+    await executiveRadio.focus(); await page.keyboard.press('ArrowRight');
+    await expect(page.getByRole('radio', { name: 'Technical', exact: true })).toBeFocused(); assertions++;
+    await expect(page.getByRole('radio', { name: 'Technical', exact: true })).toBeChecked(); assertions++;
+    await page.keyboard.press('ArrowLeft'); await expect(executiveRadio).toBeChecked(); assertions++;
+    await expect(executiveRadio).toBeFocused(); assertions++;
+  }
+  await page.goto(`${origin}${prefix}#/simulator`); await assertExecutiveDefault('simulator');
+  await page.getByRole('button', { name: 'Step one transition', exact: true }).click();
+  await selectTechnical();
+  await page.getByRole('button', { name: 'Prepare current replay JSON', exact: true }).click();
+  const audienceSnapshot = await page.getByRole('textbox', { name: 'Prepared replay snapshot', exact: true }).inputValue();
+  const audienceStatus = await workflowStatus.innerText();
+  for (const name of ['Executive', 'Technical']) {
+    await page.getByRole('radio', { name, exact: true }).check();
+    // The hidden technical textbox remains the SAME prepared snapshot, not a new export.
+    await expect(page.getByLabel('Prepared replay snapshot', { exact: true })).toHaveValue(audienceSnapshot); assertions++;
+    await expect(workflowStatus).toHaveText(audienceStatus, { useInnerText: true }); assertions++;
+  }
+  // Persistence on hash navigation is tested WITHOUT the Technical setup helper.
+  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: /^Assurance/ }).click();
+  await expect(page.getByRole('radio', { name: 'Technical', exact: true })).toBeChecked(); assertions++;
+  await page.getByRole('radio', { name: 'Executive', exact: true }).check();
+  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: /^Business case/ }).click();
+  await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
+  await page.goBack(); await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
+  await page.goForward(); await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
   await mkdir(screenshots, { recursive: true });
   for (const route of ['overview', 'hazop', 'governance', 'simulator', 'assurance']) {
-    await go(route); await page.reload(); await expect(page.locator('h1')).toBeVisible();
+    await go(route); await page.reload(); await expect(page.locator('h1')).toBeVisible(); await assertExecutiveDefault(route); await selectTechnical();
     await page.screenshot({ path: resolve(screenshots, `${route}.jpg`), quality: 65 }); assertions++;
   }
   await go('overview');
@@ -182,6 +226,7 @@ try {
 
   await go('hazop?hazard=unknown&node=invalid');
   await page.reload();
+  await assertExecutiveDefault('hazop'); await selectTechnical();
   await expect(page.getByLabel('Agent node', { exact: true })).toHaveValue('all');
   await expect(page.locator('.register tbody tr')).toHaveCount(96);
   assertions += 2;
@@ -287,7 +332,7 @@ try {
     }
     if (width === 375) await page.screenshot({ path: resolve(screenshots, `mobile-${theme}.jpg`), quality: 65 });
   }
-  await page.reload(); await expect(page.getByLabel('Theme', { exact: true })).toHaveValue('dark');
+  await page.reload(); await assertExecutiveDefault('assurance'); await selectTechnical(); await expect(page.getByLabel('Theme', { exact: true })).toHaveValue('dark');
   await page.keyboard.press('Tab');
   assert.ok(await page.evaluate(() => document.activeElement !== document.body));
   assert.deepEqual(errors, [], 'Browser errors'); assert.deepEqual(violations, [], 'Runtime network contract');

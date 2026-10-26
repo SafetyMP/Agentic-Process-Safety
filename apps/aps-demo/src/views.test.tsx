@@ -75,6 +75,8 @@ describe('evidence-bound interactive views', () => {
     const view = render(<App/>);
     view.unmount(); // Fresh mount models reload; actual browser reload remains in unchanged CI.
     render(<App/>);
+    expect(screen.getByRole('radio', { name: 'Executive' }).getAttribute('checked')).not.toBeNull();
+    fireEvent.click(screen.getByRole('radio', { name: 'Technical' }));
     const nodes = exactLabels(document, 'Agent node');
     expect(nodes).toHaveLength(1);
     expect(nodes[0].value).toBe('all');
@@ -87,6 +89,8 @@ describe('evidence-bound interactive views', () => {
   it("keeps exact Playwright model labels usable across scenario and mode changes", () => {
     window.location.hash = "#/governance";
     render(<App/>);
+    expect(screen.getByRole('radio', { name: 'Executive' }).getAttribute('checked')).not.toBeNull();
+    fireEvent.click(screen.getByRole('radio', { name: 'Technical' }));
     for (const story of stories) {
       const controls = exactLabels(document, "Scenario");
       expect(controls).toHaveLength(1);
@@ -130,6 +134,8 @@ describe('evidence-bound interactive views', () => {
     for (const [route, labels] of routes) {
       window.location.hash = `#/${route}`;
       const view = render(<App/>);
+      expect((screen.getByRole('radio', { name: 'Executive' }) as HTMLInputElement).checked).toBe(true);
+      fireEvent.click(screen.getByRole('radio', { name: 'Technical' }));
       for (const [name, exact] of [...labels, ['Theme', true] as [string, boolean]]) {
         const controls = exactLabels(document, name, exact);
         expect(controls, `${route}: ${name}`).toHaveLength(1);
@@ -193,6 +199,8 @@ describe('evidence-bound interactive views', () => {
   it('walks five stages and preserves the same blocked outcome through hazard and story links', async () => {
     window.location.hash = '#/overview';
     render(<App/>);
+    expect(screen.getByRole('radio', { name: 'Executive' }).getAttribute('checked')).not.toBeNull();
+    fireEvent.click(screen.getByRole('radio', { name: 'Technical' }));
     const navigate = async (name: string) => {
       await act(async () => {
         fireEvent.click(screen.getByRole('button', { name }));

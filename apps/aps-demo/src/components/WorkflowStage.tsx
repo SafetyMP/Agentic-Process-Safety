@@ -1,3 +1,5 @@
+import { Executive, Technical, useAudience } from './AudienceView.tsx';
+import { PurchaseSituation, PurchaseOutcome } from './ExecutiveCase.tsx';
 import { useEffect, useRef, useState } from 'react';
 import { MODE_LABELS, SCENARIOS, scenarioSpec, selectWorkflow } from '../workflow/index.ts';
 import type { AgentId, Mode, RunSpec, ScenarioId, WorkflowCommand, WorkflowState } from '../workflow/index.ts';
@@ -21,12 +23,13 @@ type Props = {
 
 export function WorkflowSummary({ state }: { state: WorkflowState }) {
   const view = selectWorkflow(state);
-  return <section className="notice" aria-label="Current workflow run"><strong>New browser workflow · {view.scenarioTitle}</strong>
+  return <section className="notice" aria-label="Current workflow run"><strong>Current purchasing run · {view.scenarioTitle}</strong>
     <p>{view.label}</p><p>{words(view.status)} · logical time {view.logicalTime} · {view.metrics.committedOrders} orders · {view.metrics.spent} simulated units spent · business confirmation: {view.metrics.completed ? 'confirmed' : 'not confirmed'} · safe model completion: {view.metrics.safeCompleted ? 'yes' : 'no'} · unsafe effects {view.metrics.unsafeCommittedEffects}</p>
     <a href="#/simulator">Inspect agent handoffs and causal events →</a></section>;
 }
 
 export function WorkflowStage({ state, onCommand, onImport, onExport }: Props) {
+  const { audience } = useAudience();
   const view = selectWorkflow(state);
   const [scenario, setScenario] = useState<ScenarioId>(state.spec.scenario);
   const [mode, setMode] = useState<Mode>(state.spec.mode);
@@ -76,21 +79,21 @@ export function WorkflowStage({ state, onCommand, onImport, onExport }: Props) {
   }
   return <div className="workflow-workspace">
     <section className="workflow-intro" aria-labelledby="workflow-title">
-      <p className="eyebrow">03 / GENERATED WORKFLOW</p><h1 id="workflow-title">Follow the handoff.<br/>Understand the consequence.</h1>
-      <p>Six local state machines exchange typed messages against one in-memory procurement world. Step through the work, inspect a boundary, and follow recovery without erasing its history.</p>
+      <p className="eyebrow">{audience === 'executive' ? 'DECISION SCENARIOS / PURCHASING' : '03 / GENERATED WORKFLOW'}</p><h1 id="workflow-title" tabIndex={-1}>{audience === 'executive' ? 'What should happen when the purchase cannot proceed as planned?' : <>Follow the handoff.<br/>Understand the consequence.</>}</h1>
+      <p>{audience === 'executive' ? 'Explore one supply need, the limits on committing a purchase, and the evidence for the next decision. Choose a situation, then run or step through the work.' : 'Six local state machines exchange typed messages against one in-memory procurement world. Step through the work, inspect a boundary, and follow recovery without erasing its history.'}</p>
       <div className="workflow-boundary"><strong>{view.label}</strong><span>New browser run · frozen recorded experiments remain separate in Assurance.</span></div>
     </section>
-    <BusinessExercise task={state.spec.task}/>
+    <Technical><BusinessExercise task={state.spec.task}/></Technical><Executive><PurchaseSituation state={state}/><PurchaseOutcome state={state}/></Executive>
     <section className="panel" aria-labelledby="workflow-controls-title">
-      <div className="section-title"><h2 id="workflow-controls-title">Choose the situation</h2><Badge>Illustrative browser simulation</Badge></div>
+      <div className="section-title"><h2 id="workflow-controls-title">Choose the situation and next action</h2><Badge>Illustrative browser simulation</Badge></div>
       <div className="control-grid">
-        <label>Workflow scenario<select value={scenario} onChange={e => setScenario(e.target.value as ScenarioId)}>{SCENARIOS.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}</select></label>
-        <label>Workflow comparator<select value={mode} onChange={e => setMode(e.target.value as Mode)}>{Object.entries(MODE_LABELS).map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>
-        <label>Proposal schedule<select value={schedule} onChange={e => setSchedule(e.target.value as RunSpec['schedule'])}><option value="proposal-1-first">Proposal 1 first</option><option value="proposal-2-first">Proposal 2 first</option></select></label>
+        <label>{audience === 'executive' ? 'Business situation' : 'Workflow scenario'}<select value={scenario} onChange={e => setScenario(e.target.value as ScenarioId)}>{SCENARIOS.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}</select></label>
+        <label>{audience === 'executive' ? 'Purchasing authority model (A/B/C)' : 'Workflow comparator'}<select value={mode} onChange={e => setMode(e.target.value as Mode)}>{Object.entries(MODE_LABELS).map(([id, name]) => <option key={id} value={id}>{audience === 'executive' ? ({ A: 'A · Without purchasing boundary checks', B: 'B · Actor scope and spend boundary', C: 'C · Additional approval, freshness and uniqueness checks' } as const)[id as Mode] : name}</option>)}</select></label>
+        <label>{audience === 'executive' ? 'Which proposal goes first?' : 'Proposal schedule'}<select value={schedule} onChange={e => setSchedule(e.target.value as RunSpec['schedule'])}><option value="proposal-1-first">Proposal 1 first</option><option value="proposal-2-first">Proposal 2 first</option></select></label>
       </div>
       <p className="muted">Selections are a draft. Apply starts a new browser run and clears this workflow's history, world and metrics. Reset restores the active run's initial specification. Neither action changes frozen evidence.</p>
       <button onClick={replaceRun}>Apply selection and start new run</button>
-      <div className="workflow-active"><strong>Active: {view.scenarioTitle} · {view.modeLabel}</strong><p>{scenarioDescription}</p><p>Active task: demand {state.spec.task.demand}, stock {state.spec.task.stock}, unit price {state.spec.task.unitPrice}, budget {state.spec.task.budget}; approval TTL {state.spec.task.approvalTtl} logical seconds.</p>{state.spec.scenario === 'purchase-race' && <p>Simulated interleaving · {words(state.spec.schedule)}. This is a deterministic queue order, not parallel operating-system execution.</p>}<small>Seed {state.spec.seed} is replay metadata; it does not vary this v1 workflow.</small><BusinessScenarioNote scenario={state.spec.scenario}/></div>
+      <div className="workflow-active"><strong>Active: {view.scenarioTitle} · {view.modeLabel}</strong><p>{scenarioDescription}</p><Technical><p>Active task: demand {state.spec.task.demand}, stock {state.spec.task.stock}, unit price {state.spec.task.unitPrice}, budget {state.spec.task.budget}; approval TTL {state.spec.task.approvalTtl} logical seconds.</p>{state.spec.scenario === 'purchase-race' && <p>Simulated interleaving · {words(state.spec.schedule)}. This is a deterministic queue order, not parallel operating-system execution.</p>}<small>Seed {state.spec.seed} is replay metadata; it does not vary this v1 workflow.</small><BusinessScenarioNote scenario={state.spec.scenario}/></Technical></div>
       <div className="button-row">
         <button className="primary" disabled={!c.canStart} onClick={() => onCommand({ type: 'start' })}>Start workflow</button>
         <button disabled={!c.canStep} onClick={() => onCommand({ type: 'step' })}>Step one transition</button>
@@ -103,7 +106,7 @@ export function WorkflowStage({ state, onCommand, onImport, onExport }: Props) {
       {c.canRecover && c.blockedEventId && <section className="workflow-decision" aria-label="Approval refresh decision"><h3>Expired approval: request a fresh decision</h3><p>No order is implied by this block. Request finance to derive a new bound simulated approval from the existing quote; the expired approval and its denial stay in the trace. This does not extend a grant or issue production authorization.</p><p>Blocked event: <button className="text-button" onClick={() => inspectEvent(c.blockedEventId)}>{c.blockedEventId}</button></p><button onClick={() => onCommand({ type: 'recover', blockedEventId: c.blockedEventId! })}>Request one approval refresh</button></section>}
       {c.canReconcile && c.unknownEventId && <section className="workflow-decision" aria-label="Unknown outcome decision"><h3>The response is missing; the order may already exist</h3><p>Reconcile queries the simulated world for the existing intent. It does not place another order. A missing response is not proof of failure; inspect committed effects below.</p><p>Unknown-outcome event: <button className="text-button" onClick={() => inspectEvent(c.unknownEventId)}>{c.unknownEventId}</button></p><button onClick={() => onCommand({ type: 'reconcile', unknownEventId: c.unknownEventId! })}>Reconcile existing order once</button></section>}
     </section>
-    <div className="stats workflow-metrics" aria-label="Observed simulated effects">
+    <Technical id="workflow-technical-evidence"><div className="stats workflow-metrics" aria-label="Observed simulated effects">
       <Stat label="Committed orders" value={view.metrics.committedOrders} note="Actual in-memory order records"/>
       <Stat label="Simulated spend" value={view.metrics.spent} note="Derived from committed effects"/>
       <Stat label="Unsafe committed effects" value={view.metrics.unsafeCommittedEffects} note="Independent model oracle; no real-world estimate"/>
@@ -133,5 +136,6 @@ export function WorkflowStage({ state, onCommand, onImport, onExport }: Props) {
     <section className="panel" aria-labelledby="workflow-observations-title"><h2 id="workflow-observations-title">Model observations and limits</h2><p>These are independent observations of simulated effects, not test pass provenance, safety certification or production enforcement. Business confirmation alone does not imply a safe or correct outcome; A/B can confirm work while committing unsafe effects.</p><ul className="workflow-invariants">{view.invariants.map(i => <li key={i.id}><strong>{i.id}: {i.status}</strong><span>{words(i.explanationCode)}</span><div>{i.evidenceEventIds.map(id => <button key={id} className="text-button" onClick={() => inspectEvent(id)}>{id} </button>)}</div></li>)}</ul><ul>{view.limitations.map(l => <li key={l}>{l}</li>)}</ul><p>Human review and production objective arbitration are unavailable in this workflow candidate. No real permission is issued.</p></section>
     <BusinessDebrief/>
     <section className="panel" aria-labelledby="workflow-replay-title"><h2 id="workflow-replay-title">Inspect or restore a browser replay</h2><p>Prepared exports are snapshots; prepare again after further transitions. Versioned replay is recomputed by the engine before adoption. Replay inputs are user-supplied. A matching fixture digest shows consistency, not membership of a trusted catalog, authenticated identity or safety. A valid import replaces this workflow's history; an invalid import leaves it intact.</p><button onClick={prepareReplay}>Prepare current replay JSON</button><p role="status" aria-label="Replay export status">{exportNotice}</p>{exportText && <label>Prepared replay snapshot<textarea readOnly value={exportText} rows={6}/></label>}<label>Replay JSON to validate<textarea value={replayText} maxLength={262144} onChange={e => setReplayText(e.target.value)} rows={5}/></label><button disabled={!replayText.trim()} onClick={() => { const result = onImport(replayText); setImportNotice(result.message); if (result.ok) { setSelectedEvent(null); setMessageId(null); setExportText(''); } }}>Validate replay and replace current run</button><p role="status" aria-label="Replay import status">{importNotice}</p><details><summary>Active specification and replay identity</summary><p>{view.runKey}</p><p>Specification identity, not a unique session or authenticated receipt.</p><pre>{JSON.stringify(state.spec, null, 2)}</pre></details></section>
+    </Technical>
   </div>;
 }
