@@ -276,6 +276,8 @@ describe('evidence-bound interactive views', () => {
   it('runs, pauses, resets, isolates modes and persists theme choice', () => {
     vi.useFakeTimers(); window.location.hash = '#/simulator';
     render(<App/>);
+    expect((screen.getByRole('radio', { name: 'Executive' }) as HTMLInputElement).checked).toBe(true);
+    fireEvent.click(screen.getByRole('radio', { name: 'Technical' }));
     fireEvent.click(screen.getByRole('button', { name: 'Start' }));
     fireEvent.click(screen.getByRole('button', { name: 'Pause' }));
     vi.advanceTimersByTime(3000);
