@@ -107,3 +107,12 @@ it('Pitch never invents confirmation in the unsafe-commit-before-confirmation in
   desk(state); tab('Pitch'); expect(screen.getByText('An unsafe commitment exists; confirmation is absent.')).toBeTruthy();
   expect(screen.queryByText('Confirmation includes an unsafe commitment.')).toBeNull();
 });
+
+it('initial Pitch offers the existing evidence-limitations destination without inventing an event', () => {
+  const state = createWorkflow(scenarioSpec()); const before = exportWorkflow(state); const h = desk(state);
+  tab('Pitch'); const panel = screen.getByRole('tabpanel');
+  expect(within(panel).getByRole('link', { name: 'View evidence limitations' }).getAttribute('href')).toBe('#/assurance');
+  expect(within(panel).queryByRole('button', { name: 'Inspect technical evidence' })).toBeNull();
+  expect(state.events.some(event => event.type === 'order-committed')).toBe(false);
+  expect(exportWorkflow(state)).toBe(before); expect(h.inspect).not.toHaveBeenCalled(); expect(h.review).not.toHaveBeenCalled();
+});
