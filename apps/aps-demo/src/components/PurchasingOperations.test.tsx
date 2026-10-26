@@ -116,3 +116,20 @@ it('initial Pitch offers the existing evidence-limitations destination without i
   expect(state.events.some(event => event.type === 'order-committed')).toBe(false);
   expect(exportWorkflow(state)).toBe(before); expect(h.inspect).not.toHaveBeenCalled(); expect(h.review).not.toHaveBeenCalled();
 });
+
+
+it('Pitch directs actions to Analytical without claiming absent controls or issuing commands', async () => {
+  Object.defineProperty(window, 'matchMedia', { writable: true, value: vi.fn(() => ({ matches: false, addEventListener() {}, removeEventListener() {} })) });
+  vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} });
+  window.location.hash = '#/assurance'; const api = await import('../workflow/index.ts'); const commands = vi.spyOn(api, 'workflowReducer'); render(<App/>);
+  const operations = screen.getByRole('region', { name: 'Purchasing operations' });
+  expect(operations.textContent).not.toContain('below'); expect(operations.textContent).not.toContain('Tabs');
+  expect(operations.textContent).toContain('return to Analytical and explicitly choose and Apply');
+  expect(operations.textContent).toContain('The retained run is paused when leaving Analytical; returning does not start it.');
+  expect(screen.queryByRole('button', { name: 'Start workflow' })).toBeNull();
+  const link = within(operations).getByRole('link', { name: 'Return to Analytical' }); expect(link.getAttribute('href')).toBe('#/simulator');
+  const before = commands.mock.calls.map(([, command]) => command);
+  await act(async () => { window.location.hash = link.getAttribute('href')!; window.dispatchEvent(new HashChangeEvent('hashchange')); });
+  expect(screen.getByRole('button', { name: 'Start workflow' })).toBeTruthy(); expect(commands.mock.calls.map(([, command]) => command)).toEqual(before);
+  expect(screen.getByRole('status', { name: 'Workflow status' }).textContent).toContain('0 transitions'); commands.mockRestore();
+});
