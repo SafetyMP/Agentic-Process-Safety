@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { resolve, extname } from 'node:path';
+import { URLSearchParams } from 'node:url';
 /* global document, window */
 
 // Serve only the built artifact at its actual Pages prefix. No SPA server fallback.
@@ -48,11 +49,11 @@ try {
   page.on('pageerror', e => errors.push(e.message));
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('websocket', ws => violations.push(ws.url()));
-  const executiveHeadings = { overview: 'Keep purchasing moving, within agreed limits.', simulator: 'Work the purchase. Examine the exception.', governance: 'Work the purchase. Examine the exception.', hazop: 'Work the purchase. Examine the exception.', assurance: 'What does this evidence justify?' };
+  const executiveHeadings = { overview: 'Use HAZOP before delegating purchasing.', simulator: 'What must stay true before we buy?', governance: 'How does a request boundary change the outcome?', hazop: 'What can depart from intended purchasing?', assurance: 'What should the team take from this case?' };
   // Fresh documents must demonstrate the real default BEFORE legacy setup.
   const assertExecutiveDefault = async route => {
     await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
-    await expect(page.getByRole('heading', { level: 1, name: executiveHeadings[route.split('?')[0]], exact: true })).toBeVisible(); assertions++;
+    await expect(page.getByRole('heading', { level: 1, name: route.split('?')[0] === 'hazop' && new URLSearchParams(route.split('?')[1] ?? '').get('hazard') === 'APS-f47191931b96a999a61c' ? 'What could go wrong between permission and purchase?' : executiveHeadings[route.split('?')[0]], exact: true })).toBeVisible(); assertions++;
     await expect(page.locator('[data-executive-uncertainty]:visible').first()).toBeVisible(); assertions++;
   };
   const selectTechnical = async () => {
@@ -142,6 +143,22 @@ try {
   await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
   await page.goBack(); await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
   await page.goForward(); await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
+  // ADDITIVE Executive narrative: context-specific default headings and memory-only discussion.
+  for (const target of ['hazop', 'hazop?hazard=APS-f47191931b96a999a61c', 'hazop?hazard=APS-758a4efe3266c2f560e4', 'hazop?hazard=not-a-finding']) await freshExecutive(target);
+  await freshExecutive('assurance');
+  const discussionDraft = page.getByRole('region', { name: 'Non-binding discussion draft', exact: true });
+  await check(() => expect(discussionDraft).toContainText('No purchasing decision observed; these positions are hypotheses.'));
+  await discussionDraft.getByRole('radio', { name: 'More evidence before a recommendation', exact: true }).check();
+  await check(() => expect(discussionDraft).toContainText('not an approval or a validated recommendation'));
+  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Analytical', exact: true }).click();
+  await page.getByRole('button', { name: 'Reset workflow and clear history', exact: true }).click();
+  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Pitch', exact: true }).click();
+  await check(() => expect(discussionDraft).toContainText('The run has changed—review this draft again.'));
+  await discussionDraft.getByRole('radio', { name: 'More evidence before a recommendation', exact: true }).press('Space');
+  await check(() => expect(discussionDraft).not.toContainText('The run has changed—review this draft again.'));
+  await page.reload(); await assertExecutiveDefault('assurance');
+  await check(() => expect(discussionDraft.getByRole('radio', { name: 'More evidence before a recommendation', exact: true })).not.toBeChecked());
+  // END ADDITIVE Executive narrative.
   // ADDITIVE Operations/HAZOP journey. Original Technical/default journeys remain below.
   await freshExecutive('overview');
   const recommendation = page.getByRole('region', { name: 'HAZOP recommendation', exact: true });
@@ -176,7 +193,7 @@ try {
   await page.keyboard.press('Shift+Tab'); await check(() => expect(records.getByRole('link', { name: 'Conceptual', exact: true })).toBeFocused());
   await selectTechnical(); await assertGeneratedWorkflowUnchanged(operationsInitial);
   await page.getByRole('radio', { name: 'Executive', exact: true }).check();
-  await page.getByLabel('Business situation', { exact: true }).selectOption('approval-delay');
+  await page.getByLabel('Question to examine', { exact: true }).selectOption('approval-delay');
   await selectTechnical(); await assertGeneratedWorkflowUnchanged(operationsInitial);
   await page.getByRole('radio', { name: 'Executive', exact: true }).check();
   await page.getByRole('button', { name: 'Apply selection and start new run', exact: true }).click();

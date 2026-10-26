@@ -153,3 +153,33 @@
 
 /* Full Executive case shell; Technical five-route layout stays independent. */
 .case-status { display:flex; flex-wrap:wrap; gap:6px 14px; padding:12px 16px; border:1px solid var(--line); margin-bottom:20px; font-size:13px; }.case-status small { width:100%; }.conceptual-task { max-width:850px; padding-block:20px; }.purchasing-operations .operations-records { border-bottom:1px solid var(--line); }.purchasing-operations .operations-records h3 { margin-top:12px; }
+
+/* Executive task workspace; Technical graph, controls and viewport styles stay intact. */
+[data-audience=executive] .executive-opening h1 { font-size:clamp(28px,3vw,40px); line-height:1.15; max-width:24ch; margin:12px 0 18px; }
+[data-audience=executive] .executive-opening { padding-top:0; max-width:850px; }
+[data-audience=executive] .conceptual-task { padding:0 0 24px; }
+[data-audience=executive] .conceptual-task details { margin:12px 0; }
+[data-audience=executive] .workflow-intro { margin-bottom:16px; }
+[data-audience=executive] .workflow-intro h1 { font-size:clamp(28px,3vw,40px); max-width:27ch; }
+[data-audience=executive] .workflow-boundary { padding:10px 14px; margin:12px 0; }
+[data-audience=executive] .executive-settings { margin:8px 0 12px; }
+[data-audience=executive] .executive-settings summary { min-height:44px; cursor:pointer; padding-block:10px; }
+[data-audience=executive] .executive-desk { padding:20px; border-radius:6px; }
+[data-audience=executive] .executive-desk h2 { font-size:22px; }
+[data-audience=executive] .executive-outcome { border-left:3px solid var(--teal); padding-left:16px; margin-bottom:24px; }
+[data-audience=executive] .executive-outcome h2 { max-width:40ch; }
+[data-audience=executive] .executive-result-facts { display:flex; flex-wrap:wrap; gap:12px 24px; margin:16px 0; }
+[data-audience=executive] .executive-result-facts div { min-width:120px; }
+[data-audience=executive] .executive-result-facts dt { color:var(--muted); font-size:13px; }
+[data-audience=executive] .executive-result-facts dd { margin:4px 0; font-size:17px; font-weight:600; }
+[data-audience=executive] .purchasing-register { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 24px; }
+[data-audience=executive] .purchasing-register section,[data-audience=executive] .executive-orders { border-top:1px solid var(--line); padding:12px 0; min-width:0; overflow-wrap:anywhere; }
+[data-audience=executive] .purchasing-register h3 { font-size:16px; margin:4px 0 10px; }
+[data-audience=executive] .purchasing-register ul { padding-left:18px; }
+[data-audience=executive] .executive-discussion { max-width:900px; padding:24px 0; }
+[data-audience=executive] .executive-discussion legend { font-size:22px; font-weight:600; margin-bottom:16px; }
+[data-audience=executive] .executive-discussion fieldset { border:0; padding:0; margin:0; min-width:0; }
+[data-audience=executive] .executive-discussion label { display:flex; gap:12px; align-items:center; min-height:48px; padding:8px 0; }
+[data-audience=executive] .executive-discussion input { width:18px; height:18px; min-height:0; margin:0; flex:0 0 18px; }
+[data-audience=executive] .executive-discussion details,[data-audience=executive] .case-status { overflow-wrap:anywhere; }
+@media(max-width:600px) { [data-audience=executive] .purchasing-register { grid-template-columns:1fr; } [data-audience=executive] .executive-desk { padding:16px; } [data-audience=executive] .executive-result-facts { gap:12px; } }

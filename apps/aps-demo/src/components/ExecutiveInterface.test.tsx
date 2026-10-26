@@ -40,8 +40,8 @@ function setup(initial = createWorkflow(scenarioSpec()), policy = initialState(4
   return { state: () => current, policy: () => p, commands, actions };
 }
 const headings = {
-  overview: 'Keep purchasing moving, within agreed limits.', simulator: 'Work the purchase. Examine the exception.',
-  governance: 'Work the purchase. Examine the exception.', hazop: 'Work the purchase. Examine the exception.', assurance: 'What does this evidence justify?',
+  overview: 'Use HAZOP before delegating purchasing.', simulator: 'What must stay true before we buy?',
+  governance: 'How does a request boundary change the outcome?', hazop: 'What can depart from intended purchasing?', assurance: 'What should the team take from this case?',
 };
 it.each(Object.entries(headings))('opens %s as a decision brief, not a technical dashboard', (route, heading) => {
   window.location.hash = `#/${route}`; render(<App/>);

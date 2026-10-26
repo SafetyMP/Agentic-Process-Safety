@@ -13,11 +13,11 @@ async function route(hash: string) { await act(async () => { window.location.has
 function audience(name: string) { fireEvent.click(screen.getByRole('radio', { name })); }
 const navigation = () => screen.getByRole('navigation', { name: 'Main navigation' });
 for (const [path, current, heading] of [
-  ['overview', 'Conceptual', 'Keep purchasing moving, within agreed limits.'],
-  ['simulator', 'Analytical', 'Work the purchase. Examine the exception.'],
-  ['assurance', 'Pitch', 'What does this evidence justify?'],
-  ['hazop', 'Analytical', 'Work the purchase. Examine the exception.'],
-  ['governance', 'Analytical', 'Work the purchase. Examine the exception.'],
+  ['overview', 'Conceptual', 'Use HAZOP before delegating purchasing.'],
+  ['simulator', 'Analytical', 'What must stay true before we buy?'],
+  ['assurance', 'Pitch', 'What should the team take from this case?'],
+  ['hazop', 'Analytical', 'What can depart from intended purchasing?'],
+  ['governance', 'Analytical', 'How does a request boundary change the outcome?'],
 ]) it(`${path} belongs to the WHOLE three-issue Executive shell without a nested framework widget`, () => {
   window.location.hash = `#/${path}`; render(<App/>);
   expect(within(navigation()).getAllByRole('link').map(link => link.textContent!.replace(/[◈⊞◇⇄◉0-9]/g, '').trim())).toEqual(['Conceptual', 'Analytical', 'Pitch']);
@@ -29,7 +29,8 @@ for (const [path, current, heading] of [
 });
 it('retains drafts, pace, stale export, replay error and actual state across all Executive destinations', async () => {
   window.location.hash = '#/simulator'; const calls = vi.spyOn(workflowAPI, 'workflowReducer'); render(<App/>);
-  fireEvent.change(screen.getByLabelText('Business situation'), { target: { value: 'approval-delay' } });
+  fireEvent.change(screen.getByLabelText('Question to examine'), { target: { value: 'approval-delay' } });
+  fireEvent.click(screen.getByText('Exercise settings', { selector: 'summary' }));
   fireEvent.change(screen.getByLabelText('Purchasing authority model (A/B/C)'), { target: { value: 'A' } });
   fireEvent.change(screen.getByLabelText('Playback pace'), { target: { value: '1400' } });
   audience('Technical'); fireEvent.click(screen.getByRole('button', { name: 'Prepare current replay JSON' }));
@@ -39,7 +40,7 @@ it('retains drafts, pace, stale export, replay error and actual state across all
   const error = screen.getByRole('status', { name: 'Replay import status' }).textContent; const commands = calls.mock.calls.map(([, c]) => c);
   audience('Executive'); await route('#/assurance'); await route('#/overview'); await route('#/simulator');
   expect(calls.mock.calls.map(([, c]) => c)).toEqual(commands);
-  expect((screen.getByLabelText('Business situation') as HTMLSelectElement).value).toBe('approval-delay');
+  expect((screen.getByLabelText('Question to examine') as HTMLSelectElement).value).toBe('approval-delay');
   expect((screen.getByLabelText('Purchasing authority model (A/B/C)') as HTMLSelectElement).value).toBe('A');
   expect((screen.getByLabelText('Playback pace') as HTMLSelectElement).value).toBe('1400');
   audience('Technical'); expect((screen.getByLabelText('Prepared replay snapshot') as HTMLTextAreaElement).value).toBe(stale);
@@ -48,7 +49,7 @@ it('retains drafts, pace, stale export, replay error and actual state across all
 });
 it('carries actual exception/record context through Analytical support and Pitch to explicit Technical inspection', async () => {
   window.location.hash = '#/simulator'; const calls = vi.spyOn(workflowAPI, 'workflowReducer'); render(<App/>);
-  fireEvent.change(screen.getByLabelText('Business situation'), { target: { value: 'approval-delay' } }); fireEvent.click(screen.getByRole('button', { name: 'Apply selection and start new run' }));
+  fireEvent.change(screen.getByLabelText('Question to examine'), { target: { value: 'approval-delay' } }); fireEvent.click(screen.getByRole('button', { name: 'Apply selection and start new run' }));
   for (let i = 0; i < 100 && !(screen.getByRole('button', { name: 'Step one transition' }) as HTMLButtonElement).disabled; i++) fireEvent.click(screen.getByRole('button', { name: 'Step one transition' }));
   const id = screen.getByRole('region', { name: 'Approval refresh decision' }).querySelector('.text-button')!.textContent!;
   fireEvent.click(screen.getByRole('button', { name: `Open exception ${id}` })); fireEvent.click(screen.getByRole('button', { name: 'Review exception design' }));
@@ -72,7 +73,7 @@ it('opens actual Pitch limitations from the no-event fallback without changing t
   const link = screen.getByRole('link', { name: 'View evidence limitations' }); expect(link.getAttribute('href')).toBe('#/assurance?detail=limitations');
   await route(link.getAttribute('href')!); const summary = screen.getByText('Evidence and limitations', { selector: 'summary' });
   expect((summary.parentElement as HTMLDetailsElement).open).toBe(true); expect(calls).not.toHaveBeenCalled();
-  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('What does this evidence justify?');
+  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('What should the team take from this case?');
 });
 
 it('route departure pauses the single workflow timer and returns the same case without hidden advancement', async () => {
