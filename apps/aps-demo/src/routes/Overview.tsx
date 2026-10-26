@@ -4,12 +4,13 @@ import { topology, scopeHazard, routeLink } from '../data.ts';
 import { Badge, Heading, Stat } from '../components/shared.tsx';
 import { metrics, requestFor, type State } from '../domain/simulation.ts';
 import { stories } from '../domain/scenarios.ts';
-import { Executive, Technical, useAudience } from '../components/AudienceView.tsx';
+import { Technical, useAudience } from '../components/AudienceView.tsx';
+import type { WorkflowState } from '../workflow/index.ts';
 import { CaseBrief } from '../components/ExecutiveCase.tsx';
 import { BusinessOverview } from '../components/BusinessContext.tsx';
 
 const positions = [{ x: 0, y: 150 }, { x: 210, y: 150 }, { x: 420, y: 150 }, { x: 630, y: 150 }, { x: 840, y: 150 }, { x: 420, y: 0 }];
-export function Overview({ state, onWalkthrough }: { state: State; onWalkthrough?: () => void }) {
+export function Overview({ state, onWalkthrough, workflow }: { state: State; onWalkthrough?: () => void; workflow?: WorkflowState }) {
   const { audience } = useAudience();
   const [selected, setSelected] = useState('orchestrator');
   const node = topology.nodes.find(n => n.id === selected);
@@ -21,7 +22,7 @@ export function Overview({ state, onWalkthrough }: { state: State; onWalkthrough
   const nodes = entities.map((n, i) => ({ id: n.id, position: positions[i] ?? { x: i === 6 ? 210 : 630, y: 320 }, data: { label: n.label.charAt(0).toUpperCase() + n.label.slice(1) }, selected: n.id === selected }));
   const edges = topology.communications.map((e, i) => ({ id: String(i), source: e.source, target: e.target, label: e.data === 'delegation' ? '' : e.data.replace('_result', ''), markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: e.source === 'orchestrator' ? '#8296b2' : '#1d9489', strokeDasharray: e.source === 'orchestrator' ? '5 4' : undefined } }));
   edges.push({ id: 'overlay-gateway', source: 'purchase', target: 'gateway', label: 'simulated boundary', markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#1d9489', strokeDasharray: '3 4' } }, { id: 'overlay-assurance', source: 'gateway', target: 'assurance', label: 'browser outcome', markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#1d9489', strokeDasharray: '3 4' } });
-  return <><Heading eyebrow={audience === 'executive' ? 'BUSINESS CASE / MANUFACTURING' : 'AGENTIC PROCESS SAFETY / INTERACTIVE DEMONSTRATION'} title={audience === 'executive' ? 'Keep purchasing moving, within agreed limits.' : 'Autonomy with boundaries.'}>{audience === 'executive' ? 'A manufacturing supply case: decide what to delegate, when to stop, and what evidence to require.' : 'Follow a procurement swarm from agent intent to hazards, simulated governance decisions and traceable assurance.'}</Heading><Executive><CaseBrief/></Executive><Technical id="overview-technical-evidence">
+  return <><Heading eyebrow={audience === 'executive' ? 'BUSINESS CASE / MANUFACTURING' : 'AGENTIC PROCESS SAFETY / INTERACTIVE DEMONSTRATION'} title={audience === 'executive' ? 'Keep purchasing moving, within agreed limits.' : 'Autonomy with boundaries.'}>{audience === 'executive' ? 'A manufacturing supply case: decide what to delegate, when to stop, and what evidence to require.' : 'Follow a procurement swarm from agent intent to hazards, simulated governance decisions and traceable assurance.'}</Heading><CaseBrief workflow={workflow}/><Technical id="overview-technical-evidence">
     <BusinessOverview/>
     <section className="business-legacy-entry"><h2>Explore the separate policy illustration</h2><p>The existing guided walkthrough follows one request through illustrative policy checks. It is separate from the factory-supply workflow exercise.</p><button onClick={onWalkthrough}>Begin guided walkthrough →</button></section>
     <div className="stats"><Stat label="Specialized workers" value="5 + 1" note="Five workers and one orchestrator"/><Stat label="Generated findings" value="96" note="All unverified · no approved hazards"/><Stat label="Reference scenarios" value="16" note="Authored examples, not incidents"/><Stat label="Evidence scope" value="30 trials" note="One finite recorded experiment"/></div>

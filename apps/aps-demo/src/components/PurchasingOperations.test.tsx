@@ -1,0 +1,78 @@
+// @vitest-environment jsdom
+import { afterEach, expect, it, vi } from 'vitest';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { PurchasingOperations } from './PurchasingOperations.tsx';
+import { HazopConversation } from './HazopConversation.tsx';
+import { AudienceProvider } from './AudienceView.tsx';
+import { App } from '../App.tsx';
+import { createWorkflow, exportWorkflow, importWorkflow, scenarioSpec, selectWorkflow, workflowReducer } from '../workflow/index.ts';
+import type { Mode, ScenarioId, WorkflowState } from '../workflow/index.ts';
+import { digest } from '../workflow/scenarios.ts';
+afterEach(() => { cleanup(); window.location.hash = ''; });
+function finish(scenario: ScenarioId, mode: Mode = 'C') { let s = createWorkflow(scenarioSpec(scenario, mode)); for (let i = 0; i < 100 && selectWorkflow(s).controls.canStep; i++) s = workflowReducer(s, { type: 'step' }); return s; }
+function tab(name: string) { fireEvent.click(screen.getByRole('tab', { name })); }
+function desk(state: WorkflowState) { const inspect = vi.fn(); const review = vi.fn(); const rendered = render(<AudienceProvider><PurchasingOperations state={state} onInspect={inspect} onReview={review}/></AudienceProvider>); return { inspect, review, ...rendered }; }
+it('opens actual supplied task and empty records without deriving work or issuing a command', () => {
+  const s = createWorkflow(scenarioSpec()); const before = exportWorkflow(s); const h = desk(s);
+  fireEvent.click(screen.getByRole('button', { name: `Open task ${s.spec.task.id}` })); expect(screen.getByRole('region', { name: 'Selected purchasing record' }).textContent).toContain(s.spec.task.id);
+  tab('Stock & quote'); expect(screen.getByText('No quote prepared yet.')).toBeTruthy(); expect(screen.getByText(/Shortage: not derived yet/)).toBeTruthy();
+  tab('Permission records'); expect(screen.getByText('No simulated permission issued.')).toBeTruthy(); tab('Orders'); expect(screen.getByText('No order recorded.')).toBeTruthy();
+  tab('Exceptions'); expect(screen.getByText(/No exception event recorded/)).toBeTruthy(); expect(exportWorkflow(s)).toBe(before); expect(h.inspect).not.toHaveBeenCalled(); expect(h.review).not.toHaveBeenCalled();
+  expect(screen.queryByRole('button', { name: /create|submit|approve|assign|pay|ship|override|retry/i })).toBeNull();
+});
+it('uses real imported identities and values instead of hardcoded default business records', () => {
+  const spec = scenarioSpec(); spec.task = { ...spec.task, id: 'request-27', contextId: 'context-27', demand: 37, stock: 7, unitPrice: 9, budget: 500 }; spec.fixtureDigest = digest(spec.task);
+  let state = createWorkflow(spec); for (let i = 0; i < 100 && selectWorkflow(state).controls.canStep; i++) state = workflowReducer(state, { type: 'step' });
+  const imported = importWorkflow(exportWorkflow(state)); expect(imported.ok).toBe(true); if (!imported.ok) throw new Error('Expected supported custom replay');
+  desk(imported.state); fireEvent.click(screen.getByRole('button', { name: 'Open task request-27' })); tab('Stock & quote');
+  expect(screen.getByText(/Observed stock 7. Shortage: 30/)).toBeTruthy(); expect(screen.getByText(/30 units × 9 = 270 simulated units/)).toBeTruthy();
+  tab('Orders'); expect(screen.getByText(/30 units · 270 simulated units/)).toBeTruthy(); expect(screen.queryByText(/80 units/)).toBeNull();
+});
+it('tabs use native focus semantics and preserve selected record through view changes', () => {
+  const state = finish('nominal'); const before = exportWorkflow(state); desk(state); const first = screen.getByRole('tab', { name: 'Supply request' }); first.focus(); fireEvent.keyDown(first, { key: 'End' });
+  expect(document.activeElement).toBe(screen.getByRole('tab', { name: 'Exceptions' })); expect(screen.getByRole('tabpanel').getAttribute('aria-labelledby')).toBe(document.activeElement!.id);
+  fireEvent.keyDown(document.activeElement!, { key: 'Home' }); expect(document.activeElement).toBe(first);
+  tab('Orders'); fireEvent.click(screen.getByRole('button', { name: `Open order ${state.world.orders[0].id}` })); const detail = screen.getByRole('region', { name: 'Selected purchasing record' }).textContent;
+  for (const name of ['Technical', 'Executive']) { fireEvent.click(screen.getByRole('radio', { name })); expect(screen.getByRole('region', { name: 'Selected purchasing record' }).textContent).toBe(detail); expect(exportWorkflow(state)).toBe(before); }
+});
+it('opens quote, expired grant and actual exception then carries its unreviewed design question', () => {
+  const s = finish('approval-delay'); const before = exportWorkflow(s); const h = desk(s);
+  expect(s.status).toBe('blocked-recoverable'); expect(s.world.orders).toHaveLength(0);
+  tab('Stock & quote'); fireEvent.click(screen.getByRole('button', { name: `Open quote ${s.world.quote!.id}` })); expect(screen.getByRole('region', { name: 'Selected purchasing record' }).textContent).toContain('400');
+  tab('Permission records'); fireEvent.click(screen.getByRole('button', { name: `Open permission ${s.world.approvals[0].id}` })); expect(screen.getByText(/expired · expires/)).toBeTruthy();
+  tab('Exceptions'); fireEvent.click(screen.getByRole('button', { name: `Open exception ${s.blockedEventId}` }));
+  fireEvent.click(within(screen.getByRole('region', { name: 'Selected purchasing record' })).getByRole('button', { name: 'Review exception design' }));
+  expect(h.review).toHaveBeenCalledExactlyOnceWith({ taskId: s.spec.task.id, eventId: s.blockedEventId, specKey: s.runKey });
+  const pane = screen.getByRole('region', { name: 'HAZOP design review' }); expect(pane.textContent).toContain(s.blockedEventId); expect(pane.textContent).toContain('Related timing finding—different object/coverage');
+  fireEvent.click(within(pane).getByRole('button', { name: 'Next review question' })); expect(document.activeElement?.textContent).toBe('Departure');
+  expect(exportWorkflow(s)).toBe(before); fireEvent.click(within(pane).getByRole('button', { name: 'Inspect technical evidence' })); expect(h.inspect).toHaveBeenCalledExactlyOnceWith(s.blockedEventId);
+});
+it.each(['A', 'B'] as const)('%s unsafe confirmation remains actual orders, not a fabricated expiry denial queue', mode => {
+  const s = finish('approval-delay', mode); desk(s); tab('Orders'); expect(s.world.orders).toHaveLength(1); expect(selectWorkflow(s).metrics.unsafeCommittedEffects).toBe(1);
+  tab('Exceptions'); expect(screen.getByText(/No refresh\/reconciliation action is currently available/)).toBeTruthy(); expect(screen.queryByRole('button', { name: 'Request one approval refresh' })).toBeNull();
+});
+it('keeps an order visible while response is unknown and retains exact identity after reconciliation', () => {
+  let s = finish('lost-purchase-response'); const oldId = s.world.orders[0].id; const h = desk(s); expect(selectWorkflow(s).metrics.completed).toBe(false); tab('Orders'); expect(screen.getByRole('button', { name: `Open order ${oldId}` })).toBeTruthy();
+  tab('Exceptions'); fireEvent.click(screen.getByRole('button', { name: `Open exception ${s.unknownEventId}` })); expect(screen.getByText(/A reply is missing/)).toBeTruthy();
+  s = workflowReducer(s, { type: 'reconcile', unknownEventId: s.unknownEventId! }); for (let i = 0; i < 100 && selectWorkflow(s).controls.canStep; i++) s = workflowReducer(s, { type: 'step' });
+  h.rerender(<AudienceProvider><PurchasingOperations state={s} onInspect={h.inspect}/></AudienceProvider>); tab('Orders'); expect(screen.getByRole('button', { name: `Open order ${oldId}` })).toBeTruthy(); expect(s.world.orders).toHaveLength(1);
+});
+it('fails a stale selection visibly after explicit reset without inventing a replacement record', () => {
+  const s = finish('nominal'); const h = desk(s); tab('Orders'); fireEvent.click(screen.getByRole('button', { name: `Open order ${s.world.orders[0].id}` }));
+  h.rerender(<AudienceProvider><PurchasingOperations state={workflowReducer(s, { type: 'reset' })} onInspect={h.inspect}/></AudienceProvider>);
+  expect(screen.getByText('Selected record no longer available in this run. No model was changed.')).toBeTruthy(); expect(h.inspect).not.toHaveBeenCalled();
+});
+it('keeps quotation finding and approval simulation coverage distinct through every review question', () => {
+  const state = finish('lost-purchase-response'); const before = exportWorkflow(state); render(<HazopConversation state={state} context={{ taskId: 'unavailable', eventId: 'not-an-event' }}/>);
+  expect(screen.getByText(/Selected exception is no longer available/)).toBeTruthy(); expect(screen.getByText(/active run is not the approval-expiry exercise/i)).toBeTruthy();
+  for (let i = 0; i < 5; i++) { expect(screen.getByText('Related timing finding—different object/coverage')).toBeTruthy(); if (i < 4) fireEvent.click(screen.getByRole('button', { name: 'Next review question' })); }
+  expect(screen.getByText(/Residual risk, severity, likelihood and business benefit are unknown/)).toBeTruthy(); expect(screen.queryByRole('button', { name: /save|assign|accept|approve/i })).toBeNull(); expect(exportWorkflow(state)).toBe(before);
+});
+it('places shared recommendation before both entries, whose navigation never applies or starts a scenario', async () => {
+  Object.defineProperty(window, 'matchMedia', { writable: true, value: vi.fn(() => ({ matches: false, addEventListener() {}, removeEventListener() {} })) }); vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} });
+  window.location.hash = '#/overview'; render(<App/>); const recommendation = screen.getByRole('region', { name: 'HAZOP recommendation' });
+  expect(recommendation.textContent).toContain('does not execute a stop or prove safety'); expect(recommendation.textContent).toContain('Active run: Nominal procurement');
+  const entry = within(recommendation).getByRole('link', { name: 'Open the purchasing workspace' }); expect(entry.getAttribute('href')).toBe('#/simulator');
+  fireEvent.click(entry); await act(async () => { window.location.hash = entry.getAttribute('href')!; window.dispatchEvent(new HashChangeEvent('hashchange')); });
+  expect(screen.getByRole('region', { name: 'Purchasing operations' })).toBeTruthy(); expect(screen.getByRole('status', { name: 'Workflow status' }).textContent).toContain('0 transitions'); expect(screen.getByText(/Active: Nominal procurement/, { selector: '.workflow-active > strong' })).toBeTruthy();
+});

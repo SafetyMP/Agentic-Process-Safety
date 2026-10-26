@@ -129,3 +129,16 @@
 @media(max-width:500px) { .audience-bar { padding:10px 16px; }.audience-bar>span { width:100%; }.audience-toggle label { padding:8px 10px; }.case-path { display:block; }.case-facts { display:block; }.case-facts>div { max-width:none; margin-bottom:12px; } }
 
 .material-risk { border-left:4px solid var(--danger); padding:14px 18px; background:var(--panel); margin-bottom:22px; }.material-risk p { margin-bottom:0; }
+
+/* Operations projection; shared header reserves sidebar space in both views. */
+.audience-bar { margin-left:240px; position:sticky; top:0; z-index:40; }
+[data-audience] .audience-toggle input { min-height:0; height:18px; width:18px; }
+[data-audience=executive] .sidebar { top:0; }
+.purchasing-operations { border:1px solid var(--line); background:var(--panel); border-radius:10px; padding:24px; margin-bottom:24px; }
+.operations-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; }.operations-heading>span { max-width:320px; font-size:13px; color:var(--muted); }
+.operations-tabs { display:flex; flex-wrap:wrap; gap:6px; border-block:1px solid var(--line); padding:12px 0; }.operations-tabs [aria-selected=true] { border-color:var(--teal); background:var(--soft); }
+.operations-records { padding:18px 0; }.operations-records li { padding:8px 0; }.operations-detail { border-top:1px solid var(--line); padding-top:18px; }.operations-detail dl { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 24px; }.operations-detail dt { color:var(--muted); font-size:13px; }.operations-detail dd { margin:0; overflow-wrap:anywhere; }
+.hazop-conversation { padding:22px; border-left:3px solid var(--teal); background:var(--soft); margin:20px 0; }.review-questions { display:flex; flex-wrap:wrap; gap:8px; list-style:none; padding:0; }.review-questions [aria-current=step] { border-color:var(--teal); }.timing-gap { background:var(--panel); }
+@media(max-width:1200px) { .audience-bar { margin-left:205px; } }
+@media(max-width:900px) { .audience-bar { margin-left:0; position:relative; } }
+@media(max-width:500px) { .purchasing-operations,.hazop-conversation { padding:16px; }.operations-detail dl { grid-template-columns:1fr; }.operations-tabs button { flex:1 1 130px; } }

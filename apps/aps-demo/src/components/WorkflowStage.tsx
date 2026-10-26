@@ -1,3 +1,5 @@
+import { PurchasingOperations } from './PurchasingOperations.tsx';
+import type { ReviewContext } from './HazopConversation.tsx';
 import { Executive, Technical, useAudience } from './AudienceView.tsx';
 import { PurchaseSituation, PurchaseOutcome } from './ExecutiveCase.tsx';
 import { useEffect, useRef, useState } from 'react';
@@ -15,6 +17,8 @@ const words = (value: string) => value.replaceAll('-', ' ').replaceAll('_', ' ')
 const field = (value: unknown) => value === null || value === undefined ? 'Not available yet' : typeof value === 'object' ? JSON.stringify(value) : String(value);
 
 type Props = {
+  onReviewContext?: (context: ReviewContext) => void;
+  reviewContext?: ReviewContext;
   state: WorkflowState;
   onCommand: (command: WorkflowCommand) => void;
   onImport: (text: string) => { ok: boolean; message: string };
@@ -28,7 +32,7 @@ export function WorkflowSummary({ state }: { state: WorkflowState }) {
     <a href="#/simulator">Inspect agent handoffs and causal events →</a></section>;
 }
 
-export function WorkflowStage({ state, onCommand, onImport, onExport }: Props) {
+export function WorkflowStage({ state, onCommand, onImport, onExport, onReviewContext, reviewContext }: Props) {
   const { audience, reveal } = useAudience();
   const view = selectWorkflow(state);
   const [scenario, setScenario] = useState<ScenarioId>(state.spec.scenario);
@@ -89,7 +93,7 @@ export function WorkflowStage({ state, onCommand, onImport, onExport }: Props) {
       <p>{audience === 'executive' ? 'Explore one supply need, the limits on committing a purchase, and the evidence for the next decision. Choose a situation, then run or step through the work.' : 'Six local state machines exchange typed messages against one in-memory procurement world. Step through the work, inspect a boundary, and follow recovery without erasing its history.'}</p>
       <div className="workflow-boundary"><strong>{view.label}</strong><span>New browser run · frozen recorded experiments remain separate in Assurance.</span></div>
     </section>
-    <Technical><BusinessExercise task={state.spec.task}/></Technical><Executive><PurchaseSituation state={state}/><PurchaseOutcome state={state}/></Executive>
+    <Technical><BusinessExercise task={state.spec.task}/></Technical><Executive><PurchasingOperations state={state} onInspect={inspectEvent} onReview={onReviewContext} context={reviewContext}/><PurchaseSituation state={state}/><PurchaseOutcome state={state}/></Executive>
     <section className="panel" aria-labelledby="workflow-controls-title">
       <div className="section-title"><h2 id="workflow-controls-title">Choose the situation and next action</h2><Badge>Illustrative browser simulation</Badge></div>
       <div className="control-grid">
