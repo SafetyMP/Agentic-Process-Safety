@@ -98,3 +98,12 @@ it('keeps the recommendation concise without losing the tested non-guarantee or 
   expect(within(region).getByRole('link', { name: 'Open the purchasing workspace' })).toBeTruthy();
   expect(within(region).getByRole('link', { name: 'Inspect the technical mechanism' })).toBeTruthy();
 });
+
+it('Pitch never invents confirmation in the unsafe-commit-before-confirmation interval', () => {
+  let state = createWorkflow(scenarioSpec('approval-delay', 'A'));
+  for (let i = 0; i < 100 && !selectWorkflow(state).metrics.unsafeCommittedEffects; i++) state = workflowReducer(state, { type: 'step' });
+  expect(selectWorkflow(state).metrics.unsafeCommittedEffects).toBeGreaterThan(0);
+  expect(selectWorkflow(state).metrics.completed).toBe(false);
+  desk(state); tab('Pitch'); expect(screen.getByText('An unsafe commitment exists; confirmation is absent.')).toBeTruthy();
+  expect(screen.queryByText('Confirmation includes an unsafe commitment.')).toBeNull();
+});
