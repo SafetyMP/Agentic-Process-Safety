@@ -63,3 +63,38 @@
 @media(max-width:500px) { .workflow-agents { grid-template-columns:1fr; } .workflow-agent { min-height:100px; } .workflow-intro h1 { font-size:32px; } .workflow-fields { grid-template-columns:1fr; } .workflow-workspace .button-row label { flex-direction:column; align-items:stretch; width:100%; } }
 
 .workflow-metrics { grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); }
+
+/* Business explanations share the existing model, controls and evidence. */
+.business-context { min-width:0; font-size:16px; line-height:1.6; overflow-wrap:anywhere; }
+.business-context p { max-width:72ch; font-size:inherit; line-height:inherit; }
+.business-context li { font-size:inherit; line-height:inherit; }
+.business-context h2 { font-size:clamp(23px,2.5vw,31px); line-height:1.2; }
+.business-context h3 { font-size:17px; line-height:1.35; }
+.business-context .eyebrow { font-size:11px; }
+.business-welcome { padding:26px; border:1px solid var(--line); border-radius:10px; background:var(--panel); margin:0 0 20px; }
+.business-welcome>.button { display:inline-flex; align-items:center; min-height:44px; margin:8px 0 16px; }
+.business-boundary { border-left:3px solid var(--teal); padding:10px 16px; background:var(--soft); }
+.business-context details { font-size:15px; line-height:1.6; margin-top:16px; }
+.business-context summary { min-height:44px; padding:10px 4px; line-height:1.5; }
+.business-context summary:focus-visible { outline:3px solid var(--teal); outline-offset:3px; border-radius:3px; }
+.business-legacy-entry { margin:0 0 28px; padding:16px 0; border-bottom:1px solid var(--line); }
+.business-legacy-entry h2 { font-size:18px; }
+.business-legacy-entry p { max-width:72ch; font-size:14px; line-height:1.6; }
+.business-steps { margin:22px 0; padding-left:28px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px 34px; }
+.business-steps li { min-width:0; padding-left:4px; }
+.business-steps h3,.business-takeaways h3 { margin:0 0 8px; }
+.business-steps p,.business-takeaways p { margin:0; }
+.business-current-inputs { padding:14px 18px; background:var(--bg); border-radius:6px; }
+.business-situation { border-top:1px solid var(--line); margin-top:18px; padding-top:8px; }
+.business-role-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin:20px 0; }
+.business-role-grid>div { padding:16px; background:var(--bg); border-radius:7px; min-width:0; }
+.business-context dt { font-weight:700; }
+.business-context dd { margin:5px 0 0; }
+.business-role-questions>div,.business-scenario-list>div,.business-glossary>div { margin:16px 0; }
+.business-outcome-guide { padding:0 6px 8px; }
+.business-prompts { padding-left:24px; max-width:72ch; }
+.business-prompts li { margin:12px 0; }
+.business-takeaways { padding-left:25px; }
+.business-takeaways li { margin:20px 0; }
+@media(max-width:900px) { .business-role-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .business-steps { grid-template-columns:1fr; } }
+@media(max-width:500px) { .business-welcome { padding:18px; } .business-role-grid { grid-template-columns:1fr; } .business-steps { padding-left:22px; gap:22px; } .business-context { font-size:16px; } }

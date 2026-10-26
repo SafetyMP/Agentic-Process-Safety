@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { MODE_LABELS, SCENARIOS, scenarioSpec, selectWorkflow } from '../workflow/index.ts';
 import type { AgentId, Mode, RunSpec, ScenarioId, WorkflowCommand, WorkflowState } from '../workflow/index.ts';
 import { Badge, Stat } from './shared.tsx';
+import { BusinessDebrief, BusinessExercise, BusinessOutcomeGuide, BusinessRoles, BusinessScenarioNote } from './BusinessContext.tsx';
 
 const roles: Record<AgentId, string> = {
   orchestrator: 'Coordinate the task and purchase boundary', demand: 'Derive demand from task input',
@@ -79,6 +80,7 @@ export function WorkflowStage({ state, onCommand, onImport, onExport }: Props) {
       <p>Six local state machines exchange typed messages against one in-memory procurement world. Step through the work, inspect a boundary, and follow recovery without erasing its history.</p>
       <div className="workflow-boundary"><strong>{view.label}</strong><span>New browser run · frozen recorded experiments remain separate in Assurance.</span></div>
     </section>
+    <BusinessExercise task={state.spec.task}/>
     <section className="panel" aria-labelledby="workflow-controls-title">
       <div className="section-title"><h2 id="workflow-controls-title">Choose the situation</h2><Badge>Illustrative browser simulation</Badge></div>
       <div className="control-grid">
@@ -88,7 +90,7 @@ export function WorkflowStage({ state, onCommand, onImport, onExport }: Props) {
       </div>
       <p className="muted">Selections are a draft. Apply starts a new browser run and clears this workflow's history, world and metrics. Reset restores the active run's initial specification. Neither action changes frozen evidence.</p>
       <button onClick={replaceRun}>Apply selection and start new run</button>
-      <div className="workflow-active"><strong>Active: {view.scenarioTitle} · {view.modeLabel}</strong><p>{scenarioDescription}</p><p>Active task: demand {state.spec.task.demand}, stock {state.spec.task.stock}, unit price {state.spec.task.unitPrice}, budget {state.spec.task.budget}; approval TTL {state.spec.task.approvalTtl} logical seconds.</p>{state.spec.scenario === 'purchase-race' && <p>Simulated interleaving · {words(state.spec.schedule)}. This is a deterministic queue order, not parallel operating-system execution.</p>}<small>Seed {state.spec.seed} is replay metadata; it does not vary this v1 workflow.</small></div>
+      <div className="workflow-active"><strong>Active: {view.scenarioTitle} · {view.modeLabel}</strong><p>{scenarioDescription}</p><p>Active task: demand {state.spec.task.demand}, stock {state.spec.task.stock}, unit price {state.spec.task.unitPrice}, budget {state.spec.task.budget}; approval TTL {state.spec.task.approvalTtl} logical seconds.</p>{state.spec.scenario === 'purchase-race' && <p>Simulated interleaving · {words(state.spec.schedule)}. This is a deterministic queue order, not parallel operating-system execution.</p>}<small>Seed {state.spec.seed} is replay metadata; it does not vary this v1 workflow.</small><BusinessScenarioNote scenario={state.spec.scenario}/></div>
       <div className="button-row">
         <button className="primary" disabled={!c.canStart} onClick={() => onCommand({ type: 'start' })}>Start workflow</button>
         <button disabled={!c.canStep} onClick={() => onCommand({ type: 'step' })}>Step one transition</button>
@@ -108,7 +110,9 @@ export function WorkflowStage({ state, onCommand, onImport, onExport }: Props) {
       <Stat label="Task confirmed" value={view.metrics.completed ? 'Yes' : 'No'} note="Business confirmation only; inspect unsafe effects"/>
       <Stat label="Safe model completion" value={view.metrics.safeCompleted ? 'Yes' : 'No'} note="Confirmation and all independent model invariants"/>
     </div>
+    <BusinessOutcomeGuide/>
     <section className="panel" aria-labelledby="workflow-agents-title"><div className="section-title"><h2 id="workflow-agents-title">Who is doing the work?</h2><span>{view.metrics.pendingMessages} pending messages</span></div>
+      <BusinessRoles/>
       <p className="muted">States below come from the workflow engine. Selecting a role reveals its local state; a waiting agent has not completed its task.</p>
       <div className="workflow-agents">{view.agents.map(a => <button key={a.id} className={`workflow-agent ${a.status}`} aria-pressed={a.id === selectedAgent} onClick={() => setSelectedAgent(a.id)}><strong>{a.id}</strong><span>{words(a.status)}</span><small>Inbox {a.inbox.length} · consumed {a.consumedMessageIds.length}</small></button>)}</div>
       <div className="workflow-agent-detail" aria-label="Workflow agent inspector"><h3 className="capitalize">{agent.id}: {roles[agent.id]}</h3><p>State: {words(agent.status)} · last event: {agent.lastEventId ? <button className="text-button" onClick={() => inspectEvent(agent.lastEventId)}>{agent.lastEventId}</button> : 'none'}</p><dl className="workflow-fields">{Object.entries(agent.local).map(([key, value]) => <div key={key}><dt>{key}</dt><dd>{field(value)}</dd></div>)}</dl></div>
@@ -127,6 +131,7 @@ export function WorkflowStage({ state, onCommand, onImport, onExport }: Props) {
       <p>{view.metrics.deniedProposals} denied proposals · {view.metrics.cachedResults} cached results · {view.metrics.recoveryAttempts} refresh attempts · {view.metrics.reconciliationAttempts} reconciliation attempts. A denial is not automatically credited as prevention.</p>
     </section>
     <section className="panel" aria-labelledby="workflow-observations-title"><h2 id="workflow-observations-title">Model observations and limits</h2><p>These are independent observations of simulated effects, not test pass provenance, safety certification or production enforcement. Business confirmation alone does not imply a safe or correct outcome; A/B can confirm work while committing unsafe effects.</p><ul className="workflow-invariants">{view.invariants.map(i => <li key={i.id}><strong>{i.id}: {i.status}</strong><span>{words(i.explanationCode)}</span><div>{i.evidenceEventIds.map(id => <button key={id} className="text-button" onClick={() => inspectEvent(id)}>{id} </button>)}</div></li>)}</ul><ul>{view.limitations.map(l => <li key={l}>{l}</li>)}</ul><p>Human review and production objective arbitration are unavailable in this workflow candidate. No real permission is issued.</p></section>
+    <BusinessDebrief/>
     <section className="panel" aria-labelledby="workflow-replay-title"><h2 id="workflow-replay-title">Inspect or restore a browser replay</h2><p>Prepared exports are snapshots; prepare again after further transitions. Versioned replay is recomputed by the engine before adoption. Replay inputs are user-supplied. A matching fixture digest shows consistency, not membership of a trusted catalog, authenticated identity or safety. A valid import replaces this workflow's history; an invalid import leaves it intact.</p><button onClick={prepareReplay}>Prepare current replay JSON</button><p role="status" aria-label="Replay export status">{exportNotice}</p>{exportText && <label>Prepared replay snapshot<textarea readOnly value={exportText} rows={6}/></label>}<label>Replay JSON to validate<textarea value={replayText} maxLength={262144} onChange={e => setReplayText(e.target.value)} rows={5}/></label><button disabled={!replayText.trim()} onClick={() => { const result = onImport(replayText); setImportNotice(result.message); if (result.ok) { setSelectedEvent(null); setMessageId(null); setExportText(''); } }}>Validate replay and replace current run</button><p role="status" aria-label="Replay import status">{importNotice}</p><details><summary>Active specification and replay identity</summary><p>{view.runKey}</p><p>Specification identity, not a unique session or authenticated receipt.</p><pre>{JSON.stringify(state.spec, null, 2)}</pre></details></section>
   </div>;
 }
