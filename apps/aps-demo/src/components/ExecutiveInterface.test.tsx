@@ -40,8 +40,8 @@ function setup(initial = createWorkflow(scenarioSpec()), policy = initialState(4
   return { state: () => current, policy: () => p, commands, actions };
 }
 const headings = {
-  overview: 'Keep purchasing moving, within agreed limits.', simulator: 'What should happen when the purchase cannot proceed as planned?',
-  governance: 'Where must delegated purchasing stop?', hazop: 'What could make a completed purchase unacceptable?', assurance: 'What evidence would justify the next decision?',
+  overview: 'Keep purchasing moving, within agreed limits.', simulator: 'Work the purchase. Examine the exception.',
+  governance: 'Work the purchase. Examine the exception.', hazop: 'Work the purchase. Examine the exception.', assurance: 'What does this evidence justify?',
 };
 it.each(Object.entries(headings))('opens %s as a decision brief, not a technical dashboard', (route, heading) => {
   window.location.hash = `#/${route}`; render(<App/>);
@@ -52,7 +52,7 @@ it.each(Object.entries(headings))('opens %s as a decision brief, not a technical
   expect(screen.queryByRole('heading', { name: 'Procurement topology' })).toBeNull();
   expect(screen.queryByRole('heading', { name: 'Trial ledger' })).toBeNull();
   const nav = screen.getByRole('navigation', { name: 'Main navigation' });
-  expect(Array.from(nav.querySelectorAll('a')).map(a => a.getAttribute('href'))).toEqual(['#/overview', '#/simulator', '#/governance', '#/hazop', '#/assurance']);
+  expect(Array.from(nav.querySelectorAll('a')).map(a => a.getAttribute('href'))).toEqual(['#/overview', '#/simulator', '#/assurance']);
   expect(nav.querySelectorAll('[aria-current=page]')).toHaveLength(1);
   switchTo('Technical'); expect((screen.getByRole('radio', { name: 'Technical' }) as HTMLInputElement).checked).toBe(true);
   switchTo('Executive'); expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(heading);

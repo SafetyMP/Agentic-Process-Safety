@@ -4,14 +4,15 @@ import type { WorkflowState } from '../workflow/index.ts';
 import { selectWorkflow } from '../workflow/index.ts';
 export type ReviewContext = { taskId: string; eventId: string | null; specKey?: string };
 const questions = ['Intent & boundary', 'Departure', 'Causes & consequences', 'Safeguards', 'Evidence & owner questions'] as const;
-export function HazopConversation({ state, context, onInspect }: { state?: WorkflowState; context?: ReviewContext; onInspect?: (id: string) => void }) {
+export function HazopConversation({ state, context, onInspect, hazardId }: { state?: WorkflowState; hazardId?: string; context?: ReviewContext; onInspect?: (id: string) => void }) {
   const [step, setStep] = useState(0); const heading = useRef<HTMLHeadingElement>(null); const identity = useId();
-  const hazard = hazards.find(h => h.id === 'APS-f47191931b96a999a61c')!;
+  const hazard = hazards.find(h => h.id === (hazardId ?? 'APS-f47191931b96a999a61c')) ?? hazards.find(h => h.id === 'APS-f47191931b96a999a61c')!;
   const reference = references.find(r => r.id === 'REF-008')!;
   const requirement = requirements.find(r => r.hazard_id === hazard.id)!;
   const view = state ? selectWorkflow(state) : null;
   const selected = state && context?.eventId && context.taskId === state.spec.task.id && context.specKey === state.runKey ? state.events.find(e => e.id === context.eventId) : null;
   function inspectQuestion(index: number) { setStep(index); heading.current?.focus(); }
+  if (hazardId && hazardId !== 'APS-f47191931b96a999a61c') return <section aria-label="HAZOP design review"><h2>Selected source finding</h2><p>{hazardId === hazard.id ? `${hazard.id} · ${hazard.node}/${hazard.deviation}` : 'Requested finding unavailable; showing the related timing source explicitly.'}</p><p>Intent: {hazard.intent}</p><h3>Possible causes and consequences</h3><p>{hazard.causes.join('; ')}. {hazard.consequences.join('; ')}</p><h3>Proposed safeguards</h3><p>{hazard.candidate_controls.join('; ')}</p><p data-executive-uncertainty>Unverified source question; ratings unknown. No direct validation by the active purchasing run is claimed. No owner is assigned or requirement approved.</p><p>Use Technical for full record/provenance. The active browser case remains separate.</p></section>;
   return <section className="hazop-conversation" aria-label="HAZOP design review"><p className="eyebrow">DESIGN REVIEW / NOT AN APPROVAL</p><h2>Can commitment occur after permission expires?</h2><p>Illustrative, unreviewed question: approval valid at commitment. This examines interacting roles, timing and authority, rather than judging one agent in isolation.</p>
     <p>{state ? `Active task ${state.spec.task.id} · ${view!.scenarioTitle} · mode ${state.spec.mode}.` : 'No current purchasing run was supplied to this source review.'} {context && state && context.taskId !== state.spec.task.id ? 'Selected discussion context belongs to a different task; no model was changed.' : ''} {context?.eventId && !selected ? 'Selected exception is no longer available in this run.' : selected ? `Selected actual event: ${selected.id} · ${selected.type}.` : 'No exception selected; the question remains hypothetical.'}</p>
     {state && state.spec.scenario !== 'approval-delay' && <p>The active run is not the approval-expiry exercise; its effects do not demonstrate this timing hypothesis.</p>}

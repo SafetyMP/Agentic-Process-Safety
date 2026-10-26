@@ -1,4 +1,5 @@
 import { PurchasingOperations } from './PurchasingOperations.tsx';
+import type { Selection } from './PurchasingOperations.tsx';
 import type { ReviewContext } from './HazopConversation.tsx';
 import { Executive, Technical, useAudience } from './AudienceView.tsx';
 import { PurchaseSituation, PurchaseOutcome } from './ExecutiveCase.tsx';
@@ -17,6 +18,12 @@ const words = (value: string) => value.replaceAll('-', ' ').replaceAll('_', ' ')
 const field = (value: unknown) => value === null || value === undefined ? 'Not available yet' : typeof value === 'object' ? JSON.stringify(value) : String(value);
 
 type Props = {
+  wholeExperience?: boolean;
+  visibleRoute?: boolean;
+  selection?: Selection | null;
+  onSelectionChange?: (record: Selection) => void;
+  requestedInspection?: string | null;
+  onInspectionHandled?: () => void;
   onReviewContext?: (context: ReviewContext) => void;
   reviewContext?: ReviewContext;
   state: WorkflowState;
@@ -32,7 +39,7 @@ export function WorkflowSummary({ state }: { state: WorkflowState }) {
     <a href="#/simulator">Inspect agent handoffs and causal events →</a></section>;
 }
 
-export function WorkflowStage({ state, onCommand, onImport, onExport, onReviewContext, reviewContext }: Props) {
+export function WorkflowStage({ state, onCommand, onImport, onExport, onReviewContext, reviewContext, wholeExperience = false, visibleRoute = true, selection, onSelectionChange, requestedInspection, onInspectionHandled }: Props) {
   const { audience, reveal } = useAudience();
   const view = selectWorkflow(state);
   const [scenario, setScenario] = useState<ScenarioId>(state.spec.scenario);
@@ -74,6 +81,11 @@ export function WorkflowStage({ state, onCommand, onImport, onExport, onReviewCo
       if (audience === 'executive') reveal();
     }
   }
+  useEffect(() => {
+    if (!visibleRoute || !requestedInspection) return;
+    if (view.events.some(item => item.id === requestedInspection)) inspectEvent(requestedInspection);
+    onInspectionHandled?.();
+  }, [visibleRoute, requestedInspection]);
   function inspectMessage(id: string) { setMessageId(id); setMessageFocusRequest(count => count + 1); }
   function prepareReplay() {
     setExportText('');
@@ -89,11 +101,11 @@ export function WorkflowStage({ state, onCommand, onImport, onExport, onReviewCo
   }
   return <div className="workflow-workspace">
     <section className="workflow-intro" aria-labelledby="workflow-title">
-      <p className="eyebrow">{audience === 'executive' ? 'DECISION SCENARIOS / PURCHASING' : '03 / GENERATED WORKFLOW'}</p><h1 id="workflow-title" tabIndex={-1}>{audience === 'executive' ? 'What should happen when the purchase cannot proceed as planned?' : <>Follow the handoff.<br/>Understand the consequence.</>}</h1>
+      <p className="eyebrow">{audience === 'executive' ? 'DECISION SCENARIOS / PURCHASING' : '03 / GENERATED WORKFLOW'}</p>{visibleRoute && <h1 id="workflow-title" tabIndex={-1}>{audience === 'executive' ? wholeExperience ? 'Work the purchase. Examine the exception.' : 'What should happen when the purchase cannot proceed as planned?' : <>Follow the handoff.<br/>Understand the consequence.</>}</h1>}
       <p>{audience === 'executive' ? 'Explore one supply need, the limits on committing a purchase, and the evidence for the next decision. Choose a situation, then run or step through the work.' : 'Six local state machines exchange typed messages against one in-memory procurement world. Step through the work, inspect a boundary, and follow recovery without erasing its history.'}</p>
       <div className="workflow-boundary"><strong>{view.label}</strong><span>New browser run · frozen recorded experiments remain separate in Assurance.</span></div>
     </section>
-    <Technical><BusinessExercise task={state.spec.task}/></Technical><Executive><PurchasingOperations state={state} onInspect={inspectEvent} onReview={onReviewContext} context={reviewContext}/><PurchaseSituation state={state}/><PurchaseOutcome state={state}/></Executive>
+    <Technical><BusinessExercise task={state.spec.task}/></Technical><Executive><PurchasingOperations state={state} onInspect={inspectEvent} onReview={onReviewContext} context={reviewContext} issue={wholeExperience ? 'analytical' : undefined} selection={selection} onSelectionChange={onSelectionChange}/>{!wholeExperience && <><PurchaseSituation state={state}/><PurchaseOutcome state={state}/></>}</Executive>
     <section className="panel" aria-labelledby="workflow-controls-title">
       <div className="section-title"><h2 id="workflow-controls-title">Choose the situation and next action</h2><Badge>Illustrative browser simulation</Badge></div>
       <div className="control-grid">

@@ -48,7 +48,7 @@ try {
   page.on('pageerror', e => errors.push(e.message));
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('websocket', ws => violations.push(ws.url()));
-  const executiveHeadings = { overview: 'Keep purchasing moving, within agreed limits.', simulator: 'What should happen when the purchase cannot proceed as planned?', governance: 'Where must delegated purchasing stop?', hazop: 'What could make a completed purchase unacceptable?', assurance: 'What evidence would justify the next decision?' };
+  const executiveHeadings = { overview: 'Keep purchasing moving, within agreed limits.', simulator: 'Work the purchase. Examine the exception.', governance: 'Work the purchase. Examine the exception.', hazop: 'Work the purchase. Examine the exception.', assurance: 'What does this evidence justify?' };
   // Fresh documents must demonstrate the real default BEFORE legacy setup.
   const assertExecutiveDefault = async route => {
     await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
@@ -138,7 +138,7 @@ try {
   await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: /^Assurance/ }).click();
   await expect(page.getByRole('radio', { name: 'Technical', exact: true })).toBeChecked(); assertions++;
   await page.getByRole('radio', { name: 'Executive', exact: true }).check();
-  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: /^Business case/ }).click();
+  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: /^Conceptual/ }).click();
   await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
   await page.goBack(); await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
   await page.goForward(); await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
@@ -158,7 +158,7 @@ try {
   });
   await recommendation.getByRole('link', { name: 'Open the purchasing workspace', exact: true }).click();
   const operations = page.getByRole('region', { name: 'Purchasing operations', exact: true });
-  const records = operations.getByRole('tablist', { name: 'Purchasing business case', exact: true });
+  const records = page.getByRole('navigation', { name: 'Main navigation', exact: true });
   await check(() => expect(operations).toBeVisible());
   await check(() => expect(workflowStatus).toContainText('0 transitions'));
   const taskRecordName = await operations.getByRole('button', { name: /^Open task / }).innerText();
@@ -166,14 +166,14 @@ try {
   await check(() => expect(operations.getByRole('region', { name: 'Selected purchasing record', exact: true })).toContainText(taskRecordName.slice('Open task '.length)));
   await selectTechnical(); const operationsInitial = await captureGeneratedWorkflow();
   await page.getByRole('radio', { name: 'Executive', exact: true }).check();
-  for (const name of ['Analytical', 'Pitch', 'Conceptual']) await records.getByRole('tab', { name, exact: true }).click();
-  await records.getByRole('tab', { name: 'Analytical', exact: true }).click();
+  for (const name of ['Analytical', 'Pitch', 'Conceptual']) await records.getByRole('link', { name, exact: true }).click();
+  await records.getByRole('link', { name: 'Analytical', exact: true }).click();
   await check(() => expect(operations.getByText('No quote prepared yet.', { exact: true })).toBeVisible());
   await check(() => expect(operations.getByText('No simulated permission issued.', { exact: true })).toBeVisible());
   await check(() => expect(operations.getByText('Related timing finding—different object/coverage', { exact: true })).toBeVisible());
-  await records.getByRole('tab', { name: 'Conceptual', exact: true }).focus(); await page.keyboard.press('End');
-  await check(() => expect(records.getByRole('tab', { name: 'Pitch', exact: true })).toBeFocused());
-  await page.keyboard.press('Home'); await check(() => expect(records.getByRole('tab', { name: 'Conceptual', exact: true })).toBeFocused());
+  await records.getByRole('link', { name: 'Conceptual', exact: true }).focus(); await page.keyboard.press('Tab');
+  await check(() => expect(records.getByRole('link', { name: 'Analytical', exact: true })).toBeFocused());
+  await page.keyboard.press('Shift+Tab'); await check(() => expect(records.getByRole('link', { name: 'Conceptual', exact: true })).toBeFocused());
   await selectTechnical(); await assertGeneratedWorkflowUnchanged(operationsInitial);
   await page.getByRole('radio', { name: 'Executive', exact: true }).check();
   await page.getByLabel('Business situation', { exact: true }).selectOption('approval-delay');
@@ -192,10 +192,10 @@ try {
     await check(() => expect(step).toBeDisabled());
   };
   await operationsBoundary();
-  await records.getByRole('tab', { name: 'Analytical', exact: true }).click();
+  await records.getByRole('link', { name: 'Analytical', exact: true }).click();
   await check(() => expect(operations.getByRole('button', { name: /^Open permission / })).toHaveCount(1));
   await operations.getByRole('button', { name: /^Open permission / }).click();
-  await records.getByRole('tab', { name: 'Analytical', exact: true }).click();
+  await records.getByRole('link', { name: 'Analytical', exact: true }).click();
   const blockedEventIdentity = await page.getByRole('region', { name: 'Approval refresh decision', exact: true }).locator('.text-button').innerText();
   await operations.getByRole('button', { name: `Open exception ${blockedEventIdentity}`, exact: true }).click();
   await operations.getByRole('region', { name: 'Selected purchasing record', exact: true }).getByRole('button', { name: 'Review exception design', exact: true }).click();
@@ -221,14 +221,15 @@ try {
   await page.getByLabel('Workflow comparator', { exact: true }).selectOption('C');
   await page.getByRole('button', { name: 'Apply selection and start new run', exact: true }).click(); await operationsBoundary();
   await check(() => expect(stat('Committed orders')).toHaveText('1')); await check(() => expect(stat('Task confirmed')).toHaveText('No'));
-  await page.getByRole('radio', { name: 'Executive', exact: true }).check(); await records.getByRole('tab', { name: 'Pitch', exact: true }).click();
+  await page.getByRole('radio', { name: 'Executive', exact: true }).check(); await records.getByRole('link', { name: 'Pitch', exact: true }).click();
   const existingOrderName = await operations.getByRole('button', { name: /^Open order / }).innerText();
   await operations.getByRole('button', { name: existingOrderName, exact: true }).click();
   await operations.getByRole('region', { name: 'Selected purchasing record', exact: true }).getByRole('button', { name: 'Inspect technical evidence', exact: true }).click();
   await check(() => expect(page.getByRole('region', { name: 'Causal event inspector', exact: true })).toContainText('order committed'));
   await page.getByRole('radio', { name: 'Executive', exact: true }).check();
   await page.getByRole('button', { name: 'Reconcile existing order once', exact: true }).click(); await operationsBoundary();
-  await records.getByRole('tab', { name: 'Pitch', exact: true }).click(); await check(() => expect(operations.getByRole('button', { name: existingOrderName, exact: true })).toHaveCount(1));
+  await records.getByRole('link', { name: 'Pitch', exact: true }).click(); await check(() => expect(operations.getByRole('button', { name: existingOrderName, exact: true })).toHaveCount(1));
+  await records.getByRole('link', { name: 'Analytical', exact: true }).click();
   await selectTechnical(); await check(() => expect(stat('Committed orders')).toHaveText('1')); await check(() => expect(stat('Task confirmed')).toHaveText('Yes'));
   await page.getByRole('radio', { name: 'Executive', exact: true }).check();
   await page.screenshot({ path: resolve(executiveShots, 'operations-records.jpg'), quality: 65 });

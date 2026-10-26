@@ -150,3 +150,6 @@
 [data-audience=executive] .workflow-workspace:has(.operations-tabs [role=tab]:nth-child(2)[aria-selected=true]) .workflow-active~.button-row>button:nth-child(2):not(:disabled),
 [data-audience=executive] .workflow-workspace:has(.operations-tabs [role=tab]:nth-child(2)[aria-selected=true]) .workflow-decision>button,
 [data-audience=executive] .workflow-workspace:has(.operations-tabs [role=tab]:nth-child(3)[aria-selected=true]) .operations-detail>.button-row>button:first-child { background:var(--teal); color:white; border-color:var(--teal); }
+
+/* Full Executive case shell; Technical five-route layout stays independent. */
+.case-status { display:flex; flex-wrap:wrap; gap:6px 14px; padding:12px 16px; border:1px solid var(--line); margin-bottom:20px; font-size:13px; }.case-status small { width:100%; }.conceptual-task { max-width:850px; padding-block:20px; }.purchasing-operations .operations-records { border-bottom:1px solid var(--line); }.purchasing-operations .operations-records h3 { margin-top:12px; }
