@@ -100,6 +100,39 @@ describe('business explanation without new workflow authority', () => {
     expect(screen.getByText(/Confirmation alone is not an acceptable-outcome decision/)).toBeTruthy();
     expect(screen.getByLabelText('Observed simulated effects')).toBeTruthy();
   });
+  it.each(['A', 'B', 'C'] as const)('qualifies expiry denial and refresh guidance against actual %s outcomes', mode => {
+    const state = finished('approval-delay', mode);
+    const view = selectWorkflow(state);
+    const before = exportWorkflow(state); const command = vi.fn();
+    render(<Stage state={state} command={command}/>);
+    const note = screen.getByLabelText('Active business situation');
+    const primary = Array.from(note.children).filter(node => node.tagName === 'P').map(node => node.textContent).join(' ');
+    const expiryEntry = within(note).getByText('Permission expires while work continues', { selector: 'dt' }).nextElementSibling!;
+    for (const text of [primary, expiryEntry.textContent!]) {
+      expect(text).toContain('In C, the defended comparator');
+      expect(text).toContain('before requesting one fresh simulated approval');
+      expect(text).toContain('A/B may confirm work despite expired approval, without an expiry denial or a refresh control');
+      expect(text).toContain('Compare Task confirmed with Unsafe committed effects and Safe model completion');
+      expect(text).toContain('recovery keeps the original problem in the history');
+    }
+    if (mode === 'C') {
+      expect(view.metrics.completed).toBe(false);
+      expect(view.metrics.deniedProposals).toBeGreaterThan(0);
+      expect(view.metrics.committedOrders).toBe(0);
+      expect(view.controls.canRecover).toBe(true);
+      expect(screen.getByRole('button', { name: 'Request one approval refresh' })).toBeTruthy();
+      expect(stat('Task confirmed')).toBe('No');
+    } else {
+      expect(view.metrics.completed).toBe(true);
+      expect(view.metrics.deniedProposals).toBe(0);
+      expect(view.metrics.unsafeCommittedEffects).toBeGreaterThan(0);
+      expect(view.controls.canRecover).toBe(false);
+      expect(screen.queryByRole('button', { name: 'Request one approval refresh' })).toBeNull();
+      expect(stat('Task confirmed')).toBe('Yes');
+    }
+    expect(stat('Safe model completion')).toBe('No');
+    expect(exportWorkflow(state)).toBe(before); expect(command).not.toHaveBeenCalled();
+  });
   it('preserves one route heading, unique workflow status and reachable technical evidence', () => {
     const { container } = render(<Stage state={populated()}/>);
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
