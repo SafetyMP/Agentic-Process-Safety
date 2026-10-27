@@ -64,7 +64,7 @@ function AppContent() {
     return () => media.removeEventListener('change', apply);
   }, [theme]);
   useEffect(() => { if (!state.running) return; const timer = window.setInterval(() => dispatch({ type: 'timer' }), 700); return () => window.clearInterval(timer); }, [state.running]);
-  useEffect(() => { document.title = `${executive ? businessNames[location.route] : sections.find(s => s.id === location.route)!.name} | Agentic Process Safety`; }, [location.route, executive]);
+  useEffect(() => { document.title = `${executive ? businessNames[location.route] : sections.find(s => s.id === location.route)!.name} | Agentic Process Safety${location.route === 'overview' ? ' | HAZOP for AI Agent Swarms' : ''}`; }, [location.route, executive]);
   useEffect(() => { document.querySelector<HTMLElement>('#main-content h1')?.focus(); }, [location.route]);
   const effectiveStory = stories.find(s => s.id === (state.fault ?? state.story))!;
   const lastDecision = state.events.at(-1);
