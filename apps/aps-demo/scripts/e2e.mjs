@@ -143,6 +143,61 @@ try {
   await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
   await page.goBack(); await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
   await page.goForward(); await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
+  // ADDITIVE viewport and first-screen action acceptance. No original oracle is replaced.
+  const graphGeometry = async () => page.getByLabel('Interactive procurement agent topology', { exact: true }).evaluate(graph => {
+    const flow = graph.querySelector('.react-flow__renderer'); const rect = flow.getBoundingClientRect();
+    const nodes = Array.from(graph.querySelectorAll('.react-flow__node')).map(node => { const r = node.getBoundingClientRect(); return { id: node.getAttribute('data-id'), x: r.x, y: r.y, right: r.right, bottom: r.bottom }; });
+    return { flow: { x: rect.x, y: rect.y, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height }, nodes, transform: graph.querySelector('.react-flow__viewport').getAttribute('style') };
+  });
+  const assertGraphCentered = async () => check(async () => {
+    await expect.poll(async () => {
+      const g = await graphGeometry();
+      const union = { left: Math.min(...g.nodes.map(n => n.x)), right: Math.max(...g.nodes.map(n => n.right)), top: Math.min(...g.nodes.map(n => n.y)), bottom: Math.max(...g.nodes.map(n => n.bottom)) };
+      return { count: g.nodes.length, inside: g.flow.width > 0 && g.flow.height > 0 && union.left >= g.flow.x + 8 && union.right <= g.flow.right - 8 && union.top >= g.flow.y + 8 && union.bottom <= g.flow.bottom - 8, centered: Math.abs((union.left + union.right - g.flow.x - g.flow.right) / 2) <= 2 && Math.abs((union.top + union.bottom - g.flow.y - g.flow.bottom) / 2) <= 2 };
+    }).toEqual({ count: 8, inside: true, centered: true });
+  });
+  const settleViewportFrames = async () => page.evaluate(() => new Promise(resolve => window.requestAnimationFrame(() => window.requestAnimationFrame(resolve))));
+  const assertViewportRetained = async before => check(async () => { await settleViewportFrames(); assert.equal((await graphGeometry()).transform, before); });
+  await page.setViewportSize({ width: 1280, height: 720 }); await freshExecutive('overview');
+  await selectTechnical(); await assertGraphCentered(); // First reveal; no Fit View correction first.
+  const graph = page.getByLabel('Interactive procurement agent topology', { exact: true });
+  for (const label of ['Zoom In', 'Zoom Out']) {
+    await graph.getByRole('button', { name: label, exact: true }).click(); const zoomed = (await graphGeometry()).transform;
+    await page.getByRole('radio', { name: 'Executive', exact: true }).check(); await selectTechnical(); await assertViewportRetained(zoomed);
+    await page.setViewportSize({ width: 1200, height: 720 }); await assertViewportRetained(zoomed);
+    await page.setViewportSize({ width: 1280, height: 720 }); await assertViewportRetained(zoomed);
+    await graph.getByRole('button', { name: 'Fit View', exact: true }).click(); await assertGraphCentered();
+  }
+  await graph.scrollIntoViewIfNeeded();
+  const paneBox = await graph.locator('.react-flow__pane').boundingBox(); assert.ok(paneBox);
+  await page.mouse.move(paneBox.x + 20, paneBox.y + 20); const beforePan = (await graphGeometry()).transform;
+  await page.mouse.down(); await page.mouse.move(paneBox.x + 50, paneBox.y + 40, { steps: 5 }); await page.mouse.up(); await settleViewportFrames();
+  const panned = (await graphGeometry()).transform; await check(() => assert.notEqual(panned, beforePan));
+  await page.setViewportSize({ width: 1200, height: 720 }); await assertViewportRetained(panned);
+  await page.getByRole('radio', { name: 'Executive', exact: true }).check(); await selectTechnical(); await assertViewportRetained(panned);
+  await graph.scrollIntoViewIfNeeded(); const wheelBox = await graph.locator('.react-flow__pane').boundingBox(); assert.ok(wheelBox);
+  await page.mouse.move(wheelBox.x + 20, wheelBox.y + 20); await page.mouse.wheel(0, -120); await settleViewportFrames();
+  const wheeled = (await graphGeometry()).transform; await check(() => assert.notEqual(wheeled, panned));
+  await page.setViewportSize({ width: 1280, height: 720 }); await assertViewportRetained(wheeled);
+  await graph.getByRole('button', { name: 'Fit View', exact: true }).click(); await assertGraphCentered();
+  await graph.getByRole('button', { name: 'Zoom In', exact: true }).focus(); await page.keyboard.press('Space');
+  const keyboardZoomed = (await graphGeometry()).transform;
+  await page.setViewportSize({ width: 1200, height: 720 }); await assertViewportRetained(keyboardZoomed);
+  await graph.getByRole('button', { name: 'Fit View', exact: true }).click(); await assertGraphCentered();
+  await page.setViewportSize({ width: 900, height: 720 }); await assertGraphCentered();
+  await page.setViewportSize({ width: 320, height: 720 }); await assertGraphCentered();
+  await page.getByRole('radio', { name: 'Executive', exact: true }).check(); await selectTechnical(); await assertGraphCentered();
+  await go('simulator'); await go('overview'); await assertGraphCentered(); // Supported navigation/return, no invented audience URL.
+  const assertInitialActions = async () => check(async () => {
+    const controls = [page.getByLabel('Question to examine', { exact: true }), page.getByRole('button', { name: 'Apply selection and start new run', exact: true }), page.getByRole('button', { name: 'Start workflow', exact: true })];
+    for (const control of controls) {
+      const box = await control.evaluate(element => { const r = element.getBoundingClientRect(); const chrome = document.querySelector('.audience-bar').getBoundingClientRect(); return { top: r.top, bottom: r.bottom, unobscured: document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2) === element, belowChrome: r.top >= chrome.bottom }; });
+      assert.ok(box.top >= 0 && box.bottom <= 680 && box.belowChrome && box.unobscured, 'initial Executive question/Apply/Start must fit and be unobscured without reviewer scrolling');
+    }
+  });
+  await page.setViewportSize({ width: 1280, height: 720 }); await freshExecutive('simulator'); await assertInitialActions();
+  await freshExecutive('overview'); await page.getByRole('link', { name: 'Open the purchasing workspace', exact: true }).click(); await assertInitialActions();
+  // END ADDITIVE viewport and first-screen action acceptance.
   // ADDITIVE Executive narrative: context-specific default headings and memory-only discussion.
   for (const target of ['hazop', 'hazop?hazard=APS-f47191931b96a999a61c', 'hazop?hazard=APS-758a4efe3266c2f560e4', 'hazop?hazard=not-a-finding']) await freshExecutive(target);
   await freshExecutive('assurance');

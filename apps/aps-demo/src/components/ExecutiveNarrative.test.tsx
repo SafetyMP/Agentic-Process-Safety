@@ -110,3 +110,15 @@ it('preserves discussion across App routes and audience changes without issuing 
   for (const name of ['Technical', 'Executive']) fireEvent.click(screen.getByRole('radio', { name }));
   expect(screen.getByRole('status', { name: 'Discussion draft status' }).textContent).toBe(status); expect((more() as HTMLInputElement).checked).toBe(true); expect(calls).not.toHaveBeenCalled();
 });
+
+
+it('keeps a single Executive action band in question/consequence/Apply/active/Start/settings DOM order without issuing commands', () => {
+  window.location.hash = '#/simulator'; const commands = vi.spyOn(workflowAPI, 'workflowReducer'); render(<App/>);
+  const question = screen.getByLabelText('Question to examine'); const consequence = screen.getByText(/Apply replaces this run’s world, history and metrics/);
+  const apply = screen.getByRole('button', { name: 'Apply selection and start new run' }); const active = document.querySelector('.workflow-active')!;
+  const start = screen.getByRole('button', { name: 'Start workflow' }); const settings = screen.getByText('Exercise settings', { selector: 'summary' });
+  const sequence = [question, consequence, apply, active, start, settings];
+  for (let i = 1; i < sequence.length; i++) expect(sequence[i - 1].compareDocumentPosition(sequence[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(screen.getAllByRole('button', { name: 'Apply selection and start new run' })).toHaveLength(1);
+  expect(screen.getAllByRole('button', { name: 'Start workflow' })).toHaveLength(1); expect(commands).not.toHaveBeenCalled();
+});
