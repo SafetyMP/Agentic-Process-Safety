@@ -1,6 +1,8 @@
-# Agentic Process Safety (APS)
+# Agentic Process Safety (APS): HAZOP for AI Agent Swarms
 
-Deterministic HAZOP screening and a sandbox procurement swarm. Follow an agent objective through an unsafe operation, a proposed control, a simulated gateway decision and its assurance evidence. Five workers model demand forecasting, inventory, supplier selection, finance approval and purchase execution. All tools are simulated; no real purchase or payment can be made.
+Open-source research sandbox for **hazard and operability (HAZOP) analysis of AI agents and multi-agent systems**. APS combines deterministic hazard screening, a simulated procurement swarm, and policy-as-code experiments using **Open Policy Agent (OPA) and Rego**.
+
+Follow an agent objective through an unsafe operation, a proposed control, a simulated gateway decision and its assurance evidence. Five workers model demand forecasting, inventory, supplier selection, finance approval and purchase execution. All tools are simulated; no real purchase or payment can be made.
 
 [![Repository checks](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/repository-checks.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/repository-checks.yml)
 [![Static demo workflow](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/deploy-pages.yml)
@@ -13,6 +15,12 @@ Deterministic HAZOP screening and a sandbox procurement swarm. Follow an agent o
 **Jump to:** [Demo](#demo) · [Quick start](#quick-start) · [Architecture](#architecture) · [Verification](#verification) · [Security](#security) · [Documentation](#documentation-map) · [Contributing](CONTRIBUTING.md)
 
 ---
+
+## What you can study
+
+- **AI agent risk analysis:** trace tool use, delegation, shared context and approval hazards through the [HAZOP methodology](docs/METHODOLOGY.md).
+- **Agent governance and policy enforcement:** inspect the Python gateway and OPA/Rego controls in the [governance architecture](docs/GOVERNANCE_ARCHITECTURE.md), separate from browser-only simulations.
+- **Reproducible multi-agent experiments:** compare baseline, conventional access checks and HAZOP-informed checks with [Phase 3 experiments and assurance](docs/PHASE3_OPERATIONS.md). Finite sandbox results do not establish real-world safety.
 
 ## Demo
 
@@ -126,6 +134,11 @@ Read the [threat model](docs/THREAT_MODEL.md), [security reporting policy](SECUR
 - [Security](SECURITY.md): vulnerability reporting and supported scope
 
 Part of the [SafetyMP portfolio](https://github.com/SafetyMP).
+
+### Related projects
+
+- [FidusGate: MCP tool-call policy gateway](https://github.com/SafetyMP/FidusGate) explores policy decisions and signed receipts.
+- [Corporate/Site Harness: evidence-gated software delivery](https://github.com/SafetyMP/corporate-site-harness) explores verification gates and human approval in agent-assisted development.
 
 ## License
 
