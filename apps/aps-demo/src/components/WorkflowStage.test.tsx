@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
-import { useState } from 'react';
-import { stepToBoundary } from '../test-support/stepToBoundary.ts';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { Profiler, useState } from 'react';
+import { stepToBoundary, workflowDiagnostic } from '../test-support/stepToBoundary.ts';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { WorkflowStage } from './WorkflowStage.tsx';
 import { createWorkflow, exportWorkflow, importWorkflow, scenarioSpec, workflowReducer } from '../workflow/index.ts';
@@ -11,18 +11,26 @@ import { Governance } from '../routes/Governance.tsx';
 import { Simulator } from '../routes/Simulator.tsx';
 import { initialState, reducer } from '../domain/simulation.ts';
 
+beforeEach(({ task }) => workflowDiagnostic.begin(task.name));
 function Harness({ scenario = 'nominal', mode = 'C' }: { scenario?: ScenarioId; mode?: Mode }) {
   const [state, setState] = useState(() => createWorkflow(scenarioSpec(scenario, mode)));
-  return <WorkflowStage state={state} onCommand={command => setState(current => workflowReducer(current, command))} onExport={() => exportWorkflow(state)} onImport={text => {
+  workflowDiagnostic.state(state.spec.mode, state.transitionCount, state.events.length);
+  const stage = <WorkflowStage state={state} onCommand={command => setState(current => {
+    if (!workflowDiagnostic.active) return workflowReducer(current, command);
+    const started = workflowDiagnostic.now();
+    try { return workflowReducer(current, command); }
+    finally { workflowDiagnostic.reduced(workflowDiagnostic.now() - started); }
+  })} onExport={() => exportWorkflow(state)} onImport={text => {
     const result = importWorkflow(text);
     if (!result.ok) return { ok: false, message: result.message };
     setState(result.state); return { ok: true, message: 'Replay imported' };
   }}/>;
+  return workflowDiagnostic.active ? <Profiler id="postcache-workflow" onRender={(_id, _phase, actualDuration) => workflowDiagnostic.rendered(actualDuration)}>{stage}</Profiler> : stage;
 }
 function stat(name: string) {
   return screen.getByText(name, { exact: true }).closest('.stat')!.querySelector('strong')!.textContent;
 }
-afterEach(() => { cleanup(); vi.useRealTimers(); window.location.hash = ''; });
+afterEach(() => { workflowDiagnostic.emit(); cleanup(); vi.useRealTimers(); window.location.hash = ''; });
 
 describe('workflow presentation with actual engine transitions', () => {
   it('shows six roles and differentiates delivered from consumed messages', () => {
