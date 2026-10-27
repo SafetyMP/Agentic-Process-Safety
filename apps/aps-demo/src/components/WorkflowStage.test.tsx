@@ -55,11 +55,15 @@ describe('workflow presentation with actual engine transitions', () => {
     expect(document.querySelectorAll('.workflow-timeline li').length).toBeGreaterThan(before);
     expect(screen.queryByRole('button', { name: 'Request one approval refresh' })).toBeNull();
   });
-  it('shows the race loser without erasing the C winner and exposes A duplicate effects', () => {
-    const view = render(<Harness scenario="purchase-race"/>); stepToBoundary();
+  // Each mode is a complete UI journey. Keep separate timeout budgets rather
+  // than making both independent runs share Vitest's default five seconds.
+  it('shows the race loser without erasing the C winner', () => {
+    render(<Harness scenario="purchase-race"/>); stepToBoundary();
     expect(stat('Committed orders')).toBe('1'); expect(stat('Task confirmed')).toBe('Yes');
     expect(screen.getByText(/^Simulated interleaving ·/)).toBeTruthy();
-    view.unmount(); render(<Harness scenario="purchase-race" mode="A"/>); stepToBoundary();
+  });
+  it('exposes A duplicate effects without claiming safe completion', () => {
+    render(<Harness scenario="purchase-race" mode="A"/>); stepToBoundary();
     expect(stat('Committed orders')).toBe('2'); expect(stat('Simulated spend')).toBe('800');
     expect(Number(stat('Unsafe committed effects'))).toBeGreaterThan(0);
     expect(stat('Task confirmed')).toBe('Yes'); expect(stat('Safe model completion')).toBe('No');
