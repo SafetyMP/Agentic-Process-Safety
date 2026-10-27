@@ -17,6 +17,28 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); window.location.hash = ''; })
 function finish(scenario: ScenarioId, mode: Mode = 'C') { let state = workflowAPI.createWorkflow(workflowAPI.scenarioSpec(scenario, mode)); for (let i = 0; i < 100 && workflowAPI.selectWorkflow(state).controls.canStep; i++) state = workflowAPI.workflowReducer(state, { type: 'step' }); return state; }
 async function route(hash: string) { await act(async () => { window.location.hash = hash; window.dispatchEvent(new HashChangeEvent('hashchange')); }); }
 const more = () => screen.getByRole('radio', { name: 'More evidence before a recommendation' });
+it('names Executive navigation links without decorative sequence numbers', () => {
+  render(<App/>);
+  const navigation = screen.getByRole('navigation', { name: 'Main navigation' });
+  for (const name of ['Conceptual', 'Analytical', 'Pitch']) expect(within(navigation).getByRole('link', { name })).toBeTruthy();
+});
+it.each([
+  ['Executive', ['Question to examine', 'Purchasing authority model (A/B/C)', 'Which proposal goes first?', 'Playback pace']],
+  ['Technical', ['Workflow scenario', 'Workflow comparator', 'Proposal schedule', 'Playback pace']],
+] as const)('gives %s workflow selects exact visible labels without option text', (audience, names) => {
+  window.location.hash = '#/simulator'; render(<App/>);
+  fireEvent.click(screen.getByRole('radio', { name: audience }));
+  if (audience === 'Executive') fireEvent.click(screen.getByText('Exercise settings', { selector: 'summary' }));
+  for (const name of names) {
+    const control = screen.getByRole('combobox', { name });
+    const labelId = control.getAttribute('aria-labelledby');
+    expect(labelId).toBeTruthy();
+    const label = document.getElementById(labelId!);
+    expect(label?.textContent).toBe(name);
+    expect(label?.querySelector('option')).toBeNull();
+    expect(control.closest('label')?.contains(label)).toBe(true);
+  }
+});
 it('leads with the business task, actual supplied need and all six distinct responsibilities', () => {
   window.location.hash = '#/overview'; const commands = vi.spyOn(workflowAPI, 'workflowReducer'); render(<App/>);
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Use HAZOP before delegating purchasing.');
@@ -79,6 +101,17 @@ function MemoryHarness({ initial }: { initial: WorkflowState }) {
   const [state, setState] = useState(initial); const discussion = useExecutiveDiscussion(state, null);
   return <><button onClick={() => setState(workflowAPI.workflowReducer(state, { type: 'reset' }))}>Reset observed model</button><button onClick={() => setState(workflowAPI.workflowReducer(state, { type: 'configure', spec: state.spec }))}>Repeat identical specification</button><button onClick={() => { const replay = workflowAPI.importWorkflow(workflowAPI.exportWorkflow(state)); if (!replay.ok) throw new Error('Fixture import failed'); setState(replay.state); }}>Import identical replay</button><Executive><ExecutiveDiscussion discussion={discussion}/></Executive></>;
 }
+it('refreshes a checked discussion position with Space without issuing workflow commands', () => {
+  render(<AudienceProvider><MemoryHarness initial={workflowAPI.createWorkflow()}/></AudienceProvider>);
+  fireEvent.click(more()); fireEvent.click(screen.getByRole('button', { name: 'Reset observed model' }));
+  const status = screen.getByRole('status', { name: 'Discussion draft status' });
+  expect(status.textContent).toContain('The run has changed');
+  const commands = vi.spyOn(workflowAPI, 'workflowReducer');
+  more().focus(); fireEvent.keyDown(more(), { key: ' ' });
+  expect(status.textContent).not.toContain('The run has changed');
+  expect(commands).not.toHaveBeenCalled();
+  expect(document.activeElement).toBe(more());
+});
 it.each(['Reset observed model', 'Repeat identical specification', 'Import identical replay'])('stales a discussion for %s even when runKey and values recur', action => {
   const initial = workflowAPI.createWorkflow(); render(<AudienceProvider><MemoryHarness initial={initial}/></AudienceProvider>);
   expect(screen.getByText('No purchasing decision observed; these positions are hypotheses.')).toBeTruthy();

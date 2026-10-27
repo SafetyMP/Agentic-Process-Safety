@@ -10,7 +10,7 @@ process.chdir(fileURLToPath(new URL('../', import.meta.url)));
 const repository = 'safetymp/agentic-process-safety';
 const workflow = '.github/workflows/deploy-pages.yml';
 const pins = {
-  'apps/aps-demo/scripts/e2e.mjs': '304713b886afdb7528583800e92521c5200c39c0b2f6c1e0138a81c7322e147f',
+  'apps/aps-demo/scripts/e2e.mjs': '7d08932efd17829914e44f2f026cb82a2e3a3a873d305d7f2a2aa19f961f01d2',
   'apps/aps-demo/scripts/qa-evidence.mjs': '859c2a56553c93ad0f6a1e874ced2bfa51dbc1f7a9ec97ba15ba236783f01926',
   [workflow]: '8a0a0126bfeba484e1b086cf8faecf872847c05146224bc237a1a331c4330e27',
 };

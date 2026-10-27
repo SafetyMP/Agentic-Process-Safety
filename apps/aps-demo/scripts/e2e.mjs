@@ -72,8 +72,15 @@ try {
   // Increment only after each added check has actually completed successfully.
   const check = async verify => { await verify(); assertions++; };
   const navigationNames = { overview: /^Overview/, governance: /^Control Plane/, simulator: /^Swarm Simulator/, assurance: /^Assurance/ };
+  // Hash changes commit asynchronously, while the old workflow stays mounted.
+  // Wait for React's route marker before resolving controls in the new view.
+  const clickNavigation = async name => {
+    const link = page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name, exact: typeof name === 'string' });
+    await link.click();
+    await check(() => expect(link).toHaveAttribute('aria-current', 'page'));
+  };
   const navigateWithin = async section => {
-    await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: navigationNames[section] }).click();
+    await clickNavigation(navigationNames[section]);
     await check(() => expect(page.locator('h1')).toBeVisible());
   };
   const workflowStatus = page.getByRole('status', { name: 'Workflow status', exact: true });
@@ -136,10 +143,10 @@ try {
     await expect(workflowStatus).toHaveText(audienceStatus, { useInnerText: true }); assertions++;
   }
   // Persistence on hash navigation is tested WITHOUT the Technical setup helper.
-  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: /^Assurance/ }).click();
+  await clickNavigation(/^Assurance/);
   await expect(page.getByRole('radio', { name: 'Technical', exact: true })).toBeChecked(); assertions++;
   await page.getByRole('radio', { name: 'Executive', exact: true }).check();
-  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: /^Conceptual/ }).click();
+  await clickNavigation(/^Conceptual/);
   await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
   await page.goBack(); await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
   await page.goForward(); await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
@@ -205,9 +212,9 @@ try {
   await check(() => expect(discussionDraft).toContainText('No purchasing decision observed; these positions are hypotheses.'));
   await discussionDraft.getByRole('radio', { name: 'More evidence before a recommendation', exact: true }).check();
   await check(() => expect(discussionDraft).toContainText('not an approval or a validated recommendation'));
-  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Analytical', exact: true }).click();
+  await clickNavigation('Analytical');
   await page.getByRole('button', { name: 'Reset workflow and clear history', exact: true }).click();
-  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Pitch', exact: true }).click();
+  await clickNavigation('Pitch');
   await check(() => expect(discussionDraft).toContainText('The run has changed—review this draft again.'));
   await discussionDraft.getByRole('radio', { name: 'More evidence before a recommendation', exact: true }).press('Space');
   await check(() => expect(discussionDraft).not.toContainText('The run has changed—review this draft again.'));
@@ -238,8 +245,8 @@ try {
   await check(() => expect(operations.getByRole('region', { name: 'Selected purchasing record', exact: true })).toContainText(taskRecordName.slice('Open task '.length)));
   await selectTechnical(); const operationsInitial = await captureGeneratedWorkflow();
   await page.getByRole('radio', { name: 'Executive', exact: true }).check();
-  for (const name of ['Analytical', 'Pitch', 'Conceptual']) await records.getByRole('link', { name, exact: true }).click();
-  await records.getByRole('link', { name: 'Analytical', exact: true }).click();
+  for (const name of ['Analytical', 'Pitch', 'Conceptual']) await clickNavigation(name);
+  await clickNavigation('Analytical');
   await check(() => expect(operations.getByText('No quote prepared yet.', { exact: true })).toBeVisible());
   await check(() => expect(operations.getByText('No simulated permission issued.', { exact: true })).toBeVisible());
   await check(() => expect(operations.getByText('Related timing finding—different object/coverage', { exact: true })).toBeVisible());
@@ -264,10 +271,10 @@ try {
     await check(() => expect(step).toBeDisabled());
   };
   await operationsBoundary();
-  await records.getByRole('link', { name: 'Analytical', exact: true }).click();
+  await clickNavigation('Analytical');
   await check(() => expect(operations.getByRole('button', { name: /^Open permission / })).toHaveCount(1));
   await operations.getByRole('button', { name: /^Open permission / }).click();
-  await records.getByRole('link', { name: 'Analytical', exact: true }).click();
+  await clickNavigation('Analytical');
   const blockedEventIdentity = await page.getByRole('region', { name: 'Approval refresh decision', exact: true }).locator('.text-button').innerText();
   await operations.getByRole('button', { name: `Open exception ${blockedEventIdentity}`, exact: true }).click();
   await operations.getByRole('region', { name: 'Selected purchasing record', exact: true }).getByRole('button', { name: 'Review exception design', exact: true }).click();
@@ -293,15 +300,15 @@ try {
   await page.getByLabel('Workflow comparator', { exact: true }).selectOption('C');
   await page.getByRole('button', { name: 'Apply selection and start new run', exact: true }).click(); await operationsBoundary();
   await check(() => expect(stat('Committed orders')).toHaveText('1')); await check(() => expect(stat('Task confirmed')).toHaveText('No'));
-  await page.getByRole('radio', { name: 'Executive', exact: true }).check(); await records.getByRole('link', { name: 'Pitch', exact: true }).click();
+  await page.getByRole('radio', { name: 'Executive', exact: true }).check(); await clickNavigation('Pitch');
   const existingOrderName = await operations.getByRole('button', { name: /^Open order / }).innerText();
   await operations.getByRole('button', { name: existingOrderName, exact: true }).click();
   await operations.getByRole('region', { name: 'Selected purchasing record', exact: true }).getByRole('button', { name: 'Inspect technical evidence', exact: true }).click();
   await check(() => expect(page.getByRole('region', { name: 'Causal event inspector', exact: true })).toContainText('order committed'));
   await page.getByRole('radio', { name: 'Executive', exact: true }).check();
   await page.getByRole('button', { name: 'Reconcile existing order once', exact: true }).click(); await operationsBoundary();
-  await records.getByRole('link', { name: 'Pitch', exact: true }).click(); await check(() => expect(operations.getByRole('button', { name: existingOrderName, exact: true })).toHaveCount(1));
-  await records.getByRole('link', { name: 'Analytical', exact: true }).click();
+  await clickNavigation('Pitch'); await check(() => expect(operations.getByRole('button', { name: existingOrderName, exact: true })).toHaveCount(1));
+  await clickNavigation('Analytical');
   await selectTechnical(); await check(() => expect(stat('Committed orders')).toHaveText('1')); await check(() => expect(stat('Task confirmed')).toHaveText('Yes'));
   await page.getByRole('radio', { name: 'Executive', exact: true }).check();
   await page.screenshot({ path: resolve(executiveShots, 'operations-records.jpg'), quality: 65 });

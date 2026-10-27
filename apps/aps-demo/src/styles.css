@@ -10,7 +10,8 @@
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; } }
 
 /* Browser workflow presentation: all activity comes from emitted engine records. */
-.workflow-workspace { display:grid; gap:24px; }
+.workflow-workspace { display:grid; grid-template-columns:minmax(0,1fr); gap:24px; }
+.workflow-workspace > * { min-width:0; }
 .workflow-intro { max-width:900px; }
 .workflow-intro h1 { font-size:clamp(32px,4vw,54px); margin-bottom:20px; }
 .workflow-intro>p:not(.eyebrow) { max-width:700px; color:var(--muted); font-size:16px; }
