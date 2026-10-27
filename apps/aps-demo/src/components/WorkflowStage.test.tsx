@@ -31,7 +31,7 @@ describe('workflow presentation with actual engine transitions', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Step one transition' }));
     expect(within(screen.getByRole('table', { name: 'Generated messages in the active browser run' })).getByText('delivered')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Step one transition' }));
-    expect(within(screen.getByRole('table')).getAllByText('consumed').length).toBeGreaterThan(0);
+    expect(within(screen.getByRole('table', { name: 'Generated messages in the active browser run' })).getAllByText('consumed').length).toBeGreaterThan(0);
     expect(stat('Task confirmed')).toBe('No');
     expect(stat('Committed orders')).toBe('0');
   });

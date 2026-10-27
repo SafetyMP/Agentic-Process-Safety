@@ -40,7 +40,7 @@ function setup(initial = createWorkflow(scenarioSpec()), policy = initialState(4
   return { state: () => current, policy: () => p, commands, actions };
 }
 const headings = {
-  overview: 'Use HAZOP before delegating purchasing.', simulator: 'What must stay true before we buy?',
+  overview: 'Delegate work. Keep control of the outcome.', simulator: 'What must stay true before we buy?',
   governance: 'How does a request boundary change the outcome?', hazop: 'What can depart from intended purchasing?', assurance: 'What should the team take from this case?',
 };
 it.each(Object.entries(headings))('opens %s as a decision brief, not a technical dashboard', (route, heading) => {

@@ -203,3 +203,36 @@
 [data-audience=executive] [aria-labelledby=workflow-controls-title] label { font-size:13px; gap:6px; }
 [data-audience=executive] [aria-labelledby=workflow-controls-title] button,[data-audience=executive] [aria-labelledby=workflow-controls-title] select { min-height:44px; }
 @media(max-width:600px) { [data-audience=executive] [aria-labelledby=workflow-controls-title]>.button-row { align-items:stretch; } [data-audience=executive] [aria-labelledby=workflow-controls-title]>.button-row button { flex:1 1 150px; } }
+
+/* Audience learning surfaces reuse the existing palette and layout system. */
+.learning-section { min-width: 0; margin-block: 1rem; }
+.learning-section p, .learning-section dd { max-width: 85ch; line-height: 1.65; }
+.learning-section label { display: grid; gap: .5rem; margin-block: 1rem; }
+.learning-section input, .learning-section textarea { width: 100%; max-width: 100%; }
+.learning-section td, .learning-section th { white-space: normal; min-width: 9rem; vertical-align: top; }
+.learning-section pre { overflow: auto; max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
+.learning-section code { overflow-wrap: anywhere; }
+.learning-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .75rem; padding-left: 1.2rem; }
+.learning-steps button { width: 100%; text-align: left; }
+.learning-steps button[aria-current="step"] { outline: 2px solid var(--accent, #188e86); }
+.learning-story { border-left: 3px solid #188e86; padding: .5rem 1rem; margin-block: 1rem; }
+.event-context { border-top: 1px solid var(--border, #ccd4dc); margin-top: 1rem; padding-top: 1rem; min-width: 0; }
+.brief-print { display: none; }
+@media print {
+  body:has(.leadership-brief) * { visibility: hidden; }
+  body:has(.leadership-brief) .leadership-brief, body:has(.leadership-brief) .leadership-brief * { visibility: visible; }
+  .leadership-brief { position: absolute; inset: 0; background: white; color: black; border: 0; box-shadow: none; padding: 1cm; }
+  .leadership-brief label, .leadership-brief button { display: none; }
+  .leadership-brief .brief-print { display: block; }
+}
+@media print {
+  body:has(.leadership-brief) .sidebar, body:has(.leadership-brief) .topbar,
+  body:has(.leadership-brief) .audience-bar, body:has(.leadership-brief) .evidence-strip,
+  body:has(.leadership-brief) footer, body:has(.leadership-brief) .skip-link { display: none; }
+  body:has(.leadership-brief) main > :not(:has(.leadership-brief)):not(.leadership-brief) { display: none; }
+  body:has(.leadership-brief) .main-shell { margin: 0; }
+}
+
+@media print {
+  body:has(.leadership-brief) .executive-content:has(> .leadership-brief) > :not(.leadership-brief) { display: none; }
+}

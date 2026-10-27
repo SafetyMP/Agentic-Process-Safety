@@ -13,14 +13,14 @@ async function route(hash: string) { await act(async () => { window.location.has
 function audience(name: string) { fireEvent.click(screen.getByRole('radio', { name })); }
 const navigation = () => screen.getByRole('navigation', { name: 'Main navigation' });
 for (const [path, current, heading] of [
-  ['overview', 'Conceptual', 'Use HAZOP before delegating purchasing.'],
-  ['simulator', 'Analytical', 'What must stay true before we buy?'],
-  ['assurance', 'Pitch', 'What should the team take from this case?'],
-  ['hazop', 'Analytical', 'What can depart from intended purchasing?'],
-  ['governance', 'Analytical', 'How does a request boundary change the outcome?'],
+  ['overview', 'Why APS matters', 'Delegate work. Keep control of the outcome.'],
+  ['simulator', 'How controls work', 'What must stay true before we buy?'],
+  ['assurance', 'What leaders decide', 'What should the team take from this case?'],
+  ['hazop', 'How controls work', 'What can depart from intended purchasing?'],
+  ['governance', 'How controls work', 'How does a request boundary change the outcome?'],
 ]) it(`${path} belongs to the WHOLE three-issue Executive shell without a nested framework widget`, () => {
   window.location.hash = `#/${path}`; render(<App/>);
-  expect(within(navigation()).getAllByRole('link').map(link => link.textContent!.replace(/[◈⊞◇⇄◉0-9]/g, '').trim())).toEqual(['Conceptual', 'Analytical', 'Pitch']);
+  expect(within(navigation()).getAllByRole('link').map(link => link.textContent!.replace(/[◈⊞◇⇄◉0-9]/g, '').trim())).toEqual(['Why APS matters', 'How controls work', 'What leaders decide']);
   expect(navigation().querySelector('[aria-current=page]')!.textContent).toContain(current);
   expect(document.querySelectorAll('h1')).toHaveLength(1); expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(heading);
   expect(document.querySelector('[role=tablist][aria-label="Purchasing business case"]')).toBeNull();
@@ -47,7 +47,7 @@ it('retains drafts, pace, stale export, replay error and actual state across all
   expect((screen.getByLabelText('Replay JSON to validate') as HTMLTextAreaElement).value).toBe('invalid'); expect(screen.getByRole('status', { name: 'Replay import status' }).textContent).toBe(error);
   expect(screen.getByRole('status', { name: 'Workflow status' }).textContent).toContain('1 transitions');
 });
-it('carries actual exception/record context through Analytical support and Pitch to explicit Technical inspection', async () => {
+it('carries actual exception/record context through How controls work support and What leaders decide to explicit Technical inspection', async () => {
   window.location.hash = '#/simulator'; const calls = vi.spyOn(workflowAPI, 'workflowReducer'); render(<App/>);
   fireEvent.change(screen.getByLabelText('Question to examine'), { target: { value: 'approval-delay' } }); fireEvent.click(screen.getByRole('button', { name: 'Apply selection and start new run' }));
   for (let i = 0; i < 100 && !(screen.getByRole('button', { name: 'Step one transition' }) as HTMLButtonElement).disabled; i++) fireEvent.click(screen.getByRole('button', { name: 'Step one transition' }));
@@ -68,7 +68,7 @@ it('preserves an actual non-timing HAZOP query rather than substituting an expir
   expect(review.textContent).toContain(finding.id); expect(review.textContent).toContain(finding.intent); expect(review.textContent).toContain(finding.causes[0]);
   expect(review.textContent).toContain('No direct validation by the active purchasing run'); audience('Technical'); expect(screen.getByRole('heading', { name: 'MORE / purchase' })).toBeTruthy();
 });
-it('opens actual Pitch limitations from the no-event fallback without changing the model', async () => {
+it('opens actual What leaders decide limitations from the no-event fallback without changing the model', async () => {
   window.location.hash = '#/assurance'; const calls = vi.spyOn(workflowAPI, 'workflowReducer'); render(<App/>);
   const link = screen.getByRole('link', { name: 'View evidence limitations' }); expect(link.getAttribute('href')).toBe('#/assurance?detail=limitations');
   await route(link.getAttribute('href')!); const summary = screen.getByText('Evidence and limitations', { selector: 'summary' });
@@ -85,7 +85,7 @@ it('route departure pauses the single workflow timer and returns the same case w
   await route('#/simulator'); expect(screen.getByRole('status', { name: 'Workflow status' }).textContent).toContain('1 transitions');
   expect(screen.getByRole('status', { name: 'Workflow status' }).textContent).toContain('paused'); vi.useRealTimers();
 });
-it('Pitch deep links retain the selected frozen trial without conflating it with the live purchasing case', () => {
+it('What leaders decide deep links retain the selected frozen trial without conflating it with the live purchasing case', () => {
   const trial = experiment.trials[0]; window.location.hash = `#/assurance?trial=${trial.sequence}`; const calls = vi.spyOn(workflowAPI, 'workflowReducer'); render(<App/>);
   expect(screen.getByRole('region', { name: 'Requested evidence' }).textContent).toContain(`#${trial.sequence}`);
   expect(screen.getByRole('region', { name: 'Business case status' }).textContent).toContain('Nominal procurement'); expect(calls).not.toHaveBeenCalled();
@@ -95,7 +95,7 @@ it('Pitch deep links retain the selected frozen trial without conflating it with
 it('retains the actual manually selected HAZOP finding across audience toggles without a query', () => {
   const finding = hazards.find(h => h.node === 'purchase' && h.deviation === 'MORE')!;
   window.location.hash = '#/hazop'; const calls = vi.spyOn(workflowAPI, 'workflowReducer'); render(<App/>); audience('Technical');
-  fireEvent.click(screen.getByRole('button', { name: finding.id })); audience('Executive');
+  fireEvent.click(screen.getByRole('button', { name: new RegExp(finding.id) })); audience('Executive');
   expect(screen.getByRole('region', { name: 'HAZOP design review' }).textContent).toContain(finding.id);
   audience('Technical'); expect(screen.getByRole('heading', { name: 'MORE / purchase' })).toBeTruthy(); expect(calls).not.toHaveBeenCalled();
 });

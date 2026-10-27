@@ -30,7 +30,7 @@ export function App() { return <AudienceProvider><AppContent/></AudienceProvider
 function AppContent() {
   const { audience } = useAudience();
   const executive = audience === 'executive';
-  const businessNames: Record<string, string> = { overview: 'Conceptual', simulator: 'Analytical', governance: 'Analytical', hazop: 'Analytical', assurance: 'Pitch' };
+  const businessNames: Record<string, string> = { overview: 'Why APS matters', simulator: 'How controls work', governance: 'How controls work', hazop: 'How controls work', assurance: 'What leaders decide' };
   const navigation = executive ? executiveIssues.map(issue => ({ ...issue, icon: sections.find(s => s.id === issue.id)!.icon })) : sections;
   const [location, setLocation] = useState(locationState);
   const [theme, setTheme] = useState<Theme>(storedTheme);
