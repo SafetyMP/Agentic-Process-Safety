@@ -132,7 +132,7 @@ try {
   for (const name of ['Executive', 'Technical']) {
     await page.getByRole('radio', { name, exact: true }).check();
     // The hidden technical textbox remains the SAME prepared snapshot, not a new export.
-    await expect(page.getByLabel('Prepared replay snapshot', { exact: true })).toHaveValue(audienceSnapshot); assertions++;
+    await expect(page.getByRole('textbox', { name: 'Prepared replay snapshot', exact: true, includeHidden: true })).toHaveValue(audienceSnapshot); assertions++;
     await expect(workflowStatus).toHaveText(audienceStatus, { useInnerText: true }); assertions++;
   }
   // Persistence on hash navigation is tested WITHOUT the Technical setup helper.
