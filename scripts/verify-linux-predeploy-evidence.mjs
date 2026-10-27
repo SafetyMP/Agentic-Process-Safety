@@ -15,7 +15,7 @@ export const CAPTURES = Object.freeze(['overview', 'hazop', 'governance', 'simul
 export const PINS = Object.freeze({
   [WORKFLOW]: '5ff6795229ce590cac3cc5b647fb6e978f9a0df6a6f934d41a8165deb329b7ee',
   '.github/workflows/deploy-pages.yml': '8a0a0126bfeba484e1b086cf8faecf872847c05146224bc237a1a331c4330e27',
-  'apps/aps-demo/scripts/e2e.mjs': 'f8dd3504979c460754538e9e7bd20b4305a6a67e4baf3466b830e25c19cac6c7',
+  'apps/aps-demo/scripts/e2e.mjs': '9da8755b9a6f71ef69a13d8cd4f6c024313e7c1106678576deec14f3c72ad8f7',
   'apps/aps-demo/scripts/qa-evidence.mjs': '859c2a56553c93ad0f6a1e874ced2bfa51dbc1f7a9ec97ba15ba236783f01926',
   'apps/aps-demo/scripts/validation-evidence.mjs': '9ef9428f9901d9286716a77cb377f418194365e4b8986b7d7fd3fb38f97d7186',
   'package-lock.json': '6350fea042ab97510b73aa1969e2469731753b5f95814caafa7f8d0ecbe7d303',
