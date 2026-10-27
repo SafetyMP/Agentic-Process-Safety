@@ -1,7 +1,7 @@
 import type { WorkflowState } from '../workflow/index.ts';
 import { selectWorkflow } from '../workflow/index.ts';
 export const executiveIssues = [
-  { id: 'overview', name: 'Conceptual' }, { id: 'simulator', name: 'Analytical' }, { id: 'assurance', name: 'Pitch' },
+  { id: 'overview', name: 'Why APS matters' }, { id: 'simulator', name: 'How controls work' }, { id: 'assurance', name: 'What leaders decide' },
 ] as const;
 export function issueForRoute(route: string) { return executiveIssues.find(item => item.id === route) ?? executiveIssues[1]; }
 export function CaseStatus({ state, route }: { state: WorkflowState; route: string }) {

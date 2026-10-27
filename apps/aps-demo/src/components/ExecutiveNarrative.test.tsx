@@ -20,7 +20,7 @@ const more = () => screen.getByRole('radio', { name: 'More evidence before a rec
 it('names Executive navigation links without decorative sequence numbers', () => {
   render(<App/>);
   const navigation = screen.getByRole('navigation', { name: 'Main navigation' });
-  for (const name of ['Conceptual', 'Analytical', 'Pitch']) expect(within(navigation).getByRole('link', { name })).toBeTruthy();
+  for (const name of ['Why APS matters', 'How controls work', 'What leaders decide']) expect(within(navigation).getByRole('link', { name })).toBeTruthy();
 });
 it.each([
   ['Executive', ['Question to examine', 'Purchasing authority model (A/B/C)', 'Which proposal goes first?', 'Playback pace']],
@@ -41,9 +41,9 @@ it.each([
 });
 it('leads with the business task, actual supplied need and all six distinct responsibilities', () => {
   window.location.hash = '#/overview'; const commands = vi.spyOn(workflowAPI, 'workflowReducer'); render(<App/>);
-  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Use HAZOP before delegating purchasing.');
+  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Delegate work. Keep control of the outcome.');
   expect(screen.getByText(/Your task: examine one purchasing question/)).toBeTruthy();
-  expect(document.querySelector('main')!.textContent!.indexOf('Use HAZOP')).toBeLessThan(document.querySelector('main')!.textContent!.indexOf('Task task-1'));
+  expect(document.querySelector('main')!.textContent!.indexOf('Delegate work.')).toBeLessThan(document.querySelector('main')!.textContent!.indexOf('Task task-1'));
   fireEvent.click(screen.getByText('Who hands work to whom?', { selector: 'summary' }));
   const roles = screen.getByText('Who hands work to whom?', { selector: 'summary' }).parentElement!;
   expect(Array.from(roles.querySelectorAll('li strong')).map(e => e.textContent)).toEqual(['Orchestrator:', 'Demand:', 'Inventory:', 'Supplier:', 'Finance:', 'Purchase:']);
