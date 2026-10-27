@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import ts from 'typescript';
+import { withoutCanonical, verifySeo } from './seo.mjs';
 
 const dist = resolve(process.argv[2] || fileURLToPath(new URL('../dist/', import.meta.url)));
 const inventory = new Map();
@@ -22,7 +23,8 @@ function walk(dir) {
     bytes += size; files++;
     assert.ok(!/\.(?:sqlite|pem|key|py|map)$/.test(item.name), `Private or nonstatic publish file: ${item.name}`);
     if (/\.(?:js|html|css)$/.test(item.name)) {
-      const text = readFileSync(path, 'utf8');
+      const raw = readFileSync(path, 'utf8');
+      const text = item.name === 'index.html' ? withoutCanonical(raw) : raw;
       assert.ok(!/(?:BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY|sk-proj-[A-Za-z0-9]{15}|ghp_[A-Za-z0-9]{20})/.test(text), 'Credential material in publish asset');
       // Libraries may include documentation links and SVG namespaces; forbid executable network primitives and remote asset markup.
       assert.ok(!/\b(?:fetch\s*\(|new\s+(?:WebSocket|EventSource|XMLHttpRequest)\s*\(|navigator\.sendBeacon\s*\()/m.test(text), `Runtime networking found: ${item.name}`);
@@ -36,6 +38,7 @@ assert.ok(files < 10000 && bytes < 128 * 1024 * 1024, 'Publish capacity exceeded
 const html = readFileSync(resolve(dist, 'index.html'), 'utf8');
 assert.match(html, /<script\b[^>]*src="[^" ]+\.js"/);
 assert.ok(!/<base\b/i.test(html), 'Base element overrides project URL resolution');
+verifySeo(html, readFileSync(resolve(dist, 'sitemap.xml'), 'utf8'));
 
 // Resolve the actual built graph against both case-sensitive hosting roots.
 // No server fallback: only the exact inventory bytes may satisfy a request.
@@ -52,7 +55,7 @@ for (const prefix of ['/Agentic-Process-Safety/', '/agentic-process-safety/']) {
     const text = file.data.toString('utf8');
     let references = [];
     if (name.endsWith('.html')) {
-      references = [...text.matchAll(/(?:src|href)=["']([^"']+)["']/g)].map(m => m[1]);
+      references = [...withoutCanonical(text).matchAll(/(?:src|href)=["']([^"']+)["']/g)].map(m => m[1]);
     } else if (name.endsWith('.js')) {
       // Parse syntax so documentation strings containing import examples cannot
       // masquerade as executable module edges.
@@ -106,3 +109,4 @@ for (const prefix of ['/Agentic-Process-Safety/', '/agentic-process-safety/']) {
 }
 console.log(`Static publish contract: ${files} files, ${bytes} bytes; both case-sensitive project roots, no backend/network primitives or private files.`);
 console.log(JSON.stringify(evidence, null, 2));
+
