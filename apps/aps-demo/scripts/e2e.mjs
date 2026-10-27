@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { resolve, extname } from 'node:path';
+import { URLSearchParams } from 'node:url';
 /* global document, window */
 
 // Serve only the built artifact at its actual Pages prefix. No SPA server fallback.
@@ -48,7 +49,25 @@ try {
   page.on('pageerror', e => errors.push(e.message));
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('websocket', ws => violations.push(ws.url()));
-  const go = async route => { await page.goto(`${origin}${prefix}#/${route}`); await expect(page.locator('h1')).toBeVisible(); assertions++; };
+  const executiveHeadings = { overview: 'Use HAZOP before delegating purchasing.', simulator: 'What must stay true before we buy?', governance: 'How does a request boundary change the outcome?', hazop: 'What can depart from intended purchasing?', assurance: 'What should the team take from this case?' };
+  // Fresh documents must demonstrate the real default BEFORE legacy setup.
+  const assertExecutiveDefault = async route => {
+    await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
+    await expect(page.getByRole('heading', { level: 1, name: route.split('?')[0] === 'hazop' && new URLSearchParams(route.split('?')[1] ?? '').get('hazard') === 'APS-f47191931b96a999a61c' ? 'What could go wrong between permission and purchase?' : executiveHeadings[route.split('?')[0]], exact: true })).toBeVisible(); assertions++;
+    await expect(page.locator('[data-executive-uncertainty]:visible').first()).toBeVisible(); assertions++;
+  };
+  const selectTechnical = async () => {
+    await page.getByRole('radio', { name: 'Technical', exact: true }).check();
+    await expect(page.getByRole('radio', { name: 'Technical', exact: true })).toBeChecked(); assertions++;
+  };
+  // goto between hash routes can retain the current document and audience.
+  // Technical regression navigation must not mistake that for a fresh default.
+  const go = async route => { await page.goto(`${origin}${prefix}#/${route}`); await expect(page.locator('h1')).toBeVisible(); assertions++; await selectTechnical(); };
+  const freshExecutive = async route => {
+    await page.goto(`${origin}${prefix}#/${route}`);
+    await page.reload(); // Deliberately create a new App/AudienceProvider lifetime.
+    await assertExecutiveDefault(route);
+  };
   const stat = (label, scope = page) => scope.locator('.stat').filter({ has: page.getByText(label, { exact: true }) }).locator('strong');
   // Increment only after each added check has actually completed successfully.
   const check = async verify => { await verify(); assertions++; };
@@ -91,9 +110,206 @@ try {
     // Exact replay equality retains specification, effects digest, journal and causal history.
     await check(() => assert.deepEqual(current, baseline));
   };
+  // Supplementary Executive images are OUTSIDE the seven-capture gate artifact.
+  const executiveShots = resolve('.harness/executive-review');
+  await mkdir(executiveShots, { recursive: true });
+  for (const route of ['overview', 'simulator', 'governance', 'hazop', 'assurance']) {
+    await freshExecutive(route);
+    await page.screenshot({ path: resolve(executiveShots, `${route}.jpg`), quality: 65 });
+    const executiveRadio = page.getByRole('radio', { name: 'Executive', exact: true });
+    await executiveRadio.focus(); await page.keyboard.press('ArrowRight');
+    await expect(page.getByRole('radio', { name: 'Technical', exact: true })).toBeFocused(); assertions++;
+    await expect(page.getByRole('radio', { name: 'Technical', exact: true })).toBeChecked(); assertions++;
+    await page.keyboard.press('ArrowLeft'); await expect(executiveRadio).toBeChecked(); assertions++;
+    await expect(executiveRadio).toBeFocused(); assertions++;
+  }
+  await freshExecutive('simulator');
+  await page.getByRole('button', { name: 'Step one transition', exact: true }).click();
+  await selectTechnical();
+  await page.getByRole('button', { name: 'Prepare current replay JSON', exact: true }).click();
+  const audienceSnapshot = await page.getByRole('textbox', { name: 'Prepared replay snapshot', exact: true }).inputValue();
+  const audienceStatus = await workflowStatus.innerText();
+  for (const name of ['Executive', 'Technical']) {
+    await page.getByRole('radio', { name, exact: true }).check();
+    // The hidden technical textbox remains the SAME prepared snapshot, not a new export.
+    await expect(page.getByRole('textbox', { name: 'Prepared replay snapshot', exact: true, includeHidden: true })).toHaveValue(audienceSnapshot); assertions++;
+    await expect(workflowStatus).toHaveText(audienceStatus, { useInnerText: true }); assertions++;
+  }
+  // Persistence on hash navigation is tested WITHOUT the Technical setup helper.
+  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: /^Assurance/ }).click();
+  await expect(page.getByRole('radio', { name: 'Technical', exact: true })).toBeChecked(); assertions++;
+  await page.getByRole('radio', { name: 'Executive', exact: true }).check();
+  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: /^Conceptual/ }).click();
+  await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
+  await page.goBack(); await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
+  await page.goForward(); await expect(page.getByRole('radio', { name: 'Executive', exact: true })).toBeChecked(); assertions++;
+  // ADDITIVE viewport and first-screen action acceptance. No original oracle is replaced.
+  const graphGeometry = async () => page.getByLabel('Interactive procurement agent topology', { exact: true }).evaluate(graph => {
+    const flow = graph.querySelector('.react-flow__renderer'); const rect = flow.getBoundingClientRect();
+    const nodes = Array.from(graph.querySelectorAll('.react-flow__node')).map(node => { const r = node.getBoundingClientRect(); return { id: node.getAttribute('data-id'), x: r.x, y: r.y, right: r.right, bottom: r.bottom }; });
+    return { flow: { x: rect.x, y: rect.y, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height }, nodes, transform: graph.querySelector('.react-flow__viewport').getAttribute('style') };
+  });
+  const assertGraphCentered = async () => check(async () => {
+    await expect.poll(async () => {
+      const g = await graphGeometry();
+      const union = { left: Math.min(...g.nodes.map(n => n.x)), right: Math.max(...g.nodes.map(n => n.right)), top: Math.min(...g.nodes.map(n => n.y)), bottom: Math.max(...g.nodes.map(n => n.bottom)) };
+      return { count: g.nodes.length, inside: g.flow.width > 0 && g.flow.height > 0 && union.left >= g.flow.x + 8 && union.right <= g.flow.right - 8 && union.top >= g.flow.y + 8 && union.bottom <= g.flow.bottom - 8, centered: Math.abs((union.left + union.right - g.flow.x - g.flow.right) / 2) <= 2 && Math.abs((union.top + union.bottom - g.flow.y - g.flow.bottom) / 2) <= 2 };
+    }).toEqual({ count: 8, inside: true, centered: true });
+  });
+  const settleViewportFrames = async () => page.evaluate(() => new Promise(resolve => window.requestAnimationFrame(() => window.requestAnimationFrame(resolve))));
+  const assertViewportRetained = async before => check(async () => { await settleViewportFrames(); assert.equal((await graphGeometry()).transform, before); });
+  await page.setViewportSize({ width: 1280, height: 720 }); await freshExecutive('overview');
+  await selectTechnical(); await assertGraphCentered(); // First reveal; no Fit View correction first.
+  const graph = page.getByLabel('Interactive procurement agent topology', { exact: true });
+  for (const label of ['Zoom In', 'Zoom Out']) {
+    await graph.getByRole('button', { name: label, exact: true }).click(); const zoomed = (await graphGeometry()).transform;
+    await page.getByRole('radio', { name: 'Executive', exact: true }).check(); await selectTechnical(); await assertViewportRetained(zoomed);
+    await page.setViewportSize({ width: 1200, height: 720 }); await assertViewportRetained(zoomed);
+    await page.setViewportSize({ width: 1280, height: 720 }); await assertViewportRetained(zoomed);
+    await graph.getByRole('button', { name: 'Fit View', exact: true }).click(); await assertGraphCentered();
+  }
+  await graph.scrollIntoViewIfNeeded();
+  const paneBox = await graph.locator('.react-flow__pane').boundingBox(); assert.ok(paneBox);
+  await page.mouse.move(paneBox.x + 20, paneBox.y + 20); const beforePan = (await graphGeometry()).transform;
+  await page.mouse.down(); await page.mouse.move(paneBox.x + 50, paneBox.y + 40, { steps: 5 }); await page.mouse.up(); await settleViewportFrames();
+  const panned = (await graphGeometry()).transform; await check(() => assert.notEqual(panned, beforePan));
+  await page.setViewportSize({ width: 1200, height: 720 }); await assertViewportRetained(panned);
+  await page.getByRole('radio', { name: 'Executive', exact: true }).check(); await selectTechnical(); await assertViewportRetained(panned);
+  await graph.scrollIntoViewIfNeeded(); const wheelBox = await graph.locator('.react-flow__pane').boundingBox(); assert.ok(wheelBox);
+  await page.mouse.move(wheelBox.x + 20, wheelBox.y + 20); await page.mouse.wheel(0, -120); await settleViewportFrames();
+  const wheeled = (await graphGeometry()).transform; await check(() => assert.notEqual(wheeled, panned));
+  await page.setViewportSize({ width: 1280, height: 720 }); await assertViewportRetained(wheeled);
+  await graph.getByRole('button', { name: 'Fit View', exact: true }).click(); await assertGraphCentered();
+  await graph.getByRole('button', { name: 'Zoom In', exact: true }).focus(); await page.keyboard.press('Space');
+  const keyboardZoomed = (await graphGeometry()).transform;
+  await page.setViewportSize({ width: 1200, height: 720 }); await assertViewportRetained(keyboardZoomed);
+  await graph.getByRole('button', { name: 'Fit View', exact: true }).click(); await assertGraphCentered();
+  await page.setViewportSize({ width: 900, height: 720 }); await assertGraphCentered();
+  await page.setViewportSize({ width: 320, height: 720 }); await assertGraphCentered();
+  await page.getByRole('radio', { name: 'Executive', exact: true }).check(); await selectTechnical(); await assertGraphCentered();
+  await go('simulator'); await go('overview'); await assertGraphCentered(); // Supported navigation/return, no invented audience URL.
+  const assertInitialActions = async () => check(async () => {
+    const controls = [page.getByLabel('Question to examine', { exact: true }), page.getByRole('button', { name: 'Apply selection and start new run', exact: true }), page.getByRole('button', { name: 'Start workflow', exact: true })];
+    for (const control of controls) {
+      const box = await control.evaluate(element => { const r = element.getBoundingClientRect(); const chrome = document.querySelector('.audience-bar').getBoundingClientRect(); return { top: r.top, bottom: r.bottom, unobscured: document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2) === element, belowChrome: r.top >= chrome.bottom }; });
+      assert.ok(box.top >= 0 && box.bottom <= 720 && box.belowChrome && box.unobscured, 'initial Executive question/Apply/Start must fit and be unobscured without reviewer scrolling');
+    }
+  });
+  await page.setViewportSize({ width: 1280, height: 720 }); await freshExecutive('simulator'); await assertInitialActions();
+  await freshExecutive('overview'); await page.getByRole('link', { name: 'Open the purchasing workspace', exact: true }).click(); await assertInitialActions();
+  // END ADDITIVE viewport and first-screen action acceptance.
+  // ADDITIVE Executive narrative: context-specific default headings and memory-only discussion.
+  for (const target of ['hazop', 'hazop?hazard=APS-f47191931b96a999a61c', 'hazop?hazard=APS-758a4efe3266c2f560e4', 'hazop?hazard=not-a-finding']) await freshExecutive(target);
+  await freshExecutive('assurance');
+  const discussionDraft = page.getByRole('region', { name: 'Non-binding discussion draft', exact: true });
+  await check(() => expect(discussionDraft).toContainText('No purchasing decision observed; these positions are hypotheses.'));
+  await discussionDraft.getByRole('radio', { name: 'More evidence before a recommendation', exact: true }).check();
+  await check(() => expect(discussionDraft).toContainText('not an approval or a validated recommendation'));
+  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Analytical', exact: true }).click();
+  await page.getByRole('button', { name: 'Reset workflow and clear history', exact: true }).click();
+  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Pitch', exact: true }).click();
+  await check(() => expect(discussionDraft).toContainText('The run has changed—review this draft again.'));
+  await discussionDraft.getByRole('radio', { name: 'More evidence before a recommendation', exact: true }).press('Space');
+  await check(() => expect(discussionDraft).not.toContainText('The run has changed—review this draft again.'));
+  await page.reload(); await assertExecutiveDefault('assurance');
+  await check(() => expect(discussionDraft.getByRole('radio', { name: 'More evidence before a recommendation', exact: true })).not.toBeChecked());
+  // END ADDITIVE Executive narrative.
+  // ADDITIVE Operations/HAZOP journey. Original Technical/default journeys remain below.
+  await freshExecutive('overview');
+  const recommendation = page.getByRole('region', { name: 'HAZOP recommendation', exact: true });
+  await check(() => expect(recommendation).toContainText('does not execute a stop or prove safety'));
+  await check(() => expect(recommendation.getByRole('link', { name: 'Open the purchasing workspace', exact: true })).toBeVisible());
+  await check(() => expect(recommendation.getByRole('link', { name: 'Inspect the technical mechanism', exact: true })).toBeVisible());
+  await page.setViewportSize({ width: 1280, height: 720 });
+  for (const name of ['Executive', 'Technical']) await check(async () => {
+    const unobscured = await page.getByRole('radio', { name, exact: true }).evaluate(input => {
+      const label = input.closest('label'); const box = label.getBoundingClientRect();
+      return document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)?.closest('label') === label;
+    });
+    assert.equal(unobscured, true, `${name} audience label must not be occluded`);
+  });
+  await recommendation.getByRole('link', { name: 'Open the purchasing workspace', exact: true }).click();
+  const operations = page.getByRole('region', { name: 'Purchasing operations', exact: true });
+  const records = page.getByRole('navigation', { name: 'Main navigation', exact: true });
+  await check(() => expect(operations).toBeVisible());
+  await check(() => expect(workflowStatus).toContainText('0 transitions'));
+  const taskRecordName = await operations.getByRole('button', { name: /^Open task / }).innerText();
+  await operations.getByRole('button', { name: taskRecordName, exact: true }).click();
+  await check(() => expect(operations.getByRole('region', { name: 'Selected purchasing record', exact: true })).toContainText(taskRecordName.slice('Open task '.length)));
+  await selectTechnical(); const operationsInitial = await captureGeneratedWorkflow();
+  await page.getByRole('radio', { name: 'Executive', exact: true }).check();
+  for (const name of ['Analytical', 'Pitch', 'Conceptual']) await records.getByRole('link', { name, exact: true }).click();
+  await records.getByRole('link', { name: 'Analytical', exact: true }).click();
+  await check(() => expect(operations.getByText('No quote prepared yet.', { exact: true })).toBeVisible());
+  await check(() => expect(operations.getByText('No simulated permission issued.', { exact: true })).toBeVisible());
+  await check(() => expect(operations.getByText('Related timing finding—different object/coverage', { exact: true })).toBeVisible());
+  await records.getByRole('link', { name: 'Conceptual', exact: true }).focus(); await page.keyboard.press('Tab');
+  await check(() => expect(records.getByRole('link', { name: 'Analytical', exact: true })).toBeFocused());
+  await page.keyboard.press('Shift+Tab'); await check(() => expect(records.getByRole('link', { name: 'Conceptual', exact: true })).toBeFocused());
+  await selectTechnical(); await assertGeneratedWorkflowUnchanged(operationsInitial);
+  await page.getByRole('radio', { name: 'Executive', exact: true }).check();
+  await page.getByLabel('Question to examine', { exact: true }).selectOption('approval-delay');
+  await selectTechnical(); await assertGeneratedWorkflowUnchanged(operationsInitial);
+  await page.getByRole('radio', { name: 'Executive', exact: true }).check();
+  await page.getByRole('button', { name: 'Apply selection and start new run', exact: true }).click();
+  // Explicit Start/Pause do not constitute a commitment or a new authority.
+  await page.getByRole('button', { name: 'Start workflow', exact: true }).click();
+  await page.getByRole('button', { name: 'Pause workflow', exact: true }).click();
+  await check(() => expect(workflowStatus).toContainText('paused'));
+  await page.getByRole('button', { name: 'Reset workflow and clear history', exact: true }).click();
+  await check(() => expect(workflowStatus).toContainText('0 transitions'));
+  const operationsBoundary = async () => {
+    const step = page.getByRole('button', { name: 'Step one transition', exact: true });
+    for (let i = 0; i < 100 && await step.isEnabled(); i++) await step.click();
+    await check(() => expect(step).toBeDisabled());
+  };
+  await operationsBoundary();
+  await records.getByRole('link', { name: 'Analytical', exact: true }).click();
+  await check(() => expect(operations.getByRole('button', { name: /^Open permission / })).toHaveCount(1));
+  await operations.getByRole('button', { name: /^Open permission / }).click();
+  await records.getByRole('link', { name: 'Analytical', exact: true }).click();
+  const blockedEventIdentity = await page.getByRole('region', { name: 'Approval refresh decision', exact: true }).locator('.text-button').innerText();
+  await operations.getByRole('button', { name: `Open exception ${blockedEventIdentity}`, exact: true }).click();
+  await operations.getByRole('region', { name: 'Selected purchasing record', exact: true }).getByRole('button', { name: 'Review exception design', exact: true }).click();
+  const designReview = operations.getByRole('region', { name: 'HAZOP design review', exact: true });
+  await check(() => expect(designReview.getByText('Related timing finding—different object/coverage', { exact: true })).toBeVisible());
+  await check(() => expect(designReview).toContainText('expired QUOTATION'));
+  await check(() => expect(designReview).toContainText('expires an APPROVAL'));
+  await selectTechnical(); const blockedOperations = await captureGeneratedWorkflow();
+  await check(() => assert.equal(blockedOperations.orders, '0')); await check(() => assert.equal(blockedOperations.spent, '0'));
+  await page.getByRole('radio', { name: 'Executive', exact: true }).check();
+  await designReview.getByRole('button', { name: 'Next review question', exact: true }).click();
+  await selectTechnical(); await assertGeneratedWorkflowUnchanged(blockedOperations);
+  await page.getByRole('radio', { name: 'Executive', exact: true }).check();
+  await page.getByRole('button', { name: 'Request one approval refresh', exact: true }).click(); await operationsBoundary();
+  await selectTechnical(); await check(() => expect(stat('Committed orders')).toHaveText('1')); await check(() => expect(stat('Safe model completion')).toHaveText('Yes'));
+  for (const mode of ['A', 'B']) {
+    await page.getByLabel('Workflow comparator', { exact: true }).selectOption(mode);
+    await page.getByRole('button', { name: 'Apply selection and start new run', exact: true }).click(); await operationsBoundary();
+    await check(() => expect(stat('Task confirmed')).toHaveText('Yes')); await check(() => expect(stat('Safe model completion')).toHaveText('No'));
+    await check(() => expect(stat('Unsafe committed effects')).toHaveText('1')); await check(() => expect(page.getByRole('button', { name: 'Request one approval refresh', exact: true })).toHaveCount(0));
+  }
+  await page.getByLabel('Workflow scenario', { exact: true }).selectOption('lost-purchase-response');
+  await page.getByLabel('Workflow comparator', { exact: true }).selectOption('C');
+  await page.getByRole('button', { name: 'Apply selection and start new run', exact: true }).click(); await operationsBoundary();
+  await check(() => expect(stat('Committed orders')).toHaveText('1')); await check(() => expect(stat('Task confirmed')).toHaveText('No'));
+  await page.getByRole('radio', { name: 'Executive', exact: true }).check(); await records.getByRole('link', { name: 'Pitch', exact: true }).click();
+  const existingOrderName = await operations.getByRole('button', { name: /^Open order / }).innerText();
+  await operations.getByRole('button', { name: existingOrderName, exact: true }).click();
+  await operations.getByRole('region', { name: 'Selected purchasing record', exact: true }).getByRole('button', { name: 'Inspect technical evidence', exact: true }).click();
+  await check(() => expect(page.getByRole('region', { name: 'Causal event inspector', exact: true })).toContainText('order committed'));
+  await page.getByRole('radio', { name: 'Executive', exact: true }).check();
+  await page.getByRole('button', { name: 'Reconcile existing order once', exact: true }).click(); await operationsBoundary();
+  await records.getByRole('link', { name: 'Pitch', exact: true }).click(); await check(() => expect(operations.getByRole('button', { name: existingOrderName, exact: true })).toHaveCount(1));
+  await records.getByRole('link', { name: 'Analytical', exact: true }).click();
+  await selectTechnical(); await check(() => expect(stat('Committed orders')).toHaveText('1')); await check(() => expect(stat('Task confirmed')).toHaveText('Yes'));
+  await page.getByRole('radio', { name: 'Executive', exact: true }).check();
+  await page.screenshot({ path: resolve(executiveShots, 'operations-records.jpg'), quality: 65 });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  // END ADDITIVE Operations/HAZOP journey.
   await mkdir(screenshots, { recursive: true });
   for (const route of ['overview', 'hazop', 'governance', 'simulator', 'assurance']) {
-    await go(route); await page.reload(); await expect(page.locator('h1')).toBeVisible();
+    await go(route); await page.reload(); await expect(page.locator('h1')).toBeVisible(); await assertExecutiveDefault(route); await selectTechnical();
     await page.screenshot({ path: resolve(screenshots, `${route}.jpg`), quality: 65 }); assertions++;
   }
   await go('overview');
@@ -182,6 +398,7 @@ try {
 
   await go('hazop?hazard=unknown&node=invalid');
   await page.reload();
+  await assertExecutiveDefault('hazop'); await selectTechnical();
   await expect(page.getByLabel('Agent node', { exact: true })).toHaveValue('all');
   await expect(page.locator('.register tbody tr')).toHaveCount(96);
   assertions += 2;
@@ -287,7 +504,7 @@ try {
     }
     if (width === 375) await page.screenshot({ path: resolve(screenshots, `mobile-${theme}.jpg`), quality: 65 });
   }
-  await page.reload(); await expect(page.getByLabel('Theme', { exact: true })).toHaveValue('dark');
+  await page.reload(); await assertExecutiveDefault('assurance'); await selectTechnical(); await expect(page.getByLabel('Theme', { exact: true })).toHaveValue('dark');
   await page.keyboard.press('Tab');
   assert.ok(await page.evaluate(() => document.activeElement !== document.body));
   assert.deepEqual(errors, [], 'Browser errors'); assert.deepEqual(violations, [], 'Runtime network contract');

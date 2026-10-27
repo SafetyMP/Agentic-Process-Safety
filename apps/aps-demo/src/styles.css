@@ -63,3 +63,142 @@
 @media(max-width:500px) { .workflow-agents { grid-template-columns:1fr; } .workflow-agent { min-height:100px; } .workflow-intro h1 { font-size:32px; } .workflow-fields { grid-template-columns:1fr; } .workflow-workspace .button-row label { flex-direction:column; align-items:stretch; width:100%; } }
 
 .workflow-metrics { grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); }
+
+/* Business explanations share the existing model, controls and evidence. */
+.business-context { min-width:0; font-size:16px; line-height:1.6; overflow-wrap:anywhere; }
+.business-context p { max-width:72ch; font-size:inherit; line-height:inherit; }
+.business-context li { font-size:inherit; line-height:inherit; }
+.business-context h2 { font-size:clamp(23px,2.5vw,31px); line-height:1.2; }
+.business-context h3 { font-size:17px; line-height:1.35; }
+.business-context .eyebrow { font-size:11px; }
+.business-welcome { padding:26px; border:1px solid var(--line); border-radius:10px; background:var(--panel); margin:0 0 20px; }
+.business-welcome>.button { display:inline-flex; align-items:center; min-height:44px; margin:8px 0 16px; }
+.business-boundary { border-left:3px solid var(--teal); padding:10px 16px; background:var(--soft); }
+.business-context details { font-size:15px; line-height:1.6; margin-top:16px; }
+.business-context summary { min-height:44px; padding:10px 4px; line-height:1.5; }
+.business-context summary:focus-visible { outline:3px solid var(--teal); outline-offset:3px; border-radius:3px; }
+.business-legacy-entry { margin:0 0 28px; padding:16px 0; border-bottom:1px solid var(--line); }
+.business-legacy-entry h2 { font-size:18px; }
+.business-legacy-entry p { max-width:72ch; font-size:14px; line-height:1.6; }
+.business-steps { margin:22px 0; padding-left:28px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px 34px; }
+.business-steps li { min-width:0; padding-left:4px; }
+.business-steps h3,.business-takeaways h3 { margin:0 0 8px; }
+.business-steps p,.business-takeaways p { margin:0; }
+.business-current-inputs { padding:14px 18px; background:var(--bg); border-radius:6px; }
+.business-situation { border-top:1px solid var(--line); margin-top:18px; padding-top:8px; }
+.business-role-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin:20px 0; }
+.business-role-grid>div { padding:16px; background:var(--bg); border-radius:7px; min-width:0; }
+.business-context dt { font-weight:700; }
+.business-context dd { margin:5px 0 0; }
+.business-role-questions>div,.business-scenario-list>div,.business-glossary>div { margin:16px 0; }
+.business-outcome-guide { padding:0 6px 8px; }
+.business-prompts { padding-left:24px; max-width:72ch; }
+.business-prompts li { margin:12px 0; }
+.business-takeaways { padding-left:25px; }
+.business-takeaways li { margin:20px 0; }
+@media(max-width:900px) { .business-role-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .business-steps { grid-template-columns:1fr; } }
+@media(max-width:500px) { .business-welcome { padding:18px; } .business-role-grid { grid-template-columns:1fr; } .business-steps { padding-left:22px; gap:22px; } .business-context { font-size:16px; } }
+
+/* Executive presentation: audience state never changes either simulation. */
+[hidden] { display:none !important; }
+.audience-bar { display:flex; flex-wrap:wrap; gap:12px; align-items:center; padding:12px 24px; border-bottom:1px solid var(--line); background:var(--panel); position:relative; z-index:2; }
+.audience-toggle { display:flex; align-items:center; gap:6px; margin:0; border:0; padding:0; min-width:0; }
+.audience-toggle legend { float:left; padding:12px 10px 12px 0; font-size:14px; font-weight:600; }
+.audience-toggle label { display:flex; align-items:center; gap:8px; min-height:44px; padding:8px 14px; border:1px solid var(--line); border-radius:6px; cursor:pointer; font-size:15px; }
+.audience-toggle input { width:18px; height:18px; min-height:0; margin:0; padding:0; }
+.audience-toggle label:has(:checked) { background:var(--soft); border-color:var(--teal); }
+.audience-bar>span { font-size:13px; color:var(--muted); }
+[data-audience=executive] .sidebar { top:auto; }
+[data-audience=executive] .case-brief,[data-audience=executive] .case-situation,[data-audience=executive] .case-result { max-width:960px; font-size:17px; line-height:1.65; margin:0 0 28px; }
+[data-audience=executive] main p,[data-audience=executive] main li { font-size:16px; line-height:1.65; }
+[data-audience=executive] .split { grid-template-columns:1fr; }
+[data-audience=executive] .stats { display:none; }
+.case-lead { font-size:clamp(23px,3vw,34px) !important; font-weight:600; max-width:830px; color:var(--text); }
+.case-path { display:flex; flex-wrap:wrap; gap:8px 26px; padding:18px 18px 18px 30px; border-block:1px solid var(--line); }
+.case-path li { padding:5px; }
+.case-owner { margin:22px 0; padding:18px 22px; border-left:3px solid var(--teal); background:var(--soft); }
+.case-limit { padding:14px 18px; border:1px solid var(--line); border-radius:6px; }
+.case-result { border-top:2px solid var(--teal); padding-top:20px; }
+.case-unsafe { border-color:var(--danger); }
+.case-facts { display:flex; flex-wrap:wrap; gap:14px 28px; border-bottom:1px solid var(--line); padding-bottom:20px; }
+.case-facts>div { max-width:240px; }.case-facts dt { font-size:14px; color:var(--muted); }.case-facts dd { margin:0; font-size:19px; font-weight:600; }
+.case-evidence>div { padding:16px 0; border-bottom:1px solid var(--line); }.case-evidence dt { font-weight:600; }.case-evidence dd { margin:5px 0; }
+.evidence-link { min-height:44px; margin-bottom:12px; }.executive-content { min-width:0; }
+[data-audience=executive] button,[data-audience=executive] select,[data-audience=executive] input { min-height:44px; }
+@media(max-width:900px) { .audience-bar { padding:12px 20px; }.case-facts>div { flex:1 1 180px; } }
+@media(max-width:500px) { .audience-bar { padding:10px 16px; }.audience-bar>span { width:100%; }.audience-toggle label { padding:8px 10px; }.case-path { display:block; }.case-facts { display:block; }.case-facts>div { max-width:none; margin-bottom:12px; } }
+
+.material-risk { border-left:4px solid var(--danger); padding:14px 18px; background:var(--panel); margin-bottom:22px; }.material-risk p { margin-bottom:0; }
+
+/* Operations projection; shared header reserves sidebar space in both views. */
+.audience-bar { margin-left:240px; position:sticky; top:0; z-index:40; }
+[data-audience] .audience-toggle input { min-height:0; height:18px; width:18px; }
+[data-audience=executive] .sidebar { top:0; }
+.purchasing-operations { border:1px solid var(--line); background:var(--panel); border-radius:10px; padding:24px; margin-bottom:24px; }
+.operations-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; }.operations-heading>span { max-width:320px; font-size:13px; color:var(--muted); }
+.operations-tabs { display:flex; flex-wrap:wrap; gap:6px; border-block:1px solid var(--line); padding:12px 0; }.operations-tabs [aria-selected=true] { border-color:var(--teal); background:var(--soft); }
+.operations-records { padding:18px 0; }.operations-records li { padding:8px 0; }.operations-detail { border-top:1px solid var(--line); padding-top:18px; }.operations-detail dl { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 24px; }.operations-detail dt { color:var(--muted); font-size:13px; }.operations-detail dd { margin:0; overflow-wrap:anywhere; }
+.hazop-conversation { padding:22px; border-left:3px solid var(--teal); background:var(--soft); margin:20px 0; }.review-questions { display:flex; flex-wrap:wrap; gap:8px; list-style:none; padding:0; }.review-questions [aria-current=step] { border-color:var(--teal); }.timing-gap { background:var(--panel); }
+@media(max-width:1200px) { .audience-bar { margin-left:205px; } }
+@media(max-width:900px) { .audience-bar { margin-left:0; position:relative; } }
+@media(max-width:500px) { .purchasing-operations,.hazop-conversation { padding:16px; }.operations-detail dl { grid-template-columns:1fr; }.operations-tabs button { flex:1 1 130px; } }
+
+.case-takeaway { font-size:21px !important; font-weight:600; margin:12px 0; }.case-run-context { color:var(--muted); font-size:14px !important; }.purchasing-operations .operations-records h4 { margin-top:22px; }.purchasing-operations .operations-tabs button { min-width:120px; }.purchasing-operations .operations-records { max-width:850px; }
+/* One visual primary activity per issue; original handlers/disabled states stay. */
+[data-audience=executive] .workflow-workspace:has(.operations-tabs) .workflow-active~.button-row>.primary { background:var(--panel); color:var(--text); border-color:var(--line); }
+[data-audience=executive] .workflow-workspace:has(.operations-tabs [role=tab]:nth-child(1)[aria-selected=true]) .operations-records:not([hidden])>button,
+[data-audience=executive] .workflow-workspace:has(.operations-tabs [role=tab]:nth-child(2)[aria-selected=true]) .workflow-active~.button-row>button:nth-child(2):not(:disabled),
+[data-audience=executive] .workflow-workspace:has(.operations-tabs [role=tab]:nth-child(2)[aria-selected=true]) .workflow-decision>button,
+[data-audience=executive] .workflow-workspace:has(.operations-tabs [role=tab]:nth-child(3)[aria-selected=true]) .operations-detail>.button-row>button:first-child { background:var(--teal); color:white; border-color:var(--teal); }
+
+/* Full Executive case shell; Technical five-route layout stays independent. */
+.case-status { display:flex; flex-wrap:wrap; gap:6px 14px; padding:12px 16px; border:1px solid var(--line); margin-bottom:20px; font-size:13px; }.case-status small { width:100%; }.conceptual-task { max-width:850px; padding-block:20px; }.purchasing-operations .operations-records { border-bottom:1px solid var(--line); }.purchasing-operations .operations-records h3 { margin-top:12px; }
+
+/* Executive task workspace; Technical graph, controls and viewport styles stay intact. */
+[data-audience=executive] .executive-opening h1 { font-size:clamp(28px,3vw,40px); line-height:1.15; max-width:24ch; margin:12px 0 18px; }
+[data-audience=executive] .executive-opening { padding-top:0; max-width:850px; }
+[data-audience=executive] .conceptual-task { padding:0 0 24px; }
+[data-audience=executive] .conceptual-task details { margin:12px 0; }
+[data-audience=executive] .workflow-intro { margin-bottom:16px; }
+[data-audience=executive] .workflow-intro h1 { font-size:clamp(28px,3vw,40px); max-width:27ch; }
+[data-audience=executive] .workflow-boundary { padding:10px 14px; margin:12px 0; }
+[data-audience=executive] .executive-settings { margin:8px 0 12px; }
+[data-audience=executive] .executive-settings summary { min-height:44px; cursor:pointer; padding-block:10px; }
+[data-audience=executive] .executive-desk { padding:20px; border-radius:6px; }
+[data-audience=executive] .executive-desk h2 { font-size:22px; }
+[data-audience=executive] .executive-outcome { border-left:3px solid var(--teal); padding-left:16px; margin-bottom:24px; }
+[data-audience=executive] .executive-outcome h2 { max-width:40ch; }
+[data-audience=executive] .executive-result-facts { display:flex; flex-wrap:wrap; gap:12px 24px; margin:16px 0; }
+[data-audience=executive] .executive-result-facts div { min-width:120px; }
+[data-audience=executive] .executive-result-facts dt { color:var(--muted); font-size:13px; }
+[data-audience=executive] .executive-result-facts dd { margin:4px 0; font-size:17px; font-weight:600; }
+[data-audience=executive] .purchasing-register { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 24px; }
+[data-audience=executive] .purchasing-register section,[data-audience=executive] .executive-orders { border-top:1px solid var(--line); padding:12px 0; min-width:0; overflow-wrap:anywhere; }
+[data-audience=executive] .purchasing-register h3 { font-size:16px; margin:4px 0 10px; }
+[data-audience=executive] .purchasing-register ul { padding-left:18px; }
+[data-audience=executive] .executive-discussion { max-width:900px; padding:24px 0; }
+[data-audience=executive] .executive-discussion legend { font-size:22px; font-weight:600; margin-bottom:16px; }
+[data-audience=executive] .executive-discussion fieldset { border:0; padding:0; margin:0; min-width:0; }
+[data-audience=executive] .executive-discussion label { display:flex; gap:12px; align-items:center; min-height:48px; padding:8px 0; }
+[data-audience=executive] .executive-discussion input { width:18px; height:18px; min-height:0; margin:0; flex:0 0 18px; }
+[data-audience=executive] .executive-discussion details,[data-audience=executive] .case-status { overflow-wrap:anywhere; }
+@media(max-width:600px) { [data-audience=executive] .purchasing-register { grid-template-columns:1fr; } [data-audience=executive] .executive-desk { padding:16px; } [data-audience=executive] .executive-result-facts { gap:12px; } }
+
+/* One Executive action-band attempt; original Technical flow/layout untouched. */
+[data-audience=executive] .workflow-workspace { gap:12px; }
+[data-audience=executive] .workflow-intro { margin-bottom:0; }
+[data-audience=executive] .workflow-intro>.eyebrow { margin-bottom:6px; }
+[data-audience=executive] .workflow-intro h1 { font-size:clamp(28px,2.5vw,34px); max-width:none; margin-bottom:8px; }
+[data-audience=executive] .workflow-intro>p:not(.eyebrow) { max-width:900px; line-height:1.5; margin-bottom:8px; }
+[data-audience=executive] .workflow-boundary { display:flex; flex-wrap:wrap; gap:4px 12px; padding:0; margin:0; border:0; background:transparent; }
+[data-audience=executive] [aria-labelledby=workflow-controls-title] { padding:18px; }
+[data-audience=executive] [aria-labelledby=workflow-controls-title]>.section-title { margin-bottom:8px; }
+[data-audience=executive] [aria-labelledby=workflow-controls-title]>.section-title h2 { font-size:18px; }
+[data-audience=executive] [aria-labelledby=workflow-controls-title]>.control-grid { margin:8px 0; }
+[data-audience=executive] [aria-labelledby=workflow-controls-title]>p.muted { font-size:14px; line-height:1.5; margin-bottom:8px; }
+[data-audience=executive] [aria-labelledby=workflow-controls-title]>.workflow-active { padding:6px 0; margin-top:4px; border:0; }
+[data-audience=executive] [aria-labelledby=workflow-controls-title]>.workflow-active>p { display:none; }
+[data-audience=executive] [aria-labelledby=workflow-controls-title]>.button-row { margin:8px 0; }
+[data-audience=executive] [aria-labelledby=workflow-controls-title] label { font-size:13px; gap:6px; }
+[data-audience=executive] [aria-labelledby=workflow-controls-title] button,[data-audience=executive] [aria-labelledby=workflow-controls-title] select { min-height:44px; }
+@media(max-width:600px) { [data-audience=executive] [aria-labelledby=workflow-controls-title]>.button-row { align-items:stretch; } [data-audience=executive] [aria-labelledby=workflow-controls-title]>.button-row button { flex:1 1 150px; } }

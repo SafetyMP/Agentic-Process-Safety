@@ -9,6 +9,12 @@ import { Assurance } from './routes/Assurance.tsx';
 import { controlRequirement, routeLink } from './data.ts';
 import { createWorkflow, exportWorkflow, importWorkflow, scenarioSpec, workflowReducer } from './workflow/index.ts';
 import type { WorkflowCommand } from './workflow/index.ts';
+import { executiveIssues, issueForRoute, CaseStatus } from './components/ExecutiveCaseShell.tsx';
+import type { Selection } from './components/PurchasingOperations.tsx';
+import type { ReviewContext } from './components/HazopConversation.tsx';
+import { ExecutiveDiscussion, useExecutiveDiscussion } from './components/ExecutiveNarrative.tsx';
+import { MaterialRisk } from './components/ExecutiveCase.tsx';
+import { AudienceProvider, Executive, Technical, useAudience } from './components/AudienceView.tsx';
 import { WorkflowStage, WorkflowSummary } from './components/WorkflowStage.tsx';
 
 const sections = [{ id: 'overview', name: 'Overview', icon: '◈' }, { id: 'hazop', name: 'HAZOP Lab', icon: '⊞' }, { id: 'governance', name: 'Control Plane', icon: '◇' }, { id: 'simulator', name: 'Swarm Simulator', icon: '⇄' }, { id: 'assurance', name: 'Assurance', icon: '◉' }];
@@ -20,7 +26,12 @@ function locationState() {
   const [path, query = ''] = window.location.hash.replace(/^#\/?/, '').split('?');
   return { route: sections.some(s => s.id === path) ? path : 'overview', params: new URLSearchParams(query) };
 }
-export function App() {
+export function App() { return <AudienceProvider><AppContent/></AudienceProvider>; }
+function AppContent() {
+  const { audience } = useAudience();
+  const executive = audience === 'executive';
+  const businessNames: Record<string, string> = { overview: 'Conceptual', simulator: 'Analytical', governance: 'Analytical', hazop: 'Analytical', assurance: 'Pitch' };
+  const navigation = executive ? executiveIssues.map(issue => ({ ...issue, icon: sections.find(s => s.id === issue.id)!.icon })) : sections;
   const [location, setLocation] = useState(locationState);
   const [theme, setTheme] = useState<Theme>(storedTheme);
   const [state, dispatch] = useReducer(reducer, undefined, () => initialState(42, 'C', 'unauthorized'));
@@ -29,6 +40,16 @@ export function App() {
   useEffect(() => {
     if (location.route !== 'simulator') setWorkflow(current => current.running ? workflowReducer(current, { type: 'pause' }) : current);
   }, [location.route]);
+  const [reviewContext, setReviewContext] = useState<ReviewContext | undefined>();
+  const [caseSelection, setCaseSelection] = useState<Selection | null>(null);
+  const discussion = useExecutiveDiscussion(workflow, caseSelection);
+  const [requestedInspection, setRequestedInspection] = useState<string | null>(null);
+  const inspectionHandled = useCallback(() => setRequestedInspection(null), []);
+  const { reveal } = useAudience();
+  function inspectFromPitch(id: string) {
+    if (!workflow.events.some(event => event.id === id)) return;
+    setRequestedInspection(id); reveal(); window.location.hash = '#/simulator';
+  }
   const [guide, setGuide] = useState(false);
   const [guideStep, setGuideStep] = useState(0);
   const [guideResetPending, setGuideResetPending] = useState(false);
@@ -43,7 +64,8 @@ export function App() {
     return () => media.removeEventListener('change', apply);
   }, [theme]);
   useEffect(() => { if (!state.running) return; const timer = window.setInterval(() => dispatch({ type: 'timer' }), 700); return () => window.clearInterval(timer); }, [state.running]);
-  useEffect(() => { document.title = location.route === 'overview' ? 'Agentic Process Safety | HAZOP for AI Agent Swarms' : `${sections.find(s => s.id === location.route)!.name} | Agentic Process Safety`; }, [location.route]);
+  useEffect(() => { document.title = `${executive ? businessNames[location.route] : sections.find(s => s.id === location.route)!.name} | Agentic Process Safety${location.route === 'overview' ? ' | HAZOP for AI Agent Swarms' : ''}`; }, [location.route, executive]);
+  useEffect(() => { document.querySelector<HTMLElement>('#main-content h1')?.focus(); }, [location.route]);
   const effectiveStory = stories.find(s => s.id === (state.fault ?? state.story))!;
   const lastDecision = state.events.at(-1);
   const requirement = controlRequirement(effectiveStory.control);
@@ -66,10 +88,9 @@ export function App() {
     if (state.tick || state.running || state.pending || state.fault || state.events.length) setGuideResetPending(true);
     else startGuide();
   }
-  return <div className="app-shell"><a href="#main-content" className="skip-link" onClick={e => { e.preventDefault(); document.getElementById('main-content')?.focus(); }}>Skip to content</a><aside className="sidebar"><a className="brand" href="#/overview"><span className="brand-icon">A</span><span>APS<small>Agentic Process Safety</small></span></a><div className="workspace-tag">PROCUREMENT / SANDBOX</div><nav aria-label="Main navigation">{sections.map((s, i) => <a key={s.id} href={`#/${s.id}`} aria-current={location.route === s.id ? 'page' : undefined}><span aria-hidden="true">{s.icon}</span>{s.name}<small>0{i + 1}</small></a>)}</nav><div className="sidebar-bottom"><span className="status-dot"/> Fully static demonstration<p>Local models. Frozen evidence.<br/>No live operational authority.</p><button onClick={requestGuide}>Guided walkthrough →</button></div></aside>
-    <div className="main-shell"><header className="topbar"><div><span className="muted">Research workspace</span><span className="topbar-divider">/</span><strong>{sections.find(s => s.id === location.route)!.name}</strong></div><label className="theme-select"><span id="app-theme">Theme</span><select aria-labelledby="app-theme" value={theme} onChange={e => setTheme(e.target.value as Theme)}><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label></header><div className="evidence-strip" aria-label="Evidence categories"><span>Recorded experimental results</span><span>Replayed test evidence</span><span>Illustrative browser simulation</span></div>
+  return <div className="app-shell"><a href="#main-content" className="skip-link" onClick={e => { e.preventDefault(); document.getElementById('main-content')?.focus(); }}>Skip to content</a><aside className="sidebar"><a className="brand" href="#/overview"><span className="brand-icon">A</span><span>APS<small>Agentic Process Safety</small></span></a><div className="workspace-tag">PROCUREMENT / SANDBOX</div><nav aria-label="Main navigation">{navigation.map((s, i) => <a key={s.id} href={`#/${s.id}`} aria-current={(executive ? issueForRoute(location.route).id === s.id : location.route === s.id) ? 'page' : undefined}><span aria-hidden="true">{s.icon}</span>{executive ? businessNames[s.id] : s.name}<small>0{i + 1}</small></a>)}</nav><div className="sidebar-bottom"><span className="status-dot"/> Fully static demonstration<p>Local models. Frozen evidence.<br/>No live operational authority.</p><Executive><details><summary>Separate request illustration</summary><p>A different, single-request model. It does not configure your purchasing run.</p><button onClick={requestGuide}>Guided walkthrough →</button></details></Executive><Technical><button onClick={requestGuide}>Guided walkthrough →</button></Technical></div></aside>
+    <div className="main-shell"><header className="topbar"><div><span className="muted">{executive ? "Purchasing decision exercise" : "Research workspace"}</span><span className="topbar-divider">/</span><strong>{executive ? businessNames[location.route] : sections.find(s => s.id === location.route)!.name}</strong></div><label className="theme-select"><span id="app-theme">Theme</span><select aria-labelledby="app-theme" value={theme} onChange={e => setTheme(e.target.value as Theme)}><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label></header><div className="evidence-strip" aria-label="Evidence categories"><Executive><span>SIMULATION ONLY · Orders are not deliveries · No operational authority</span></Executive><Technical><span>Recorded experimental results</span><span>Replayed test evidence</span><span>Illustrative browser simulation</span></Technical></div>
     {guideResetPending && <section className="notice" aria-label="Walkthrough reset consequence"><h2>Start a new policy walkthrough?</h2><p>This clears the current single-request policy illustration and its decision history, then selects the unauthorized-tool example in mode C with seed 42. The separate workflow run and frozen evidence are unaffected.</p><div className="button-row"><button onClick={startGuide}>Start walkthrough and clear policy run</button><button onClick={() => setGuideResetPending(false)}>Keep current policy run</button></div></section>}
     {guide && <section className="walkthrough" aria-label="Guided walkthrough"><div><small>WALKTHROUGH / {guideStep + 1} OF {steps.length}</small><strong>{steps[guideStep].title}</strong><p>{steps[guideStep].text}</p></div><div className="button-row"><button disabled={guideStep === 0} onClick={() => walk(guideStep - 1)}>Back</button><button disabled={guideStep === steps.length - 1} onClick={() => walk(guideStep + 1)}>Next</button><button onClick={requestGuide}>Restart</button><button onClick={() => setGuide(false)}>Close walkthrough</button></div></section>}
-    <main id="main-content" tabIndex={-1}>{location.route === 'overview' ? <><WorkflowSummary state={workflow}/><Overview state={state} onWalkthrough={requestGuide}/></> : location.route === 'hazop' ? <Hazop key={location.params.toString()} params={location.params}/> : location.route === 'governance' ? <Governance state={state} dispatch={dispatch}/> : location.route === 'simulator' ? <><WorkflowStage state={workflow} onCommand={workflowCommand} onExport={() => exportWorkflow(workflow)} onImport={text => { const result = importWorkflow(text); if (!result.ok) return { ok: false, message: `${result.code}: ${result.message}. Current workflow retained.` }; setWorkflow(workflowReducer(result.state, { type: 'pause' })); return { ok: true, message: 'Replay recomputed and imported. Workflow paused; previous browser run replaced. No recorded evidence changed.' }; }}/><details className="panel legacy-policy"><summary>Separate single-request policy illustration</summary><p>This original three-stage illustration shares state with the Control Plane. It does not execute the six-agent workflow above.</p><Simulator state={state} dispatch={dispatch}/></details></> : <><WorkflowSummary state={workflow}/><Assurance key={location.params.toString()} state={state} params={location.params}/></>}</main><footer>APS Research Demonstration <span>All hazards unverified · Browser decisions are SIMULATED · No safety certification</span></footer></div></div>;
+    <main id="main-content" tabIndex={-1}><MaterialRisk state={state} workflow={workflow}/><div hidden={location.route !== 'simulator'}><WorkflowStage wholeExperience={true} visibleRoute={location.route === 'simulator'} selection={caseSelection} onSelectionChange={setCaseSelection} requestedInspection={requestedInspection} onInspectionHandled={inspectionHandled} state={workflow} onReviewContext={setReviewContext} reviewContext={reviewContext} onCommand={workflowCommand} onExport={() => exportWorkflow(workflow)} onImport={text => { const result = importWorkflow(text); if (!result.ok) return { ok: false, message: `${result.code}: ${result.message}. Current workflow retained.` }; setWorkflow(workflowReducer(result.state, { type: 'pause' })); return { ok: true, message: 'Replay recomputed and imported. Workflow paused; previous browser run replaced. No recorded evidence changed.' }; }}/></div>{location.route === 'overview' ? <><Overview state={state} workflow={workflow} onWalkthrough={requestGuide}/>{workflow.transitionCount > 0 && <Technical><WorkflowSummary state={workflow}/></Technical>}</> : location.route === 'hazop' ? <Hazop key={location.params.toString()} params={location.params} workflow={workflow} reviewContext={reviewContext}/> : location.route === 'governance' ? <Governance state={state} dispatch={dispatch}/> : location.route === 'simulator' ? <><details className="panel legacy-policy"><summary>Separate single-request policy illustration</summary><p>This original three-stage illustration shares state with the Control Plane. It does not execute the six-agent workflow above.</p><Simulator state={state} dispatch={dispatch}/></details></> : <><Assurance key={location.params.toString()} state={state} params={location.params} workflow={workflow} selection={caseSelection} onSelectionChange={setCaseSelection} onInspect={inspectFromPitch} reviewContext={reviewContext} onReviewContext={setReviewContext}/><Technical><WorkflowSummary state={workflow}/></Technical><Executive><ExecutiveDiscussion discussion={discussion}/></Executive></>}<Executive><CaseStatus state={workflow} route={location.route}/></Executive></main><footer>APS Research Demonstration <span>All hazards unverified · Browser decisions are SIMULATED · No safety certification</span></footer></div></div>;
 }
-
