@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { useState } from 'react';
+import { stepToBoundary } from '../test-support/stepToBoundary.ts';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { WorkflowStage } from './WorkflowStage.tsx';
@@ -17,14 +18,6 @@ function Harness({ scenario = 'nominal', mode = 'C' }: { scenario?: ScenarioId; 
     if (!result.ok) return { ok: false, message: result.message };
     setState(result.state); return { ok: true, message: 'Replay imported' };
   }}/>;
-}
-function stepToBoundary() {
-  for (let step = 0; step < 100; step++) {
-    const button = screen.getByRole('button', { name: 'Step one transition' }) as HTMLButtonElement;
-    if (button.disabled) return;
-    fireEvent.click(button);
-  }
-  throw new Error('No workflow boundary reached in 100 UI steps');
 }
 function stat(name: string) {
   return screen.getByText(name, { exact: true }).closest('.stat')!.querySelector('strong')!.textContent;
