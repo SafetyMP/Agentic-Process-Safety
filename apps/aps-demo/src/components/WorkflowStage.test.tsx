@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { useState } from 'react';
+import { Profiler, useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { WorkflowStage } from './WorkflowStage.tsx';
@@ -10,26 +10,50 @@ import { Governance } from '../routes/Governance.tsx';
 import { Simulator } from '../routes/Simulator.tsx';
 import { initialState, reducer } from '../domain/simulation.ts';
 
+const diagnosticStart = performance.now();
+const diagnosticWall = Date.now();
+const diagnosticRecords: unknown[][] = [];
+let diagnosticPhase = '';
+let diagnosticObserverMs = 0;
+function diagnosticRecord(kind: string, ...values: (number | string | boolean)[]) {
+  const start = performance.now();
+  if (diagnosticRecords.length < 512) diagnosticRecords.push([kind, diagnosticPhase, ...values]);
+  diagnosticObserverMs += performance.now() - start;
+}
 function Harness({ scenario = 'nominal', mode = 'C' }: { scenario?: ScenarioId; mode?: Mode }) {
   const [state, setState] = useState(() => createWorkflow(scenarioSpec(scenario, mode)));
-  return <WorkflowStage state={state} onCommand={command => setState(current => workflowReducer(current, command))} onExport={() => exportWorkflow(state)} onImport={text => {
+  diagnosticPhase = state.spec.mode;
+  return <Profiler id="workflow" onRender={(_id, phase, actualDuration, baseDuration) => diagnosticRecord('render', phase, actualDuration, baseDuration)}><WorkflowStage state={state} onCommand={command => setState(current => {
+    const start = performance.now();
+    const next = workflowReducer(current, command);
+    diagnosticRecord('reducer', command.type, performance.now() - start, next.events.length);
+    return next;
+  })} onExport={() => exportWorkflow(state)} onImport={text => {
     const result = importWorkflow(text);
     if (!result.ok) return { ok: false, message: result.message };
     setState(result.state); return { ok: true, message: 'Replay imported' };
-  }}/>;
+  }}/></Profiler>;
 }
 function stepToBoundary() {
   for (let step = 0; step < 100; step++) {
+    const lookupStart = performance.now();
     const button = screen.getByRole('button', { name: 'Step one transition' }) as HTMLButtonElement;
-    if (button.disabled) return;
+    diagnosticRecord('lookup', step, performance.now() - lookupStart);
+    if (button.disabled) { diagnosticRecord('boundary', step); return; }
+    const clickStart = performance.now();
     fireEvent.click(button);
+    diagnosticRecord('click', step, performance.now() - clickStart);
   }
   throw new Error('No workflow boundary reached in 100 UI steps');
 }
 function stat(name: string) {
   return screen.getByText(name, { exact: true }).closest('.stat')!.querySelector('strong')!.textContent;
 }
-afterEach(() => { cleanup(); vi.useRealTimers(); window.location.hash = ''; });
+afterEach(() => {
+  diagnosticRecord('finish', performance.now() - diagnosticStart, Date.now() - diagnosticWall, document.querySelectorAll('*').length);
+  console.log('CI_WF01_DIAGNOSTIC ' + JSON.stringify({ records: diagnosticRecords, observerMs: diagnosticObserverMs }));
+  cleanup(); vi.useRealTimers(); window.location.hash = '';
+});
 
 describe('workflow presentation with actual engine transitions', () => {
   it('shows six roles and differentiates delivered from consumed messages', () => {
