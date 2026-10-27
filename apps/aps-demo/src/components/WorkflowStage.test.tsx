@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { Profiler, useState } from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { WorkflowStage } from './WorkflowStage.tsx';
 import { createWorkflow, exportWorkflow, importWorkflow, scenarioSpec, workflowReducer } from '../workflow/index.ts';
@@ -10,20 +10,36 @@ import { Governance } from '../routes/Governance.tsx';
 import { Simulator } from '../routes/Simulator.tsx';
 import { initialState, reducer } from '../domain/simulation.ts';
 
-const diagnosticStart = performance.now();
-const diagnosticWall = Date.now();
+const diagnosticCase = 'shows the race loser without erasing the C winner and exposes A duplicate effects';
+let diagnosticActive = false;
+let diagnosticEmitted = false;
+let diagnosticStart = 0;
+let diagnosticWall = 0;
 const diagnosticRecords: unknown[][] = [];
 let diagnosticPhase = '';
 let diagnosticObserverMs = 0;
 function diagnosticRecord(kind: string, ...values: (number | string | boolean)[]) {
+  if (!diagnosticActive) return;
   const start = performance.now();
   if (diagnosticRecords.length < 512) diagnosticRecords.push([kind, diagnosticPhase, ...values]);
   diagnosticObserverMs += performance.now() - start;
 }
+beforeEach(({ task }) => {
+  diagnosticActive = task.name === diagnosticCase;
+  diagnosticEmitted = false;
+  diagnosticRecords.length = 0;
+  diagnosticPhase = '';
+  diagnosticObserverMs = 0;
+  if (diagnosticActive) {
+    diagnosticStart = performance.now();
+    diagnosticWall = Date.now();
+  }
+});
 function Harness({ scenario = 'nominal', mode = 'C' }: { scenario?: ScenarioId; mode?: Mode }) {
   const [state, setState] = useState(() => createWorkflow(scenarioSpec(scenario, mode)));
-  diagnosticPhase = state.spec.mode;
-  return <Profiler id="workflow" onRender={(_id, phase, actualDuration, baseDuration) => diagnosticRecord('render', phase, actualDuration, baseDuration)}><WorkflowStage state={state} onCommand={command => setState(current => {
+  if (diagnosticActive) diagnosticPhase = state.spec.mode;
+  const stage = <WorkflowStage state={state} onCommand={command => setState(current => {
+    if (!diagnosticActive) return workflowReducer(current, command);
     const start = performance.now();
     const next = workflowReducer(current, command);
     diagnosticRecord('reducer', command.type, performance.now() - start, next.events.length);
@@ -32,17 +48,18 @@ function Harness({ scenario = 'nominal', mode = 'C' }: { scenario?: ScenarioId; 
     const result = importWorkflow(text);
     if (!result.ok) return { ok: false, message: result.message };
     setState(result.state); return { ok: true, message: 'Replay imported' };
-  }}/></Profiler>;
+  }}/>;
+  return diagnosticActive ? <Profiler id="workflow" onRender={(_id, phase, actualDuration, baseDuration) => diagnosticRecord('render', phase, actualDuration, baseDuration)}>{stage}</Profiler> : stage;
 }
 function stepToBoundary() {
   for (let step = 0; step < 100; step++) {
-    const lookupStart = performance.now();
+    const lookupStart = diagnosticActive ? performance.now() : 0;
     const button = screen.getByRole('button', { name: 'Step one transition' }) as HTMLButtonElement;
-    diagnosticRecord('lookup', step, performance.now() - lookupStart);
+    if (diagnosticActive) diagnosticRecord('lookup', step, performance.now() - lookupStart);
     if (button.disabled) { diagnosticRecord('boundary', step); return; }
-    const clickStart = performance.now();
+    const clickStart = diagnosticActive ? performance.now() : 0;
     fireEvent.click(button);
-    diagnosticRecord('click', step, performance.now() - clickStart);
+    if (diagnosticActive) diagnosticRecord('click', step, performance.now() - clickStart);
   }
   throw new Error('No workflow boundary reached in 100 UI steps');
 }
@@ -50,8 +67,12 @@ function stat(name: string) {
   return screen.getByText(name, { exact: true }).closest('.stat')!.querySelector('strong')!.textContent;
 }
 afterEach(() => {
-  diagnosticRecord('finish', performance.now() - diagnosticStart, Date.now() - diagnosticWall, document.querySelectorAll('*').length);
-  console.log('CI_WF01_DIAGNOSTIC ' + JSON.stringify({ records: diagnosticRecords, observerMs: diagnosticObserverMs }));
+  if (diagnosticActive && !diagnosticEmitted) {
+    diagnosticRecord('finish', performance.now() - diagnosticStart, Date.now() - diagnosticWall, document.querySelectorAll('*').length);
+    diagnosticEmitted = true;
+    diagnosticActive = false;
+    console.log('CI_WF01_DIAGNOSTIC ' + JSON.stringify({ caseName: diagnosticCase, records: diagnosticRecords, observerMs: diagnosticObserverMs }));
+  }
   cleanup(); vi.useRealTimers(); window.location.hash = '';
 });
 
