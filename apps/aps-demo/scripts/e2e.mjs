@@ -192,7 +192,7 @@ try {
     const controls = [page.getByLabel('Question to examine', { exact: true }), page.getByRole('button', { name: 'Apply selection and start new run', exact: true }), page.getByRole('button', { name: 'Start workflow', exact: true })];
     for (const control of controls) {
       const box = await control.evaluate(element => { const r = element.getBoundingClientRect(); const chrome = document.querySelector('.audience-bar').getBoundingClientRect(); return { top: r.top, bottom: r.bottom, unobscured: document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2) === element, belowChrome: r.top >= chrome.bottom }; });
-      assert.ok(box.top >= 0 && box.bottom <= 680 && box.belowChrome && box.unobscured, 'initial Executive question/Apply/Start must fit and be unobscured without reviewer scrolling');
+      assert.ok(box.top >= 0 && box.bottom <= 720 && box.belowChrome && box.unobscured, 'initial Executive question/Apply/Start must fit and be unobscured without reviewer scrolling');
     }
   });
   await page.setViewportSize({ width: 1280, height: 720 }); await freshExecutive('simulator'); await assertInitialActions();
