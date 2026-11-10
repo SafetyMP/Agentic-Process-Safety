@@ -4,6 +4,8 @@ Open-source research sandbox for **hazard and operability (HAZOP) analysis of AI
 
 Follow an agent objective through an unsafe operation, a proposed control, a simulated gateway decision and its assurance evidence. Five workers model demand forecasting, inventory, supplier selection, finance approval and purchase execution. All tools are simulated; no real purchase or payment can be made.
 
+**SafetyMP research thesis — managing risk enables sustainable AI operations.** APS examines how delegation, shared context, and approval boundaries can introduce failure modes in multi-agent workflows. It links simulated hazards to proposed controls and repeatable experiments, asking whether risk can be managed without making agent collaboration impractical. These are research hypotheses, not proven production safeguards. See the [portfolio thesis](https://github.com/SafetyMP/SafetyMP).
+
 [![Repository checks](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/repository-checks.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/repository-checks.yml)
 [![Static demo workflow](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/deploy-pages.yml)
 [![License: Apache-2.0](https://img.shields.io/github/license/SafetyMP/Agentic-Process-Safety)](LICENSE)
