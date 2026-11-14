@@ -34,10 +34,15 @@ jobs:
           echo '2ab571f367f293bb19523b76f92f1945bbf245003392c7f392903f95c2b9b630  .harness/ci-bin/opa' | sha256sum --check
           chmod +x .harness/ci-bin/opa
           echo "$GITHUB_WORKSPACE/.harness/ci-bin" >> "$GITHUB_PATH"
+      - name: Validate retained purchase regression tests
+        run: .venv/bin/python -m unittest discover -s tests -p 'test_purchase_*.py' -v
+        env:
+          PYTHONPATH: packages/engine:packages/governance
       - run: npm test
       - run: npm run typecheck
       - run: npm run demo:fixtures:check
       - run: npm run demo:production:check
+      - run: node --test apps/aps-demo/scripts/production.test.mjs
       - run: npm run demo:lint
       - run: npm run demo:typecheck
       - run: npm run demo:test
@@ -50,7 +55,7 @@ jobs:
           github.event.pull_request.base.ref == 'main' &&
           github.event.pull_request.base.repo.full_name == github.repository &&
           github.event.pull_request.head.repo.full_name == github.repository &&
-          github.event.pull_request.head.ref == 'release/aps-github-validation-v1'
+          (github.event.pull_request.head.ref == 'release/aps-github-validation-v1' || github.event.pull_request.head.ref == 'codex/aps-redesign-release')
         run: node apps/aps-demo/scripts/qa-evidence.mjs
       - name: Record actual PR checkout and workflow identities
         id: validation
@@ -76,7 +81,7 @@ jobs:
           github.event.pull_request.base.ref == 'main' &&
           github.event.pull_request.base.repo.full_name == github.repository &&
           github.event.pull_request.head.repo.full_name == github.repository &&
-          github.event.pull_request.head.ref == 'release/aps-github-validation-v1'
+          (github.event.pull_request.head.ref == 'release/aps-github-validation-v1' || github.event.pull_request.head.ref == 'codex/aps-redesign-release')
         run: node apps/aps-demo/scripts/validation-evidence.mjs finalize
       - name: Retain predeployment evidence including failed runs
         if: >-
@@ -84,7 +89,7 @@ jobs:
           github.event.pull_request.base.ref == 'main' &&
           github.event.pull_request.base.repo.full_name == github.repository &&
           github.event.pull_request.head.repo.full_name == github.repository &&
-          github.event.pull_request.head.ref == 'release/aps-github-validation-v1'
+          (github.event.pull_request.head.ref == 'release/aps-github-validation-v1' || github.event.pull_request.head.ref == 'codex/aps-redesign-release')
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2; ordinary artifact only
         with:
           name: aps-predeploy-${{ steps.validation.outputs.checkout_sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}

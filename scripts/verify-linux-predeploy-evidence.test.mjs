@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { deflateRawSync } from 'node:zlib';
-import { BOUNDS, PINS, WORKFLOW, REPOSITORY, CAPTURES, hash, blob, strictJSON, readArchive, verifyPredeploy, crc32 } from './verify-linux-predeploy-evidence.mjs';
+import { BOUNDS, PINS, WORKFLOW, REPOSITORY, RELEASE_HEAD_REFS, CAPTURES, hash, blob, strictJSON, readArchive, verifyPredeploy, crc32 } from './verify-linux-predeploy-evidence.mjs';
 
 const root = new URL('../', import.meta.url);
 const content = new Map(await Promise.all(Object.entries(PINS).map(async ([path, expected]) => {
@@ -35,7 +35,7 @@ function fixture() {
   const sourceDigest = hash(JSON.stringify(source)); const distDigest = hash(JSON.stringify(dist));
   const runId = 123; const runAttempt = 2; const artifactId = 456;
   const runUrl = 'https://github.com/SafetyMP/Agentic-Process-Safety/actions/runs/123/attempts/2';
-  const browser = { status: 'passed', platform: 'linux', engine: 'chromium', version: '140.0.7339.0', assertions: 180, errors: [], violations: [], prefix: '/agentic-process-safety/', screenshots: [...CAPTURES] };
+  const browser = { status: 'passed', platform: 'linux', engine: 'chromium', version: '140.0.7339.0', assertions: 180, errors: [], violations: [], prefix: '/agentic-process-safety/', screenshots: [...CAPTURES], experience: 'APS redesign increments 1–4' };
   const images = new Map(CAPTURES.map((path, i) => [path, Buffer.concat([Buffer.from([0xff, 0xd8]), Buffer.alloc(1100, i), Buffer.from([0xff, 0xd9])])]));
   const review = {
     schema: 'aps-linux-predeploy-review-1', repository: REPOSITORY, repositoryId: 1430231911, pullRequest: 73,
@@ -78,6 +78,13 @@ function fixture() {
 test('accepts only a complete synthetic PR evidence chain, disclosing no deployment', async () => {
   assert.match(await verifyPredeploy(fixture().build()), /^Predeployment validation only; no deployment attested\./);
 });
+for (const branch of RELEASE_HEAD_REFS) test(`accepts the exact authorized branch ${branch} with matching PR/run/observation`, async () => {
+  const f = fixture();
+  f.metadata.get('/pulls/73').head.ref = branch;
+  f.metadata.get('/actions/runs/123/attempts/2').head_branch = branch;
+  f.observed.pullRequest.head.ref = branch;
+  await verifyPredeploy(f.build());
+});
 test('API run head may be the independently bound merge rather than PR head', async () => {
   const f = fixture(); f.metadata.get('/actions/runs/123/attempts/2').head_sha = checkout; f.observed.apiRunHeadSha = checkout; f.metadata.get('/actions/artifacts/456').workflow_run.head_sha = checkout;
   await verifyPredeploy(f.build());
@@ -113,6 +120,10 @@ const mutations = {
   'wrong repository': f => { f.metadata.get('').id++; },
   'fork PR': f => { f.metadata.get('/pulls/73').head.repo.fork = true; },
   'wrong head ref': f => { f.metadata.get('/pulls/73').head.ref = 'other'; },
+  'unreviewed branch resembling authorized redesign': f => { f.metadata.get('/pulls/73').head.ref = 'codex/aps-redesign-release-extra'; },
+  'run branch substituted with other allowed branch': f => { f.metadata.get('/actions/runs/123/attempts/2').head_branch = 'codex/aps-redesign-release'; },
+  'observed branch substituted with other allowed branch': f => { f.observed.pullRequest.head.ref = 'codex/aps-redesign-release'; },
+  'wrong redesigned browser experience': f => { f.browser.experience = 'Legacy app'; },
   'changed PR head': f => { f.metadata.get('/pulls/73').head.sha = sha('e'); },
   'changed main': f => { f.metadata.get('/git/ref/heads/main').object.sha = sha('e'); },
   'stale merge ref': f => { f.metadata.get('/git/ref/pull/73/merge').object.sha = sha('e'); },

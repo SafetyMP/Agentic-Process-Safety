@@ -9,6 +9,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const repository = 'safetymp/agentic-process-safety';
 const workflow = '.github/workflows/repository-checks.yml';
+const releaseHeadRefs = Object.freeze(['release/aps-github-validation-v1', 'codex/aps-redesign-release']);
 const destination = '.harness/ci-qa/validation.json';
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const blob = bytes => createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
@@ -48,7 +49,7 @@ async function collect(phase) {
   assert.equal(env.GITHUB_EVENT_NAME, 'pull_request'); assert.equal(env.GITHUB_JOB, 'readiness');
   const event = JSON.parse(await readFile(env.GITHUB_EVENT_PATH, 'utf8'));
   const pr = event.pull_request; const number = positive(String(event.number));
-  assert.equal(pr.number, number); assert.equal(pr.base.ref, 'main'); assert.equal(pr.head.ref, 'release/aps-github-validation-v1');
+  assert.equal(pr.number, number); assert.equal(pr.base.ref, 'main'); assert.ok(releaseHeadRefs.includes(pr.head.ref), 'Unreviewed release head ref');
   for (const part of [pr.base, pr.head]) {
     assert.equal(normalize(part.repo.full_name), repository); assert.equal(part.repo.id, 1430231911); sha(part.sha);
   }

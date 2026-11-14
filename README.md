@@ -2,7 +2,7 @@
 
 Open-source research sandbox for **hazard and operability (HAZOP) analysis of AI agents and multi-agent systems**. APS combines deterministic hazard screening, a simulated procurement swarm, and policy-as-code experiments using **Open Policy Agent (OPA) and Rego**.
 
-Follow an agent objective through an unsafe operation, a proposed control, a simulated gateway decision and its assurance evidence. Five workers model demand forecasting, inventory, supplier selection, finance approval and purchase execution. All tools are simulated; no real purchase or payment can be made.
+Compare the same illustrative request under different control bundles, follow the point where their outcomes diverge, and connect a proposed response to hazards and evidence. The separate research implementation models demand forecasting, inventory, supplier selection, finance approval and purchase execution. All tools are simulated; no real purchase or payment can be made.
 
 **SafetyMP research thesis — managing risk enables sustainable AI operations.** APS examines how delegation, shared context, and approval boundaries can introduce failure modes in multi-agent workflows. It links simulated hazards to proposed controls and repeatable experiments, asking whether risk can be managed without making agent collaboration impractical. These are research hypotheses, not proven production safeguards. See the [portfolio thesis](https://github.com/SafetyMP/SafetyMP).
 
@@ -28,17 +28,27 @@ Follow an agent objective through an unsafe operation, a proposed control, a sim
 
 The React/TypeScript explorer runs entirely in the browser, with no account, API key, paid inference, backend or telemetry.
 
-- **Procurement topology:** inspect the orchestrator, five workers and their trust boundaries.
-- **HAZOP Lab:** explore 96 unverified findings and 16 authored reference scenarios.
-- **Governance stories:** compare baseline, conventional access checks and HAZOP-informed checks across nine illustrative stories.
-- **Swarm simulator:** start, pause, step and reset a deterministic run; inspect local approve/deny outcomes.
-- **Assurance:** follow source links, proposed controls, test selectors and recorded trials.
+The opening case asks: **the purchase agent has permission, but is its approval still valid?** An illustrative purchase arrives 61 logical seconds after finance approval; the modeled validity rule requires an age below 60. The amount is 300 sandbox units, a teaching input rather than a recovered historical trial amount.
 
-Keyboard entity buttons accompany the topology; charts include data tables. System, light and dark themes persist locally.
+The five views support one connected investigation:
 
-The executive journey keeps the selected case connected to its review and evidence. **Prepare example** selects a paused run; **Advance to next decision** stops at a decision or recovery boundary. Technical step controls and inspectors remain available. Decision briefs retain notes and attached observations across modules, with explicit browser saving, JSON import/export and printable provenance. See [continuity and saved brief usage](docs/CONTINUITY_IMPLEMENTATION.md) for persistence limits and verification results.
+- **Start here:** launch the approval-expiry case, browse all nine illustrative cases, and inspect the declared procurement topology.
+- **Case Lab:** compare B (tool permission and spend limit) with C (additional lifecycle checks) against identical inputs; optionally include A (no modeled checks). Inspect decisions, a selectable failure path, and bounded illustrative effects.
+- **Hazard study:** examine the selected case's intended behavior, deviations, assumptions and proposed controls, with the full 96-entry screening register, node × deviation matrix and 16 authored references available.
+- **Controls:** inspect what a protection checks, where its authority comes from, and its implementation/test mapping. The Case Lab is the single browser request runner.
+- **Evidence:** inspect the retained browser comparison separately from recorded experiments, paired B/C calls, replay, charts, source lineage and explicit gaps.
 
-**Project URL:** [safetymp.github.io/Agentic-Process-Safety](https://safetymp.github.io/Agentic-Process-Safety/). Deployment remains unverified. The retained publication notes record a case-sensitive asset-path failure and a pending publication of the portable-base fix; historical CI is not proof that the live site works. See the [publication handoff](docs/STATIC_DEMO_PUBLICATION_HANDOFF.md).
+Choose **Run comparison**, then vary approval age using 59/60/61 shortcuts or the age input. At 59 both B and C allow; at 60 and 61 B allows and C denies. Changing inputs creates a draft and does not relabel an earlier result. Retained comparisons preserve their inputs, predictions and reasoning across views. Normal and unauthorized-tool cases also show where B and C reach the same outcome. Six secondary cases retain rule exploration with business effects explicitly unmodeled.
+
+The **Discussion worksheet** attaches a recommendation, rationale, evidence, assumptions, unanswered question and dissent to a particular run. Marking a position ready grants no authority. **Explore a fresh-approval request** creates a hypothetical child from C's no-effect state with a new request identity; it preserves the denied parent and does not continue B's already executed purchase. A fresh approval still does not establish that a quotation, forecast or stock record is correct.
+
+Use **Keep or export this discussion** for explicit browser-local save/load/delete, a readable Markdown brief, session JSON, and a configuration-only link. Notes remain in memory unless explicitly saved; loading a browser copy is an explicit action. Configuration links carry bounded inputs, not notes, outcomes or approvals. See the [redesign plan](docs/APS_EXPERIENCE_REDESIGN_PLAN.md) and [local implementation and verification record](docs/APS_REDESIGN_IMPLEMENTATION.md) for delivered scope and verification limits.
+
+Keyboard entity buttons accompany the topology, the failure path has an ordered text representation, and charts include data tables. System, light and dark themes persist locally. The comparison explains these selected control bundles; it does not establish that HAZOP uniquely discovers the checks or outperforms other analysis methods.
+
+The earlier executive journey, **Prepare example**, **Advance to next decision**, and decision-brief JSON import described in [continuity and saved brief usage](docs/CONTINUITY_IMPLEMENTATION.md) belong to a previous interface. That document is retained as historical implementation evidence, not instructions for this redesign.
+
+**Project URL:** [safetymp.github.io/Agentic-Process-Safety](https://safetymp.github.io/Agentic-Process-Safety/). This README describes the redesign source; publication and source-bound CI acceptance for this revision require separate verification. The [earlier publication handoff](docs/STATIC_DEMO_PUBLICATION_HANDOFF.md) is retained as historical evidence and does not establish deployment of this redesign.
 
 ## Quick start
 
@@ -122,7 +132,7 @@ See [Phase 3 operations](docs/PHASE3_OPERATIONS.md) for fresh acceptance runs an
 
 ## Security
 
-- Browser approvals affect local illustrative state only. The browser model omits authentication, real policy execution, atomic persistence, signed receipts and production objective arbitration.
+- Discussion notes and hypothetical fresh-approval branches affect local illustrative state only; they issue no operational authorization. The browser model omits authentication, real policy execution, atomic persistence, signed receipts and production objective arbitration.
 - Local attestations, signing keys and ledger heads cannot independently establish identity or resist an owner replacing all local evidence.
 - Finite experiment observations and unequal early-termination denominators are not real-world effectiveness estimates. Missing measurements remain unknown.
 - Keep signing keys, databases and operational logs out of static deployments. Publish only reviewed public assets.
@@ -156,6 +166,7 @@ Project-owned material is offered under [Apache 2.0](LICENSE), subject to preser
 | Engine and gateway boundaries | [Phase 1 architecture](docs/ARCHITECTURE.md) · [Governance architecture](docs/GOVERNANCE_ARCHITECTURE.md) |
 | Gateway operation and policy workflow | [Phase 2 operations](docs/PHASE2_OPERATIONS.md) |
 | Experiments and attested assurance | [Phase 3 operations](docs/PHASE3_OPERATIONS.md) |
-| Browser QA and publication | [Browser QA](docs/STATIC_DEMO_BROWSER_QA.md) · [Publication handoff](docs/STATIC_DEMO_PUBLICATION_HANDOFF.md) |
+| Current browser redesign and local verification | [Redesign plan](docs/APS_EXPERIENCE_REDESIGN_PLAN.md) · [Implementation and verification](docs/APS_REDESIGN_IMPLEMENTATION.md) |
+| Earlier browser QA and publication records (historical) | [Browser QA](docs/STATIC_DEMO_BROWSER_QA.md) · [Publication handoff](docs/STATIC_DEMO_PUBLICATION_HANDOFF.md) |
 | Full CLI examples, human review syntax and retained evidence notes | [Development reference](docs/DEVELOPMENT_REFERENCE.md) |
 | Open-source readiness and owner gates | [Readiness audit](docs/open-source-readiness.md) |

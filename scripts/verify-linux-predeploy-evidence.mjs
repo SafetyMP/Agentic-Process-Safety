@@ -10,14 +10,15 @@ import { fileURLToPath } from 'node:url';
 export const BOUNDS = Object.freeze({ archive: 64 * 1024 * 1024, expanded: 128 * 1024 * 1024, entry: 16 * 1024 * 1024, entries: 512, json: 2 * 1024 * 1024, source: 1000, dist: 128, depth: 20, nodes: 20000 });
 export const REPOSITORY = 'safetymp/agentic-process-safety';
 export const WORKFLOW = '.github/workflows/repository-checks.yml';
+export const RELEASE_HEAD_REFS = Object.freeze(['release/aps-github-validation-v1', 'codex/aps-redesign-release']);
 export const CAPTURES = Object.freeze(['overview', 'hazop', 'governance', 'simulator', 'assurance', 'mobile-light', 'mobile-dark'].map(n => `docs/screenshots/${n}.jpg`));
 // These expectations are reviewed source policy, never supplied by an artifact.
 export const PINS = Object.freeze({
-  [WORKFLOW]: '5ff6795229ce590cac3cc5b647fb6e978f9a0df6a6f934d41a8165deb329b7ee',
+  [WORKFLOW]: 'df28d662f36f3610a46c192296b5792e4a362de737592e8e7be344d6544ec912',
   '.github/workflows/deploy-pages.yml': '8a0a0126bfeba484e1b086cf8faecf872847c05146224bc237a1a331c4330e27',
-  'apps/aps-demo/scripts/e2e.mjs': 'b8a854c2f40421d0d71f635a21e27e971294c0633cf43079934edec123395684',
+  'apps/aps-demo/scripts/e2e.mjs': '09f3ac4c7637988c34b1422df07724a8a84c3096b7a46129e775e7b2d3e3316b',
   'apps/aps-demo/scripts/qa-evidence.mjs': '859c2a56553c93ad0f6a1e874ced2bfa51dbc1f7a9ec97ba15ba236783f01926',
-  'apps/aps-demo/scripts/validation-evidence.mjs': '9ef9428f9901d9286716a77cb377f418194365e4b8986b7d7fd3fb38f97d7186',
+  'apps/aps-demo/scripts/validation-evidence.mjs': '48a503802f9efe3d1fb59ffe84b160541f9f96cb4316ae98ca17a208d6bc89c8',
   'package-lock.json': '6350fea042ab97510b73aa1969e2469731753b5f95814caafa7f8d0ecbe7d303',
 });
 export const hash = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -149,7 +150,7 @@ export async function verifyPredeploy({ review, archive, api, now = Date.now() }
   const repository = await api(''); equal(repository.id, 1430231911); equal(repo(repository.full_name), REPOSITORY); equal(repository.visibility, 'public');
   const pr = await api(`/pulls/${review.pullRequest}`); equal(pr.number, review.pullRequest); equal(pr.state, 'open'); equal(pr.merged, false);
   for (const side of [pr.head, pr.base]) { equal(side.repo.id, 1430231911); equal(repo(side.repo.full_name), REPOSITORY); equal(side.repo.fork, false); }
-  equal(pr.head.ref, 'release/aps-github-validation-v1'); equal(pr.base.ref, 'main'); equal(pr.head.sha, review.headSha); equal(pr.base.sha, review.baseSha);
+  assert.ok(RELEASE_HEAD_REFS.includes(pr.head.ref), 'Unreviewed release head ref'); equal(pr.base.ref, 'main'); equal(pr.head.sha, review.headSha); equal(pr.base.sha, review.baseSha);
   equal((await api('/git/ref/heads/main')).object.sha, review.baseSha, 'Main changed after tested base');
   equal((await api(`/git/ref/pull/${review.pullRequest}/merge`)).object.sha, review.checkoutSha, 'Stale merge ref');
   const commit = await api(`/git/commits/${review.checkoutSha}`); equal(commit.sha, review.checkoutSha); equal(commit.tree.sha, review.checkoutTree);
@@ -157,7 +158,7 @@ export async function verifyPredeploy({ review, archive, api, now = Date.now() }
   const runPath = `/actions/runs/${review.runId}`;
   const run = await api(`${runPath}/attempts/${review.runAttempt}`);
   equal(run.id, review.runId); equal(run.run_attempt, review.runAttempt); equal(run.event, 'pull_request'); equal(run.path, WORKFLOW);
-  equal(run.status, 'completed'); equal(run.conclusion, 'success'); equal(run.head_branch, 'release/aps-github-validation-v1');
+  equal(run.status, 'completed'); equal(run.conclusion, 'success'); equal(run.head_branch, pr.head.ref, 'Run branch must match reviewed PR');
   for (const part of [run.repository, run.head_repository]) { equal(part.id, 1430231911); equal(repo(part.full_name), REPOSITORY); }
   assert.ok([review.headSha, review.checkoutSha].includes(run.head_sha), 'API run head must bind actual PR head or merge');
   assert.ok(run.pull_requests.some(p => p.number === review.pullRequest && p.head.sha === review.headSha && p.base.sha === review.baseSha), 'Run PR binding');
@@ -180,7 +181,7 @@ export async function verifyPredeploy({ review, archive, api, now = Date.now() }
   for (const key of ['runId', 'runAttempt', 'checkoutSha', 'checkoutTree', 'sourceDigest', 'distDigest']) equal(observed[key], review[key], key);
   equal(observed.apiRunHeadSha, run.head_sha); equal(observed.parents, [review.baseSha, review.headSha]);
   keys(observed.pullRequest, ['number', 'head', 'base']); equal(observed.pullRequest.number, review.pullRequest);
-  for (const [name, expectedRef, expectedSha] of [['head', 'release/aps-github-validation-v1', review.headSha], ['base', 'main', review.baseSha]]) {
+  for (const [name, expectedRef, expectedSha] of [['head', pr.head.ref, review.headSha], ['base', 'main', review.baseSha]]) {
     const side = observed.pullRequest[name]; keys(side, ['repository', 'repositoryId', 'ref', 'sha']); scope(side); equal(side.ref, expectedRef); equal(side.sha, expectedSha);
   }
   keys(observed.workflow, ['path', 'ref', 'sha', 'blob', 'sha256']);
@@ -218,7 +219,8 @@ export async function verifyPredeploy({ review, archive, api, now = Date.now() }
   const qaSource = observed.source.filter(row => row.path.startsWith('apps/aps-demo/') || ['package.json', 'package-lock.json', 'tsconfig.json', '.github/workflows/deploy-pages.yml'].includes(row.path)).map(({ path, sha256 }) => ({ path, sha256 }));
   equal(identity.source, qaSource); equal(identity.sourceDigest, hash(JSON.stringify(qaSource))); equal(identity.dist, observed.dist); equal(identity.distDigest, review.distDigest);
   equal(identity.browserResult, 'See browser-result.json only if assertions completed; absence means no browser pass.');
-  const result = json('.harness/ci-qa/browser-result.json'); keys(result, ['status', 'engine', 'version', 'platform', 'assertions', 'errors', 'violations', 'prefix', 'screenshots']);
+  const result = json('.harness/ci-qa/browser-result.json'); keys(result, ['status', 'engine', 'version', 'platform', 'assertions', 'errors', 'violations', 'prefix', 'screenshots', 'experience']);
+  equal(result.experience, 'APS redesign increments 1–4');
   equal(result.status, 'passed'); equal(result.platform, 'linux'); equal(result.engine, 'chromium'); equal(result.version, review.browserVersion); equal(result.assertions, review.assertions);
   equal(result.errors, []); equal(result.violations, []); equal(result.prefix, '/agentic-process-safety/'); equal(result.screenshots, CAPTURES);
   equal(observed.browserObservation, 'browser-result.json exists; independent verification required');
