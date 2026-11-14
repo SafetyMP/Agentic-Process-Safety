@@ -11,7 +11,8 @@ const temp = resolve(app, '../../.harness/demo-test-tmp');
 mkdirSync(temp, { recursive: true });
 const require = createRequire(import.meta.url);
 const vitest = resolve(dirname(require.resolve('vitest/package.json')), 'vitest.mjs');
-const child = spawnSync(process.execPath, [vitest, 'run', ...process.argv.slice(2)], {
+// This node:test suite is required separately by CI; Vitest must not collect it.
+const child = spawnSync(process.execPath, [vitest, 'run', '--exclude', 'scripts/production.test.mjs', ...process.argv.slice(2)], {
   cwd: app,
   env: { ...process.env, TMPDIR: temp, TMP: temp, TEMP: temp },
   stdio: 'inherit',
