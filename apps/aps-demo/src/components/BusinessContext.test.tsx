@@ -63,7 +63,7 @@ describe('business explanation without new workflow authority', () => {
     expect(situation().getByRole('heading', { name: 'The ordinary purchase' })).toBeTruthy();
     fireEvent.change(screen.getByLabelText('Workflow scenario'), { target: { value: 'lost-purchase-response' } });
     expect(situation().getByRole('heading', { name: 'The ordinary purchase' })).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Apply selection and start new run' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare example' }));
     expect(situation().getByRole('heading', { name: 'No reply does not mean no order' })).toBeTruthy();
     expect(stat('Committed orders')).toBe('0');
   });

@@ -7,7 +7,7 @@ A leader can explain APS and frame an accountable evaluation; an engineer can ex
 1. Replace category navigation with reader questions; introduce APS before HAZOP.
 2. Explain one purchasing story, then offer three narrated failure examples and isolated A/B/C comparisons using the existing workflow engine, identical inputs and schedule. Never replace the active run implicitly.
 3. Translate mechanisms into business commitments and show capability scope.
-4. Add an editable, printable leadership brief derived from current observations, with unassigned ownership, proposed metrics and open evidence needs. No approval or persistence implied.
+4. Add an editable, printable leadership brief derived from current observations, with unassigned ownership, proposed metrics and open evidence needs. The [continuity increment](CONTINUITY_IMPLEMENTATION.md) adds explicit local saving and portable draft import/export, retains attached observations, and marks changed-run data stale. No approval is implied.
 5. Add technical orientation, model comparison, trust/enforcement boundaries, a worked HAZOP chain and precise control contracts with pinned source/test references.
 6. Coordinate event, message, commitment and invariant inspection; show state-version transitions without inventing historical snapshots.
 7. Explain frozen experiment claims and reproduction separately from browser replay. Keep all original evidence and verifier gates.

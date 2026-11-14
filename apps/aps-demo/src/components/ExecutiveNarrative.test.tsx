@@ -61,7 +61,7 @@ it('places actions before actual records, preserves question drafts and exposes 
   await route('#/assurance'); await route('#/simulator');
   expect((screen.getByText('Exercise settings', { selector: 'summary' }).parentElement as HTMLDetailsElement).open).toBe(true);
   expect((screen.getByLabelText('Question to examine') as HTMLSelectElement).value).toBe('approval-delay');
-  fireEvent.click(screen.getByRole('button', { name: 'Apply selection and start new run' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Prepare example' }));
   expect(commands.mock.calls.map(([, command]) => command.type)).toEqual(['configure']);
   expect(screen.getByRole('status', { name: 'Workflow status' }).textContent).toContain('0 transitions');
 });
@@ -79,10 +79,11 @@ it.each([
 it.each(['purchase-race', 'lost-purchase-response'] as const)('does not turn a selected %s event into a timing cause', scenario => {
   const state = finish(scenario); const event = state.events.find(e => e.type === 'order-committed')!; const before = workflowAPI.exportWorkflow(state);
   render(<HazopConversation state={state} context={{ taskId: state.spec.task.id, specKey: state.runKey, eventId: event.id }}/>);
-  const separate = screen.getByRole('region', { name: 'Separate selected record context' });
-  expect(separate.textContent).toContain('does not demonstrate the approval-expiry cause');
+  const review = screen.getByRole('region', { name: 'HAZOP design review' });
+  expect(review.textContent).toContain(scenario === 'purchase-race' ? 'Can two proposals create two commitments for one need?' : 'How should an uncertain purchase outcome be resolved?');
+  expect(screen.queryByRole('region', { name: 'Separate selected record context' })).toBeNull();
   expect(screen.getByText(/Selected actual event:/).textContent).toContain(event.id);
-  expect(screen.getByText('Related timing finding—different object/coverage')).toBeTruthy();
+  expect(screen.queryByText('Related timing finding—different object/coverage')).toBeNull();
   fireEvent.click(screen.getByRole('button', { name: 'Next review question' }));
   expect(workflowAPI.exportWorkflow(state)).toBe(before);
 });
@@ -147,11 +148,11 @@ it('preserves discussion across App routes and audience changes without issuing 
 
 it('keeps a single Executive action band in question/consequence/Apply/active/Start/settings DOM order without issuing commands', () => {
   window.location.hash = '#/simulator'; const commands = vi.spyOn(workflowAPI, 'workflowReducer'); render(<App/>);
-  const question = screen.getByLabelText('Question to examine'); const consequence = screen.getByText(/Apply replaces this run’s world, history and metrics/);
-  const apply = screen.getByRole('button', { name: 'Apply selection and start new run' }); const active = document.querySelector('.workflow-active')!;
+  const question = screen.getByLabelText('Question to examine'); const consequence = screen.getByText(/Preparing an example replaces this run’s world, history and metrics/);
+  const apply = screen.getByRole('button', { name: 'Prepare example' }); const active = document.querySelector('.workflow-active')!;
   const start = screen.getByRole('button', { name: 'Start workflow' }); const settings = screen.getByText('Exercise settings', { selector: 'summary' });
   const sequence = [question, consequence, apply, active, start, settings];
   for (let i = 1; i < sequence.length; i++) expect(sequence[i - 1].compareDocumentPosition(sequence[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  expect(screen.getAllByRole('button', { name: 'Apply selection and start new run' })).toHaveLength(1);
+  expect(screen.getAllByRole('button', { name: 'Prepare example' })).toHaveLength(1);
   expect(screen.getAllByRole('button', { name: 'Start workflow' })).toHaveLength(1); expect(commands).not.toHaveBeenCalled();
 });

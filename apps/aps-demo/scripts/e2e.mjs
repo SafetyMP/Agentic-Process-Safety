@@ -27,7 +27,7 @@ const violations = [];
 let assertions = 0;
 try {
   process.env.TMPDIR = resolve('.harness/demo-browser-tmp');
-  process.env.PLAYWRIGHT_BROWSERS_PATH = resolve('.harness/playwright');
+  process.env.PLAYWRIGHT_BROWSERS_PATH = resolve(process.env.PLAYWRIGHT_BROWSERS_PATH || '.harness/playwright');
   await mkdir(process.env.TMPDIR, { recursive: true });
   const { chromium, firefox, expect } = await import('@playwright/test');
   const engine = process.env.APS_BROWSER || (process.platform === 'darwin' ? 'firefox' : 'chromium');
@@ -35,6 +35,7 @@ try {
   await new Promise(r => server.listen(0, '127.0.0.1', r));
   const origin = `http://127.0.0.1:${server.address().port}`;
   console.log(`Browser engine requested: ${engine} (${process.platform}); no fallback`);
+  console.log(`Pinned browser cache: ${process.env.PLAYWRIGHT_BROWSERS_PATH}`);
   browser = await ({ chromium, firefox })[engine].launch({ headless: true });
   console.log(`Browser engine running: ${engine} ${browser.version()}`);
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
@@ -196,16 +197,18 @@ try {
   await page.getByRole('radio', { name: 'Executive', exact: true }).check(); await selectTechnical(); await assertGraphCentered();
   await go('simulator'); await go('overview'); await assertGraphCentered(); // Supported navigation/return, no invented audience URL.
   const assertInitialActions = async () => check(async () => {
-    const controls = [page.getByLabel('Question to examine', { exact: true }), page.getByRole('button', { name: 'Apply selection and start new run', exact: true }), page.getByRole('button', { name: 'Start workflow', exact: true })];
+    const controls = [page.getByLabel('Question to examine', { exact: true }), page.getByRole('button', { name: 'Prepare example', exact: true }), page.getByRole('button', { name: 'Start workflow', exact: true })];
     for (const control of controls) {
       const box = await control.evaluate(element => { const r = element.getBoundingClientRect(); const chrome = document.querySelector('.audience-bar').getBoundingClientRect(); return { top: r.top, bottom: r.bottom, unobscured: document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2) === element, belowChrome: r.top >= chrome.bottom }; });
-      assert.ok(box.top >= 0 && box.bottom <= 720 && box.belowChrome && box.unobscured, 'initial Executive question/Apply/Start must fit and be unobscured without reviewer scrolling');
+      assert.ok(box.top >= 0 && box.bottom <= 720 && box.belowChrome && box.unobscured, `initial Executive question/Prepare/Start must fit and be unobscured without reviewer scrolling: ${control} ${JSON.stringify(box)}`);
     }
   });
   await page.setViewportSize({ width: 1280, height: 720 }); await freshExecutive('simulator'); await assertInitialActions();
-  await freshExecutive('overview'); await page.getByRole('link', { name: 'Open the purchasing workspace', exact: true }).click(); await assertInitialActions();
+  await freshExecutive('overview'); await page.getByRole('link', { name: 'Open the purchasing workspace', exact: true }).click();
+  await check(() => expect(page.getByRole('heading', { level: 1, name: executiveHeadings.simulator, exact: true })).toBeVisible());
+  await assertInitialActions();
   // END ADDITIVE viewport and first-screen action acceptance.
-  // ADDITIVE Executive narrative: context-specific default headings and memory-only discussion.
+  // ADDITIVE Executive narrative: context-specific headings and unsaved discussion.
   for (const target of ['hazop', 'hazop?hazard=APS-f47191931b96a999a61c', 'hazop?hazard=APS-758a4efe3266c2f560e4', 'hazop?hazard=not-a-finding']) await freshExecutive(target);
   await freshExecutive('assurance');
   const discussionDraft = page.getByRole('region', { name: 'Non-binding discussion draft', exact: true });
@@ -249,7 +252,7 @@ try {
   await clickNavigation('How controls work');
   await check(() => expect(operations.getByText('No quote prepared yet.', { exact: true })).toBeVisible());
   await check(() => expect(operations.getByText('No simulated permission issued.', { exact: true })).toBeVisible());
-  await check(() => expect(operations.getByText('Related timing finding—different object/coverage', { exact: true })).toBeVisible());
+  await check(() => expect(operations.getByText('Related timing finding—different object/coverage', { exact: true })).toHaveCount(0));
   await records.getByRole('link', { name: 'Why APS matters', exact: true }).focus(); await page.keyboard.press('Tab');
   await check(() => expect(records.getByRole('link', { name: 'How controls work', exact: true })).toBeFocused());
   await page.keyboard.press('Shift+Tab'); await check(() => expect(records.getByRole('link', { name: 'Why APS matters', exact: true })).toBeFocused());
@@ -258,7 +261,7 @@ try {
   await page.getByLabel('Question to examine', { exact: true }).selectOption('approval-delay');
   await selectTechnical(); await assertGeneratedWorkflowUnchanged(operationsInitial);
   await page.getByRole('radio', { name: 'Executive', exact: true }).check();
-  await page.getByRole('button', { name: 'Apply selection and start new run', exact: true }).click();
+  await page.getByRole('button', { name: 'Prepare example', exact: true }).click();
   // Explicit Start/Pause do not constitute a commitment or a new authority.
   await page.getByRole('button', { name: 'Start workflow', exact: true }).click();
   await page.getByRole('button', { name: 'Pause workflow', exact: true }).click();
@@ -292,13 +295,13 @@ try {
   await selectTechnical(); await check(() => expect(stat('Committed orders')).toHaveText('1')); await check(() => expect(stat('Safe model completion')).toHaveText('Yes'));
   for (const mode of ['A', 'B']) {
     await page.getByLabel('Workflow comparator', { exact: true }).selectOption(mode);
-    await page.getByRole('button', { name: 'Apply selection and start new run', exact: true }).click(); await operationsBoundary();
+    await page.getByRole('button', { name: 'Prepare example', exact: true }).click(); await operationsBoundary();
     await check(() => expect(stat('Task confirmed')).toHaveText('Yes')); await check(() => expect(stat('Safe model completion')).toHaveText('No'));
     await check(() => expect(stat('Unsafe committed effects')).toHaveText('1')); await check(() => expect(page.getByRole('button', { name: 'Request one approval refresh', exact: true })).toHaveCount(0));
   }
   await page.getByLabel('Workflow scenario', { exact: true }).selectOption('lost-purchase-response');
   await page.getByLabel('Workflow comparator', { exact: true }).selectOption('C');
-  await page.getByRole('button', { name: 'Apply selection and start new run', exact: true }).click(); await operationsBoundary();
+  await page.getByRole('button', { name: 'Prepare example', exact: true }).click(); await operationsBoundary();
   await check(() => expect(stat('Committed orders')).toHaveText('1')); await check(() => expect(stat('Task confirmed')).toHaveText('No'));
   await page.getByRole('radio', { name: 'Executive', exact: true }).check(); await clickNavigation('What leaders decide');
   const existingOrderName = await operations.getByRole('button', { name: /^Open order / }).innerText();
@@ -418,6 +421,23 @@ try {
   await expect(page.locator('.register tbody tr')).toHaveCount(1);
   await page.getByLabel('Sort findings').selectOption('deviation');
   await page.locator('.register button').click(); assertions += 4;
+  // Continuity: filtering, focus, sharing and exercise mapping retain one finding.
+  const selectedFinding = page.getByRole('heading', { name: 'AUTHORITY ESCALATION / supplier', exact: true });
+  await check(() => expect(selectedFinding).toBeFocused());
+  await check(() => expect(page.getByRole('region', { name: 'Finding exercise mapping', exact: true })).toContainText('Mapping: partial'));
+  const findingLink = await page.getByRole('link', { name: 'Link to this finding and filters', exact: true }).getAttribute('href');
+  await check(() => assert.match(findingLink, /hazard=APS-ad4a560c0e8ea4fa1023/));
+  await check(() => assert.match(findingLink, /node=supplier/));
+  await page.getByRole('button', { name: 'Return to selected finding in register', exact: true }).click();
+  await check(() => expect(page.locator('.register button[aria-pressed="true"]')).toBeFocused());
+  await page.reload(); await assertExecutiveDefault('hazop'); await selectTechnical();
+  await check(() => expect(page.getByLabel('Agent node', { exact: true })).toHaveValue('supplier'));
+  await check(() => expect(page.getByLabel('Guideword / deviation')).toHaveValue('AUTHORITY_ESCALATION'));
+  await check(() => expect(selectedFinding).toBeVisible());
+  await check(() => expect(page.getByRole('link', { name: 'Unauthorized supplier request →', exact: true })).toHaveAttribute('href', /story=unauthorized&hazard=APS-ad4a560c0e8ea4fa1023/));
+  await go('hazop?hazard=APS-00be5560043a77ba3ede');
+  await check(() => expect(page.getByRole('region', { name: 'Finding exercise mapping', exact: true })).toContainText('No runnable request illustration is mapped'));
+  await check(() => expect(page.getByRole('region', { name: 'Finding exercise mapping', exact: true }).getByRole('link')).toHaveCount(0));
 
   await go('governance');
   const stories = ['normal', 'unauthorized', 'spending', 'delegation', 'approval', 'replay', 'stale', 'conflict', 'context'];
@@ -507,7 +527,7 @@ try {
   await check(() => expect(page.locator('.learning-story')).toContainText('modeled control can stop an expired approval'));
   await clickNavigation('How controls work');
   await page.getByLabel('Question to examine', { exact: true }).selectOption('approval-delay');
-  await page.getByRole('button', { name: 'Apply selection and start new run', exact: true }).click();
+  await page.getByRole('button', { name: 'Prepare example', exact: true }).click();
   const untouchedStatus = await workflowStatus.innerText();
   await page.getByRole('button', { name: 'Run matched comparison', exact: true }).click();
   const comparison = page.getByRole('region', { name: 'Matched workflow comparison', exact: true });
@@ -524,6 +544,123 @@ try {
   await check(() => expect(brief.locator('.brief-print')).toContainText('Procurement process owner'));
   await check(() => expect(brief.getByRole('button', { name: 'Print leadership brief' })).toBeHidden());
   await page.emulateMedia({ media: 'screen' });
+  // A saved brief is a portable discussion snapshot, never operational authority.
+  await brief.getByLabel('Proposed next decision').fill('Review a bounded purchasing integration trial.');
+  await brief.getByLabel('Evidence needed before that decision').fill('Test expiry, duplicate prevention and lost-response reconciliation.');
+  await check(() => expect(brief.getByRole('status', { name: 'Brief save status', exact: true })).toContainText('Unsaved changes'));
+  await clickNavigation('How controls work'); await clickNavigation('What leaders decide');
+  await check(() => expect(brief.getByLabel('Proposed accountable role')).toHaveValue('Procurement process owner'));
+  await selectTechnical(); await page.getByRole('radio', { name: 'Executive', exact: true }).check();
+  await check(() => expect(brief.getByLabel('Proposed next decision')).toHaveValue('Review a bounded purchasing integration trial.'));
+  await brief.getByText('Export or import a decision brief', { exact: true }).click();
+  await brief.getByRole('button', { name: 'Prepare brief JSON', exact: true }).click();
+  const preparedBriefText = await brief.getByRole('textbox', { name: 'Prepared brief JSON', exact: true }).inputValue();
+  const preparedBrief = JSON.parse(preparedBriefText);
+  await check(() => assert.equal(preparedBrief.status, 'discussion-draft'));
+  await check(() => assert.equal(preparedBrief.simulationOnly, true));
+  await check(() => assert.equal(preparedBrief.notes.owner, 'Procurement process owner'));
+  await check(() => assert.ok(preparedBrief.snapshot.runId && preparedBrief.snapshot.observationId));
+  const briefDownload = page.waitForEvent('download');
+  await brief.getByRole('button', { name: 'Download decision brief', exact: true }).click();
+  const downloadedBrief = await briefDownload;
+  await check(() => assert.equal(downloadedBrief.suggestedFilename(), 'aps-decision-brief.json'));
+  await check(async () => assert.deepEqual(JSON.parse(await readFile(await downloadedBrief.path(), 'utf8')), preparedBrief));
+  await brief.getByRole('button', { name: 'Save brief locally', exact: true }).click();
+  await check(() => expect(brief.getByRole('status', { name: 'Brief save status', exact: true })).toHaveText('Saved in this browser.'));
+  await page.reload(); await assertExecutiveDefault('assurance');
+  await check(() => expect(brief.getByLabel('Proposed accountable role')).toHaveValue('Procurement process owner'));
+  await check(() => expect(brief.getByRole('status', { name: 'Brief observation status', exact: true })).toContainText('The run has changed'));
+  await brief.getByText('Export or import a decision brief', { exact: true }).click();
+  await brief.getByRole('button', { name: 'Prepare brief JSON', exact: true }).click();
+  await check(async () => assert.deepEqual(JSON.parse(await brief.getByRole('textbox', { name: 'Prepared brief JSON', exact: true }).inputValue()), preparedBrief));
+  await brief.getByRole('textbox', { name: 'Brief JSON to import', exact: true }).fill('{');
+  await brief.getByRole('button', { name: 'Preview brief import', exact: true }).click();
+  await check(() => expect(brief.getByRole('status', { name: 'Brief action status', exact: true })).toContainText('Current draft and saved copy retained'));
+  await check(() => expect(brief.getByRole('region', { name: 'Brief import preview', exact: true })).toHaveCount(0));
+  await check(() => expect(brief.getByLabel('Proposed accountable role')).toHaveValue('Procurement process owner'));
+  await brief.getByRole('textbox', { name: 'Brief JSON to import', exact: true }).fill(JSON.stringify({ ...preparedBrief, notes: { ...preparedBrief.notes, owner: 'Imported review role' } }));
+  await brief.getByRole('button', { name: 'Preview brief import', exact: true }).click();
+  await check(() => expect(brief.getByRole('region', { name: 'Brief import preview', exact: true })).toContainText('Imported review role'));
+  await check(() => expect(brief.getByLabel('Proposed accountable role')).toHaveValue('Procurement process owner'));
+  await page.emulateMedia({ media: 'print' });
+  await check(() => expect(brief.getByRole('region', { name: 'Brief import preview', exact: true })).toBeHidden());
+  await check(() => expect(brief.getByRole('textbox', { name: 'Prepared brief JSON', exact: true })).toBeHidden());
+  await check(() => expect(brief.locator('.brief-print')).toContainText(preparedBrief.snapshot.runId));
+  await check(() => expect(brief.locator('.brief-print')).toContainText(preparedBrief.snapshot.sourceBaseline));
+  await check(() => expect(brief.locator('.brief-print')).toContainText(preparedBrief.snapshot.modelVersion));
+  await check(() => expect(brief.locator('.brief-print')).toContainText('Procurement process owner'));
+  await check(() => expect(brief.locator('.brief-print')).not.toContainText('Imported review role'));
+  await page.emulateMedia({ media: 'screen' });
+  await brief.getByRole('button', { name: 'Replace working brief with import', exact: true }).click();
+  await check(() => expect(brief.getByLabel('Proposed accountable role')).toHaveValue('Imported review role'));
+  await check(() => expect(brief).toContainText('Restored or imported discussion data is unverified'));
+  await clickNavigation('How controls work');
+  await check(() => expect(workflowStatus).toContainText('0 transitions'));
+  await check(() => expect(operations).toContainText('Nominal procurement'));
+  await clickNavigation('What leaders decide');
+  await brief.getByRole('button', { name: 'Discard brief…', exact: true }).click();
+  await brief.getByRole('button', { name: 'Keep brief', exact: true }).click();
+  await check(() => expect(brief.getByLabel('Proposed accountable role')).toHaveValue('Imported review role'));
+  await brief.getByRole('button', { name: 'Discard brief…', exact: true }).click();
+  await brief.getByRole('button', { name: 'Discard working and saved brief', exact: true }).click();
+  await page.reload(); await assertExecutiveDefault('assurance');
+  await check(() => expect(brief.getByLabel('Proposed accountable role')).toHaveValue(''));
+  // A second tab's saved draft cannot be silently overwritten by stale edits.
+  await brief.getByLabel('Proposed accountable role').fill('First tab role');
+  await brief.getByRole('button', { name: 'Save brief locally', exact: true }).click();
+  const peer = await context.newPage();
+  peer.on('pageerror', error => errors.push(error.message));
+  peer.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+  await peer.goto(`${origin}${prefix}#/assurance`);
+  const peerBrief = peer.getByRole('region', { name: 'Leadership decision brief', exact: true });
+  await check(() => expect(peerBrief.getByLabel('Proposed accountable role')).toHaveValue('First tab role'));
+  await peerBrief.getByLabel('Proposed accountable role').fill('Second tab role');
+  await peerBrief.getByRole('button', { name: 'Save brief locally', exact: true }).click();
+  await check(() => expect(brief.getByRole('status', { name: 'Brief action status', exact: true })).toContainText('changed in another tab'));
+  await brief.getByLabel('Proposed accountable role').fill('First tab unsaved edits');
+  await brief.getByRole('button', { name: 'Save brief locally', exact: true }).click();
+  await check(() => expect(brief.getByRole('status', { name: 'Brief action status', exact: true })).toContainText('Save or discard was stopped'));
+  await check(() => expect(brief.getByLabel('Proposed accountable role')).toHaveValue('First tab unsaved edits'));
+  await peer.reload();
+  await check(() => expect(peerBrief.getByLabel('Proposed accountable role')).toHaveValue('Second tab role'));
+  await peer.close();
+  await brief.getByRole('button', { name: 'Preview saved browser copy', exact: true }).click();
+  await check(() => expect(brief.getByRole('region', { name: 'Brief import preview', exact: true })).toContainText('Second tab role'));
+  await check(() => expect(brief.getByLabel('Proposed accountable role')).toHaveValue('First tab unsaved edits'));
+  await brief.getByRole('button', { name: 'Replace working brief with import', exact: true }).click();
+  await check(() => expect(brief.getByLabel('Proposed accountable role')).toHaveValue('Second tab role'));
+  await brief.getByRole('button', { name: 'Discard brief…', exact: true }).click();
+  await brief.getByRole('button', { name: 'Discard working and saved brief', exact: true }).click();
+  await page.reload(); await assertExecutiveDefault('assurance');
+  await check(() => expect(brief.getByLabel('Proposed accountable role')).toHaveValue(''));
+  // Every workflow review stays with its selected question. Advancing stops at
+  // actual engine boundaries and cannot silently recover or reconcile.
+  const reviewHeadings = {
+    nominal: 'What establishes an acceptable purchasing outcome?',
+    'approval-delay': 'Can commitment occur after permission expires?',
+    'purchase-race': 'Can two proposals create two commitments for one need?',
+    'lost-purchase-response': 'How should an uncertain purchase outcome be resolved?',
+  };
+  for (const [scenario, heading] of Object.entries(reviewHeadings)) {
+    await freshExecutive('simulator');
+    await page.getByLabel('Question to examine', { exact: true }).selectOption(scenario);
+    await page.getByRole('button', { name: 'Prepare example', exact: true }).click();
+    await check(() => expect(workflowStatus).toContainText('0 transitions'));
+    await operations.getByRole('button', { name: 'Review operation design', exact: true }).click();
+    await check(() => expect(designReview.getByRole('heading', { name: heading, exact: true })).toBeVisible());
+    if (scenario !== 'approval-delay') await check(() => expect(designReview).not.toContainText('Related timing finding—different object/coverage'));
+    await page.getByRole('button', { name: 'Return to the business case', exact: true }).click();
+    await page.getByRole('button', { name: 'Advance to next decision', exact: true }).click();
+    await check(() => expect(page.getByRole('button', { name: 'Advance to next decision', exact: true })).toBeDisabled());
+    if (scenario === 'approval-delay') {
+      await check(() => expect(page.getByRole('button', { name: 'Request one approval refresh', exact: true })).toBeVisible());
+      await check(() => expect(operations.getByRole('button', { name: /^Open order / })).toHaveCount(0));
+    } else if (scenario === 'lost-purchase-response') {
+      await check(() => expect(page.getByRole('button', { name: 'Reconcile existing order once', exact: true })).toBeVisible());
+      await check(() => expect(operations.getByRole('button', { name: /^Open order / })).toHaveCount(1));
+      await check(() => expect(operations).toContainText('An order is recorded; the reply is missing.'));
+    } else await check(() => expect(operations).toContainText("The purchase is confirmed within the model's checks."));
+  }
   await go('overview');
   await check(() => expect(page.getByRole('region', { name: 'Technical orientation' })).toContainText('Three models. Three different kinds of evidence.'));
   await go('hazop');
