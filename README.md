@@ -36,6 +36,8 @@ The React/TypeScript explorer runs entirely in the browser, with no account, API
 
 Keyboard entity buttons accompany the topology; charts include data tables. System, light and dark themes persist locally.
 
+The executive journey keeps the selected case connected to its review and evidence. **Prepare example** selects a paused run; **Advance to next decision** stops at a decision or recovery boundary. Technical step controls and inspectors remain available. Decision briefs retain notes and attached observations across modules, with explicit browser saving, JSON import/export and printable provenance. See [continuity and saved brief usage](docs/CONTINUITY_IMPLEMENTATION.md) for persistence limits and verification results.
+
 **Project URL:** [safetymp.github.io/Agentic-Process-Safety](https://safetymp.github.io/Agentic-Process-Safety/). Deployment remains unverified. The retained publication notes record a case-sensitive asset-path failure and a pending publication of the portable-base fix; historical CI is not proof that the live site works. See the [publication handoff](docs/STATIC_DEMO_PUBLICATION_HANDOFF.md).
 
 ## Quick start

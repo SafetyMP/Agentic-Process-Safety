@@ -63,10 +63,10 @@ it('fails a stale selection visibly after explicit reset without inventing a rep
   h.rerender(<AudienceProvider><PurchasingOperations state={workflowReducer(s, { type: 'reset' })} onInspect={h.inspect}/></AudienceProvider>);
   expect(screen.getByText('Selected record no longer available in this run. No model was changed.')).toBeTruthy(); expect(h.inspect).not.toHaveBeenCalled();
 });
-it('keeps quotation finding and approval simulation coverage distinct through every review question', () => {
+it('keeps missing-response review relevant and reports stale selected context', () => {
   const state = finish('lost-purchase-response'); const before = exportWorkflow(state); render(<HazopConversation state={state} context={{ taskId: 'unavailable', eventId: 'not-an-event' }}/>);
-  expect(screen.getByText(/Selected exception is no longer available/)).toBeTruthy(); expect(screen.getByText(/active run is not the approval-expiry exercise/i)).toBeTruthy();
-  for (let i = 0; i < 5; i++) { expect(screen.getByText('Related timing finding—different object/coverage')).toBeTruthy(); if (i < 4) fireEvent.click(screen.getByRole('button', { name: 'Next review question' })); }
+  expect(screen.getByText(/Selected exception is no longer available/)).toBeTruthy(); expect(screen.getByRole('heading', { name: 'How should an uncertain purchase outcome be resolved?' })).toBeTruthy();
+  for (let i = 0; i < 5; i++) { expect(screen.queryByText('Related timing finding—different object/coverage')).toBeNull(); if (i < 4) fireEvent.click(screen.getByRole('button', { name: 'Next review question' })); }
   expect(screen.getByText(/Residual risk, severity, likelihood and business benefit are unknown/)).toBeTruthy(); expect(screen.queryByRole('button', { name: /save|assign|accept|approve/i })).toBeNull(); expect(exportWorkflow(state)).toBe(before);
 });
 it('places shared recommendation before both entries, whose navigation never applies or starts a scenario', async () => {
@@ -124,7 +124,7 @@ it('What leaders decide directs actions to How controls work without claiming ab
   window.location.hash = '#/assurance'; const api = await import('../workflow/index.ts'); const commands = vi.spyOn(api, 'workflowReducer'); render(<App/>);
   const operations = screen.getByRole('region', { name: 'Purchasing operations' });
   expect(operations.textContent).not.toContain('below'); expect(operations.textContent).not.toContain('Tabs');
-  expect(operations.textContent).toContain('return to How controls work and explicitly choose and Apply');
+  expect(operations.textContent).toContain('return to How controls work, choose the question and select Prepare example');
   expect(operations.textContent).toContain('The retained run is paused when leaving How controls work; returning does not start it.');
   expect(screen.queryByRole('button', { name: 'Start workflow' })).toBeNull();
   const link = within(operations).getByRole('link', { name: 'Return to How controls work' }); expect(link.getAttribute('href')).toBe('#/simulator');

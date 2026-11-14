@@ -196,8 +196,10 @@
 [data-audience=executive] [aria-labelledby=workflow-controls-title]>.section-title { margin-bottom:8px; }
 [data-audience=executive] [aria-labelledby=workflow-controls-title]>.section-title h2 { font-size:18px; }
 [data-audience=executive] [aria-labelledby=workflow-controls-title]>.control-grid { margin:8px 0; }
+.workflow-prepare { display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; }
+.workflow-prepare>span { flex:1 1 260px; font-size:14px; }
 [data-audience=executive] [aria-labelledby=workflow-controls-title]>p.muted { font-size:14px; line-height:1.5; margin-bottom:8px; }
-[data-audience=executive] [aria-labelledby=workflow-controls-title]>.workflow-active { padding:6px 0; margin-top:4px; border:0; }
+[data-audience=executive] [aria-labelledby=workflow-controls-title]>.workflow-active { padding:2px 0; margin-top:0; border:0; }
 [data-audience=executive] [aria-labelledby=workflow-controls-title]>.workflow-active>p { display:none; }
 [data-audience=executive] [aria-labelledby=workflow-controls-title]>.button-row { margin:8px 0; }
 [data-audience=executive] [aria-labelledby=workflow-controls-title] label { font-size:13px; gap:6px; }
@@ -223,6 +225,7 @@
   body:has(.leadership-brief) .leadership-brief, body:has(.leadership-brief) .leadership-brief * { visibility: visible; }
   .leadership-brief { position: absolute; inset: 0; background: white; color: black; border: 0; box-shadow: none; padding: 1cm; }
   .leadership-brief label, .leadership-brief button { display: none; }
+  .leadership-brief .brief-interaction { display: none; }
   .leadership-brief .brief-print { display: block; }
 }
 @media print {

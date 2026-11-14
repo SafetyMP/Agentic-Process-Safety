@@ -21,6 +21,7 @@ const words = (value: string) => value.replaceAll('-', ' ').replaceAll('_', ' ')
 const field = (value: unknown) => value === null || value === undefined ? 'Not available yet' : typeof value === 'object' ? JSON.stringify(value) : String(value);
 
 type Props = {
+  runId?: string;
   wholeExperience?: boolean;
   visibleRoute?: boolean;
   selection?: Selection | null;
@@ -31,6 +32,7 @@ type Props = {
   reviewContext?: ReviewContext;
   state: WorkflowState;
   onCommand: (command: WorkflowCommand) => void;
+  onAdvance?: () => void;
   onImport: (text: string) => { ok: boolean; message: string };
   onExport: () => string;
 };
@@ -42,12 +44,13 @@ export function WorkflowSummary({ state }: { state: WorkflowState }) {
     <a href="#/simulator">Inspect agent handoffs and causal events →</a></section>;
 }
 
-export function WorkflowStage({ state, onCommand, onImport, onExport, onReviewContext, reviewContext, wholeExperience = false, visibleRoute = true, selection, onSelectionChange, requestedInspection, onInspectionHandled }: Props) {
+export function WorkflowStage({ state, runId, onCommand, onAdvance, onImport, onExport, onReviewContext, reviewContext, wholeExperience = false, visibleRoute = true, selection, onSelectionChange, requestedInspection, onInspectionHandled }: Props) {
   const { audience, reveal } = useAudience();
   const view = selectWorkflow(state);
   const [scenario, setScenario] = useState<ScenarioId>(state.spec.scenario);
   const [mode, setMode] = useState<Mode>(state.spec.mode);
   const [schedule, setSchedule] = useState<RunSpec['schedule']>(state.spec.schedule);
+  const synchronizeImportedSetup = useRef(false);
   const [selectedAgent, setSelectedAgent] = useState<AgentId>('orchestrator');
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
   const [eventFocusRequest, setEventFocusRequest] = useState(0);
@@ -67,6 +70,15 @@ export function WorkflowStage({ state, onCommand, onImport, onExport, onReviewCo
   const latest = view.events.at(-1);
   const c = view.controls;
   const scenarioDescription = SCENARIOS.find(s => s.id === state.spec.scenario)?.description;
+  const pendingSetup = scenario !== state.spec.scenario || mode !== state.spec.mode || schedule !== state.spec.schedule;
+  useEffect(() => {
+    setScenario(state.spec.scenario); setMode(state.spec.mode); setSchedule(state.spec.schedule);
+  }, [state.spec.scenario, state.spec.mode, state.spec.schedule]);
+  useEffect(() => {
+    if (!synchronizeImportedSetup.current) return;
+    synchronizeImportedSetup.current = false;
+    setScenario(state.spec.scenario); setMode(state.spec.mode); setSchedule(state.spec.schedule);
+  }, [state]);
   useEffect(() => {
     if (!view.running) return;
     const timer = window.setInterval(() => onCommand({ type: 'timer' }), pace);
@@ -102,6 +114,11 @@ export function WorkflowStage({ state, onCommand, onImport, onExport, onReviewCo
   }
   function resetRun() {
     onCommand({ type: 'reset' }); setSelectedEvent(null); setMessageId(null); setExportText(''); setExportNotice(''); setImportNotice('');
+    setScenario(state.spec.scenario); setMode(state.spec.mode); setSchedule(state.spec.schedule);
+  }
+  function restoreReplay() {
+    const result = onImport(replayText); setImportNotice(result.message);
+    if (result.ok) { synchronizeImportedSetup.current = true; setSelectedEvent(null); setMessageId(null); setExportText(''); }
   }
   const comparisonControls = <>        <label><span id="workflow-mode-label">{audience === 'executive' ? 'Purchasing authority model (A/B/C)' : 'Workflow comparator'}</span><select aria-labelledby="workflow-mode-label" value={mode} onChange={e => setMode(e.target.value as Mode)}>{Object.entries(MODE_LABELS).map(([id, name]) => <option key={id} value={id}>{audience === 'executive' ? ({ A: 'A · Without purchasing boundary checks', B: 'B · Actor scope and spend boundary', C: 'C · Additional approval, freshness and uniqueness checks' } as const)[id as Mode] : name}</option>)}</select></label>
         <label><span id="workflow-schedule-label">{audience === 'executive' ? 'Which proposal goes first?' : 'Proposal schedule'}</span><select aria-labelledby="workflow-schedule-label" value={schedule} onChange={e => setSchedule(e.target.value as RunSpec['schedule'])}><option value="proposal-1-first">Proposal 1 first</option><option value="proposal-2-first">Proposal 2 first</option></select></label></>;
@@ -113,7 +130,7 @@ export function WorkflowStage({ state, onCommand, onImport, onExport, onReviewCo
       <div className="workflow-boundary"><strong>{audience === 'executive' ? 'Simulation only — no real purchasing authority.' : view.label}</strong><span>{audience === 'executive' ? 'Orders are not deliveries.' : 'New browser run · frozen recorded experiments remain separate in Assurance.'}</span></div>
     </section>
     <Technical><details className="panel"><summary>Facilitated business exercise</summary><BusinessExercise task={state.spec.task}/></details><ControlContracts/></Technical>
-    {!wholeExperience && <Executive><PurchasingOperations state={state} onInspect={inspectEvent} onReview={onReviewContext} context={reviewContext} issue={wholeExperience ? 'analytical' : undefined} selection={selection} onSelectionChange={onSelectionChange}/>{!wholeExperience && <><PurchaseSituation state={state}/><PurchaseOutcome state={state}/></>}</Executive>}
+    {!wholeExperience && <Executive><PurchasingOperations key={runId} state={state} onInspect={inspectEvent} onReview={onReviewContext} context={reviewContext} issue={wholeExperience ? 'analytical' : undefined} selection={selection} onSelectionChange={onSelectionChange}/>{!wholeExperience && <><PurchaseSituation state={state}/><PurchaseOutcome state={state}/></>}</Executive>}
     <section className="panel" aria-labelledby="workflow-controls-title">
       <div className="section-title"><h2 id="workflow-controls-title">{audience === 'executive' ? 'Choose a question. Examine the result.' : 'Choose the situation and next action'}</h2><Badge>Illustrative browser simulation</Badge></div>
       <div className="control-grid">
@@ -121,11 +138,12 @@ export function WorkflowStage({ state, onCommand, onImport, onExport, onReviewCo
         {(audience === 'technical' || !wholeExperience) && comparisonControls}
       </div>
 
-      <p className="muted">{audience === 'executive' && wholeExperience ? 'Apply replaces this run’s world, history and metrics. Reset restores its starting setup. Frozen evidence is unchanged.' : "Selections are a draft. Apply starts a new browser run and clears this workflow's history, world and metrics. Reset restores the active run's initial specification. Neither action changes frozen evidence."}</p>
-      <button onClick={replaceRun}>Apply selection and start new run</button>
+      <p className="muted">Preparing an example replaces this run’s world, history and metrics, then leaves it ready and paused. Reset restores the active run’s starting setup. Frozen evidence is unchanged.</p>
+      <div className="workflow-prepare"><button onClick={replaceRun}>Prepare example</button><span role="status" aria-label="Example setup status">{pendingSetup ? 'Pending setup changes. Prepare example to use these selections; the active run is unchanged.' : 'The selections match the active setup.'}</span></div>
       <div className="workflow-active"><strong>Active: {view.scenarioTitle} · {view.modeLabel}</strong><p>{audience === 'executive' ? businessQuestions[state.spec.scenario] : scenarioDescription}</p><Technical><p>Active task: demand {state.spec.task.demand}, stock {state.spec.task.stock}, unit price {state.spec.task.unitPrice}, budget {state.spec.task.budget}; approval TTL {state.spec.task.approvalTtl} logical seconds.</p>{state.spec.scenario === 'purchase-race' && <p>Simulated interleaving · {words(state.spec.schedule)}. This is a deterministic queue order, not parallel operating-system execution.</p>}<small>Seed {state.spec.seed} is replay metadata; it does not vary this v1 workflow.</small><BusinessScenarioNote scenario={state.spec.scenario}/></Technical></div>
       <div className="button-row">
         <button className="primary" disabled={!c.canStart} onClick={() => onCommand({ type: 'start' })}>Start workflow</button>
+        {audience === 'executive' && onAdvance && <button disabled={!c.canStep || c.canPause} onClick={onAdvance}>Advance to next decision</button>}
         <button disabled={!c.canStep} onClick={() => onCommand({ type: 'step' })}>Step one transition</button>
         <button disabled={!c.canPause} onClick={() => onCommand({ type: 'pause' })}>Pause workflow</button>
         <button disabled={!c.canReset} onClick={resetRun}>Reset workflow and clear history</button>
@@ -133,11 +151,11 @@ export function WorkflowStage({ state, onCommand, onImport, onExport, onReviewCo
       </div>
       {audience === 'executive' && wholeExperience && <details className="executive-settings" open={settingsOpen} onToggle={e => setSettingsOpen(e.currentTarget.open)}><summary>Exercise settings</summary><p>Compare modeled safeguards; these are not real approval rights. Proposal order and playback pace change the illustration, not agent capability.</p><div className="control-grid">{comparisonControls}{paceControl}</div></details>}
       <p role="status" aria-label="Workflow status" className="workflow-status">{words(view.status)} · {view.running ? 'playing' : 'paused'} · logical time {view.logicalTime} · {view.transitionCount} transitions. {words(c.reasonCode)}.</p>
-<p className="muted">{audience === 'executive' ? 'Apply creates a new paused run. Start plays the work; Pause stops playback. Step advances one queued transition, which can produce several events—not a whole business stage. An order or completion is never implied by progress.' : 'Step consumes one queued transition and can emit several linked events. Playback pace never changes logical time rules. Manual stepping works without animation.'}</p>
+<p className="muted">{audience === 'executive' ? 'Prepare creates a ready, paused example. Start plays the work; Pause stops playback. Advance to next decision runs the model to an exception requiring your choice or an outcome, then stops. It never refreshes permission or reconciles an order automatically. Step advances exactly one transition. Progress alone does not establish an order or completion.' : 'Step consumes one queued transition and can emit several linked events. Playback pace never changes logical time rules. Manual stepping works without animation.'}</p>
       {c.canRecover && c.blockedEventId && <section className="workflow-decision" aria-label="Approval refresh decision"><h3>Expired approval: request a fresh decision</h3><p>No order is implied by this block. Request finance to derive a new bound simulated approval from the existing quote; the expired approval and its denial stay in the trace. This does not extend a grant or issue production authorization.</p><p>Blocked event: <button className="text-button" onClick={() => inspectEvent(c.blockedEventId)}>{c.blockedEventId}</button></p><button onClick={() => onCommand({ type: 'recover', blockedEventId: c.blockedEventId! })}>Request one approval refresh</button></section>}
       {c.canReconcile && c.unknownEventId && <section className="workflow-decision" aria-label="Unknown outcome decision"><h3>The response is missing; the order may already exist</h3><p>Reconcile queries the simulated world for the existing intent. It does not place another order. A missing response is not proof of failure; inspect committed effects below.</p><p>Unknown-outcome event: <button className="text-button" onClick={() => inspectEvent(c.unknownEventId)}>{c.unknownEventId}</button></p><button onClick={() => onCommand({ type: 'reconcile', unknownEventId: c.unknownEventId! })}>Reconcile existing order once</button></section>}
     </section>
-    {wholeExperience && <Executive><PurchasingOperations state={state} onInspect={inspectEvent} onReview={onReviewContext} context={reviewContext} issue={wholeExperience ? 'analytical' : undefined} selection={selection} onSelectionChange={onSelectionChange}/>{!wholeExperience && <><PurchaseSituation state={state}/><PurchaseOutcome state={state}/></>}</Executive>}
+    {wholeExperience && <Executive><PurchasingOperations key={runId} state={state} onInspect={inspectEvent} onReview={onReviewContext} context={reviewContext} issue={wholeExperience ? 'analytical' : undefined} selection={selection} onSelectionChange={onSelectionChange}/>{!wholeExperience && <><PurchaseSituation state={state}/><PurchaseOutcome state={state}/></>}</Executive>}
     <ScenarioLesson state={state}/><WorkflowComparison state={state}/><Technical id="workflow-technical-evidence"><div className="stats workflow-metrics" aria-label="Observed simulated effects">
       <Stat label="Committed orders" value={view.metrics.committedOrders} note="Actual in-memory order records"/>
       <Stat label="Simulated spend" value={view.metrics.spent} note="Derived from committed effects"/>
@@ -167,7 +185,7 @@ export function WorkflowStage({ state, onCommand, onImport, onExport, onReviewCo
     </section>
     <section className="panel" aria-labelledby="workflow-observations-title"><h2 id="workflow-observations-title">Model observations and limits</h2><p>These are independent observations of simulated effects, not test pass provenance, safety certification or production enforcement. Business confirmation alone does not imply a safe or correct outcome; A/B can confirm work while committing unsafe effects.</p><ul className="workflow-invariants">{view.invariants.map(i => <li key={i.id}><strong>{i.id}: {i.status}</strong><span>{words(i.explanationCode)}</span><div>{i.evidenceEventIds.map(id => <button key={id} className="text-button" onClick={() => inspectEvent(id)}>{id} </button>)}</div></li>)}</ul><ul>{view.limitations.map(l => <li key={l}>{l}</li>)}</ul><p>Human review and production objective arbitration are unavailable in this workflow candidate. No real permission is issued.</p></section>
     <BusinessDebrief/>
-    <section className="panel" aria-labelledby="workflow-replay-title"><h2 id="workflow-replay-title">Inspect or restore a browser replay</h2><p>Prepared exports are snapshots; prepare again after further transitions. Versioned replay is recomputed by the engine before adoption. Replay inputs are user-supplied. A matching fixture digest shows consistency, not membership of a trusted catalog, authenticated identity or safety. A valid import replaces this workflow's history; an invalid import leaves it intact.</p><button onClick={prepareReplay}>Prepare current replay JSON</button><p role="status" aria-label="Replay export status">{exportNotice}</p>{exportText && <label>Prepared replay snapshot<textarea readOnly value={exportText} rows={6}/></label>}<label>Replay JSON to validate<textarea value={replayText} maxLength={262144} onChange={e => setReplayText(e.target.value)} rows={5}/></label><button disabled={!replayText.trim()} onClick={() => { const result = onImport(replayText); setImportNotice(result.message); if (result.ok) { setSelectedEvent(null); setMessageId(null); setExportText(''); } }}>Validate replay and replace current run</button><p role="status" aria-label="Replay import status">{importNotice}</p><details><summary>Active specification and replay identity</summary><p>{view.runKey}</p><p>Specification identity, not a unique session or authenticated receipt.</p><pre>{JSON.stringify(state.spec, null, 2)}</pre></details></section>
+    <section className="panel" aria-labelledby="workflow-replay-title"><h2 id="workflow-replay-title">Inspect or restore a browser replay</h2><p>Prepared exports are snapshots; prepare again after further transitions. Versioned replay is recomputed by the engine before adoption. Replay inputs are user-supplied. A matching fixture digest shows consistency, not membership of a trusted catalog, authenticated identity or safety. A valid import replaces this workflow's history; an invalid import leaves it intact.</p><button onClick={prepareReplay}>Prepare current replay JSON</button><p role="status" aria-label="Replay export status">{exportNotice}</p>{exportText && <label>Prepared replay snapshot<textarea readOnly value={exportText} rows={6}/></label>}<label>Replay JSON to validate<textarea value={replayText} maxLength={262144} onChange={e => setReplayText(e.target.value)} rows={5}/></label><button disabled={!replayText.trim()} onClick={restoreReplay}>Validate replay and replace current run</button><p role="status" aria-label="Replay import status">{importNotice}</p><details><summary>Active specification and replay identity</summary><p>{view.runKey}</p><p>Specification identity, not a unique session or authenticated receipt.</p><pre>{JSON.stringify(state.spec, null, 2)}</pre></details></section>
     </Technical>
   </div>;
 }

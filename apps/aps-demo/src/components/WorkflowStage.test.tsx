@@ -80,7 +80,7 @@ describe('workflow presentation with actual engine transitions', () => {
     render(<Harness/>); stepToBoundary();
     fireEvent.change(screen.getByLabelText('Workflow scenario'), { target: { value: 'approval-delay' } });
     expect(stat('Committed orders')).toBe('1');
-    fireEvent.click(screen.getByRole('button', { name: 'Apply selection and start new run' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare example' }));
     expect(stat('Committed orders')).toBe('0'); expect(stat('Task confirmed')).toBe('No');
     fireEvent.change(screen.getByLabelText('Replay JSON to validate'), { target: { value: '{"simulationOnly":false}' } });
     const count = document.querySelectorAll('.workflow-timeline li').length;

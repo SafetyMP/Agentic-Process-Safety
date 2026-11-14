@@ -49,7 +49,7 @@ it('retains drafts, pace, stale export, replay error and actual state across all
 });
 it('carries actual exception/record context through How controls work support and What leaders decide to explicit Technical inspection', async () => {
   window.location.hash = '#/simulator'; const calls = vi.spyOn(workflowAPI, 'workflowReducer'); render(<App/>);
-  fireEvent.change(screen.getByLabelText('Question to examine'), { target: { value: 'approval-delay' } }); fireEvent.click(screen.getByRole('button', { name: 'Apply selection and start new run' }));
+  fireEvent.change(screen.getByLabelText('Question to examine'), { target: { value: 'approval-delay' } }); fireEvent.click(screen.getByRole('button', { name: 'Prepare example' }));
   for (let i = 0; i < 100 && !(screen.getByRole('button', { name: 'Step one transition' }) as HTMLButtonElement).disabled; i++) fireEvent.click(screen.getByRole('button', { name: 'Step one transition' }));
   const id = screen.getByRole('region', { name: 'Approval refresh decision' }).querySelector('.text-button')!.textContent!;
   fireEvent.click(screen.getByRole('button', { name: `Open exception ${id}` })); fireEvent.click(screen.getByRole('button', { name: 'Review exception design' }));
