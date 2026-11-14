@@ -1,19 +1,36 @@
 name: Bug report
-description: Report a reproducible sandbox defect without sensitive data.
+description: Report a reproducible app, documentation or research-implementation defect.
 body:
   - type: markdown
     attributes:
-      value: "For vulnerabilities follow SECURITY.md. Never post secrets, operational data or blind reference answers."
+      value: "For vulnerabilities follow SECURITY.md privately. Use synthetic examples; never post secrets, operational data or confidential reference answers. Review discussion exports before sharing them."
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected area
+      options:
+        - Guided browser experience
+        - Recorded evidence or source relationship
+        - Research engine, gateway or policy
+        - Documentation, build or repository
+    validations:
+      required: true
   - type: textarea
     id: reproduction
     attributes:
       label: Synthetic reproduction and environment
-      description: Include revision, OS, runtime versions and exact commands.
+      description: "For the app: route, case, inputs, ordered actions, browser/OS and viewport. For local code: commit, runtime versions and exact commands."
     validations:
       required: true
   - type: textarea
     id: behavior
     attributes:
       label: Expected and actual behavior
+      description: Explain what should happen and what you observed. Identify illustrative results versus recorded trials where relevant.
     validations:
       required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Safe supporting evidence
+      description: Optional screenshot, minimal log or source link. Redact sensitive content and keep the request or run identity if it explains the defect.

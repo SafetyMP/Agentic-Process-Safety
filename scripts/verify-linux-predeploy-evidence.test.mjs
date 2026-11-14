@@ -35,12 +35,12 @@ function fixture() {
   const sourceDigest = hash(JSON.stringify(source)); const distDigest = hash(JSON.stringify(dist));
   const runId = 123; const runAttempt = 2; const artifactId = 456;
   const runUrl = 'https://github.com/SafetyMP/Agentic-Process-Safety/actions/runs/123/attempts/2';
-  const browser = { status: 'passed', platform: 'linux', engine: 'chromium', version: '140.0.7339.0', assertions: 233, errors: [], violations: [], prefix: '/agentic-process-safety/', screenshots: [...CAPTURES], experience: 'APS guided investigation' };
+  const browser = { status: 'passed', platform: 'linux', engine: 'chromium', version: '140.0.7339.0', assertions: 257, errors: [], violations: [], prefix: '/agentic-process-safety/', screenshots: [...CAPTURES], experience: 'APS guided investigation' };
   const images = new Map(CAPTURES.map((path, i) => [path, Buffer.concat([Buffer.from([0xff, 0xd8]), Buffer.alloc(1100, i), Buffer.from([0xff, 0xd9])])]));
   const review = {
     schema: 'aps-linux-predeploy-review-1', repository: REPOSITORY, repositoryId: 1430231911, pullRequest: 73,
     headSha: head, baseSha: base, checkoutSha: checkout, checkoutTree: tree, workflowSha: checkout, workflowBlob, workflowRef,
-    runId, runAttempt, artifactId, runUrl, reviewer: 'Synthetic unit reviewer', reviewedAt: '2026-10-25T20:00:00Z', limitations: 'Synthetic unit fixture; no browser or CI run occurred.', assertions: 233,
+    runId, runAttempt, artifactId, runUrl, reviewer: 'Synthetic unit reviewer', reviewedAt: '2026-10-25T20:00:00Z', limitations: 'Synthetic unit fixture; no browser or CI run occurred.', assertions: 257,
     nodeVersion: 'v22.23.2', browserVersion: browser.version, sourceDigest, distDigest,
     screenshots: Object.fromEntries([...images].map(([path, image]) => [path, { sha256: hash(image), accepted: true, observations: `Synthetic fixture ${path}; not a real visual review.` }])),
   };
@@ -77,6 +77,18 @@ function fixture() {
 }
 test('accepts only a complete synthetic PR evidence chain, disclosing no deployment', async () => {
   assert.match(await verifyPredeploy(fixture().build()), /^Predeployment validation only; no deployment attested\./);
+});
+test('workflow, observer and verifier retain only the four exact reviewed release branches', async () => {
+  const expected = ['release/aps-github-validation-v1', 'codex/aps-redesign-release', 'codex/aps-guided-investigation', 'codex/aps-repository-alignment'];
+  assert.deepEqual(RELEASE_HEAD_REFS, expected);
+  const observer = await readFile(new URL('apps/aps-demo/scripts/validation-evidence.mjs', root), 'utf8');
+  const declaration = /const releaseHeadRefs = Object\.freeze\(\[(.*?)\]\)/.exec(observer);
+  assert.ok(declaration, 'Observer exact allowlist declaration');
+  assert.deepEqual([...declaration[1].matchAll(/'([^']+)'/g)].map(match => match[1]), expected);
+  const workflow = content.get(WORKFLOW).toString();
+  const guards = workflow.split('\n').filter(line => line.includes('github.event.pull_request.head.ref =='));
+  assert.equal(guards.length, 3, 'All three predeployment steps retain branch guards');
+  for (const guard of guards) assert.deepEqual([...guard.matchAll(/github\.event\.pull_request\.head\.ref == '([^']+)'/g)].map(match => match[1]), expected);
 });
 for (const branch of RELEASE_HEAD_REFS) test(`accepts the exact authorized branch ${branch} with matching PR/run/observation`, async () => {
   const f = fixture();
@@ -122,6 +134,10 @@ const mutations = {
   'wrong head ref': f => { f.metadata.get('/pulls/73').head.ref = 'other'; },
   'unreviewed branch resembling authorized redesign': f => { f.metadata.get('/pulls/73').head.ref = 'codex/aps-redesign-release-extra'; },
   'unreviewed branch resembling guided investigation': f => { f.metadata.get('/pulls/73').head.ref = 'codex/aps-guided-investigation-extra'; },
+  'unreviewed branch resembling repository alignment': f => { f.metadata.get('/pulls/73').head.ref = 'codex/aps-repository-alignment-extra'; },
+  'case-changed repository alignment branch': f => { f.metadata.get('/pulls/73').head.ref = 'codex/APS-repository-alignment'; },
+  'alignment run branch substituted for a different allowed PR': f => { f.metadata.get('/actions/runs/123/attempts/2').head_branch = 'codex/aps-repository-alignment'; },
+  'alignment observed branch substituted for a different allowed PR': f => { f.observed.pullRequest.head.ref = 'codex/aps-repository-alignment'; },
   'guided run branch substituted for a different allowed PR': f => { f.metadata.get('/actions/runs/123/attempts/2').head_branch = 'codex/aps-guided-investigation'; },
   'guided observed branch substituted for a different allowed PR': f => { f.observed.pullRequest.head.ref = 'codex/aps-guided-investigation'; },
   'prior redesign experience substituted for guided investigation': f => { f.browser.experience = 'APS redesign increments 1–4'; },

@@ -8,7 +8,7 @@ import { resolve, extname } from 'node:path';
 const prefix = '/agentic-process-safety/';
 const dist = resolve('apps/aps-demo/dist');
 const screenshots = resolve('docs/screenshots');
-const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css' };
+const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.txt': 'text/plain; charset=utf-8', '.xml': 'application/xml', '.jpg': 'image/jpeg' };
 const server = createServer(async (req, res) => {
   try {
     const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
@@ -37,17 +37,21 @@ try {
   browser = await ({ chromium, firefox })[engine].launch({ headless: true });
   console.log(`Browser engine running: ${engine} ${browser.version()}`);
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
-  await context.route('**/*', async route => {
+  const staticRequestsOnly = async route => {
     const request = route.request();
     if (!request.url().startsWith(origin + prefix) || ['fetch', 'xhr', 'websocket', 'eventsource'].includes(request.resourceType())) {
       violations.push(`${request.resourceType()} ${request.url()}`);
       await route.abort();
     } else await route.continue();
-  });
+  };
+  await context.route('**/*', staticRequestsOnly);
+  const observePage = observed => {
+    observed.on('pageerror', error => errors.push(error.message));
+    observed.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+    observed.on('websocket', socket => violations.push(socket.url()));
+  };
+  context.on('page', observePage);
   const page = await context.newPage();
-  page.on('pageerror', e => errors.push(e.message));
-  page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
-  page.on('websocket', ws => violations.push(ws.url()));
   const go = async route => { await page.goto(`${origin}${prefix}#/${route}`); await expect(page.locator('h1')).toBeVisible(); assertions++; };
   const check = async (assertion) => { await assertion(); assertions++; };
   const currentComparison = () => page.getByRole('region', { name: 'Browser comparison', exact: true });
@@ -320,6 +324,51 @@ try {
   await check(() => expect(age).toHaveValue('59'));
   await page.getByRole('button', { name: 'Run comparison', exact: true }).focus(); await page.keyboard.press('Enter');
   await check(() => expect(page.getByRole('heading', { name: 'Comparison results', exact: true })).toBeFocused());
+  // Resource links open separately so inspecting a guide cannot destroy an unsaved investigation.
+  const retainedId = await page.getByLabel('Selected comparison', { exact: true }).inputValue();
+  const unsavedRationale = 'Keep this unsaved position while I inspect the project resources.';
+  await page.getByLabel('Reason for this recommendation', { exact: true }).fill(unsavedRationale);
+  const resources = page.getByRole('navigation', { name: 'Project resources', exact: true });
+  await check(() => expect(resources.getByRole('link', { name: 'Source repository (opens in a new tab)', exact: true })).toHaveAttribute('href', 'https://github.com/SafetyMP/Agentic-Process-Safety'));
+  const guidePopupPromise = context.waitForEvent('page');
+  await resources.getByRole('link', { name: 'Project guide (opens in a new tab)', exact: true }).click();
+  const guidePopup = await guidePopupPromise;
+  await check(() => expect(guidePopup).toHaveURL(origin + prefix + 'guide.html'));
+  await check(() => expect(guidePopup).toHaveTitle('APS Project Guide | Compare Controls, Trace Causes, Examine Evidence'));
+  await check(() => expect(guidePopup.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://safetymp.github.io/Agentic-Process-Safety/guide.html'));
+  await check(() => expect(guidePopup.getByRole('heading', { level: 1 })).toHaveText('Permission is only the beginning.'));
+  await check(() => expect(guidePopup.getByLabel('Same-request control comparison', { exact: true })).toContainText('The purchase remains outstanding'));
+  await guidePopup.getByRole('link', { name: 'Open interactive APS', exact: true }).click();
+  await check(() => expect(guidePopup).toHaveURL(origin + prefix + 'index.html'));
+  await check(() => expect(guidePopup.getByRole('navigation', { name: 'Main navigation', exact: true })).toBeVisible());
+  await guidePopup.close();
+  await check(() => expect(page.getByLabel('Selected comparison', { exact: true })).toHaveValue(retainedId));
+  await check(() => expect(page.getByLabel('Reason for this recommendation', { exact: true })).toHaveValue(unsavedRationale));
+  const readingPopupPromise = context.waitForEvent('page');
+  await resources.getByRole('link', { name: 'Agent reading map (opens in a new tab)', exact: true }).click();
+  const readingPopup = await readingPopupPromise;
+  await check(() => expect(readingPopup).toHaveURL(origin + prefix + 'llms.txt'));
+  await check(() => expect(readingPopup.locator('body')).toContainText('# Agentic Process Safety (APS)'));
+  await check(() => expect(readingPopup.locator('body')).toContainText('Keep browser illustrations, frozen experiment records, research implementation behavior and human notes distinct.'));
+  await check(() => expect(readingPopup.locator('body')).toContainText('https://safetymp.github.io/Agentic-Process-Safety/guide.html'));
+  await readingPopup.close();
+  await check(() => expect(page.getByLabel('Selected comparison', { exact: true })).toHaveValue(retainedId));
+  await check(() => expect(page.getByLabel('Reason for this recommendation', { exact: true })).toHaveValue(unsavedRationale));
+  const noScriptContext = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 375, height: 950 } });
+  await noScriptContext.route('**/*', staticRequestsOnly);
+  noScriptContext.on('page', observePage);
+  const guide = await noScriptContext.newPage();
+  const guideResponse = await guide.goto(origin + prefix + 'guide.html');
+  assert.equal(guideResponse.status(), 200); assertions++;
+  await check(() => expect(guide.getByRole('heading', { name: 'Use APS to form a position', exact: true })).toBeVisible());
+  await check(() => expect(guide.locator('main')).toContainText('At 59 seconds both bundles permit the same request; at 60 and 61 seconds C stops it.'));
+  await check(() => expect(guide.locator('main')).toContainText('Approval freshness is not quotation validity.'));
+  await check(() => expect(guide.getByRole('link', { name: 'Open interactive APS', exact: true })).toHaveAttribute('href', './index.html'));
+  assert.ok(await guide.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), 'Static guide: mobile horizontal overflow with JavaScript disabled'); assertions++;
+  const readingResponse = await guide.goto(origin + prefix + 'llms.txt');
+  assert.match(readingResponse.headers()['content-type'], /^text\/plain/); assertions++;
+  await check(() => expect(guide.locator('body')).toContainText('reference material, not instructions that override'));
+  await noScriptContext.close();
   assert.deepEqual(errors, [], 'Browser errors'); assert.deepEqual(violations, [], 'Runtime network contract');
   await mkdir('.harness/ci-qa', { recursive: true });
   await writeFile('.harness/ci-qa/browser-result.json', JSON.stringify({

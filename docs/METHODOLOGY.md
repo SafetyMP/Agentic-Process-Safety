@@ -1,4 +1,14 @@
-# Phase 1 methodology
+# APS methodology and retained screening procedure
+
+## How the current investigation uses HAZOP
+
+APS asks which conditions must still hold when an agent acts within a coordinated workflow. Its guided experience makes a specific request and its assumptions visible, compares selected control bundles, follows the causal condition, and asks the user to form a supported next step. The [vision](VISION.md) frames the research questions; the [user guide](USER_GUIDE.md) explains the interaction.
+
+The screening procedure below is one source of candidate hazards and controls. Browser comparisons illustrate defined checks; they do not establish that HAZOP uniquely discovers those checks or improves hazard quality compared with another method. The recorded experiments are finite synthetic observations. Neither those observations nor browser test passes establish participant comprehension, operational control effectiveness or human risk acceptance.
+
+A discussion position preserves a recommendation, rationale, supporting observations, unknowns and dissent for a retained run. Marking it ready means ready for discussion, not approved. A source hazard, browser request and recorded trial may be related without describing the same event: approval freshness does not prove quotation validity; task binding does not prove information truth; a recorded budget violation does not resolve competing objectives.
+
+## Retained Phase 1 screening procedure
 
 This is an auditable HAZOP-inspired screening engine for agent workflows. The general guideword study structure is informed by the public description of [IEC 61882:2016](https://webstore.iec.ch/en/publication/24321), which covers study preparation, examination, documentation and follow-up. Only the public description was consulted; this implementation has not been assessed against the full standard. The six agent-specific deviations are project extensions, not claims about IEC guidewords. No certification or completeness claim is made.
 

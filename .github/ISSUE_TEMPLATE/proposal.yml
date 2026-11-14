@@ -1,0 +1,34 @@
+name: Research or design proposal
+description: Propose a clearer investigation, case, control or evidence question.
+body:
+  - type: markdown
+    attributes:
+      value: "Connect the proposal to APS's comparison → causal explanation → human reasoning experience. Proposed controls and new scenarios are not verified safeguards. Keep sensitive and blinded material private."
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or research question
+      description: Who encounters the problem, in which case or workflow, and why does it matter?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change and alternative
+      description: What should change? Name a reasonable alternative or a competing explanation.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Supporting evidence and open questions
+      description: Link the actual source or observation. Distinguish modeled behavior, recorded trials, authored hypotheses and evidence still needed.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: How to assess the improvement
+      description: What observation would support the change, and what result would show it did not help? Separate implementation checks from user-learning or method-effectiveness claims.
+    validations:
+      required: true

@@ -4,51 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
-    <title>Agentic Process Safety | HAZOP for AI Agent Swarms</title>
-    <meta name="description" content="Explore HAZOP hazard analysis for AI agent swarms with simulated procurement, policy controls and recorded evidence. Open-source research sandbox by SafetyMP.">
+    <title>Agentic Process Safety | Investigate AI Agent Workflow Risk</title>
+    <meta name="description" content="Investigate AI agent workflow risk: compare controls, follow causal paths, and connect human recommendations to evidence. An open-source HAZOP research sandbox.">
     <link rel="canonical" href="https://safetymp.github.io/Agentic-Process-Safety/">
     <link rel="sitemap" type="application/xml" href="./sitemap.xml">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Agentic Process Safety">
-    <meta property="og:title" content="Agentic Process Safety | HAZOP for AI Agent Swarms">
-    <meta property="og:description" content="Explore HAZOP hazard analysis for AI agent swarms with simulated procurement, policy controls and recorded evidence. Open-source research sandbox by SafetyMP.">
+    <meta property="og:title" content="Agentic Process Safety | Investigate AI Agent Workflow Risk">
+    <meta property="og:description" content="Investigate AI agent workflow risk: compare controls, follow causal paths, and connect human recommendations to evidence. An open-source HAZOP research sandbox.">
     <meta property="og:url" content="https://safetymp.github.io/Agentic-Process-Safety/">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Agentic Process Safety | HAZOP for AI Agent Swarms">
-    <meta name="twitter:description" content="Explore HAZOP hazard analysis for AI agent swarms with simulated procurement, policy controls and recorded evidence. Open-source research sandbox by SafetyMP.">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="image_src" href="./social-preview.jpg">
+    <meta property="og:image" content="https://safetymp.github.io/Agentic-Process-Safety/social-preview.jpg">
+    <meta property="og:image:width" content="1440">
+    <meta property="og:image:height" content="1000">
+    <meta property="og:image:alt" content="APS comparison: an expired-approval request executes under B and is stopped under C. Illustrative model only.">
+    <meta name="twitter:image" content="https://safetymp.github.io/Agentic-Process-Safety/social-preview.jpg">
+    <meta name="twitter:image:alt" content="APS comparison: an expired-approval request executes under B and is stopped under C. Illustrative model only.">
+    <meta name="twitter:title" content="Agentic Process Safety | Investigate AI Agent Workflow Risk">
+    <meta name="twitter:description" content="Investigate AI agent workflow risk: compare controls, follow causal paths, and connect human recommendations to evidence. An open-source HAZOP research sandbox.">
     <script type="application/ld+json">
 {
-      "@context": "https://schema.org",
-      "@type": "SoftwareSourceCode",
-      "name": "Agentic Process Safety (APS)",
-      "description": "Explore HAZOP hazard analysis for AI agent swarms with simulated procurement, policy controls and recorded evidence. Open-source research sandbox by SafetyMP.",
-      "url": "https://safetymp.github.io/Agentic-Process-Safety/",
-      "codeRepository": "https://github.com/SafetyMP/Agentic-Process-Safety",
-      "programmingLanguage": [
-            "Python",
-            "TypeScript",
-            "Rego"
-      ],
-      "license": "https://www.apache.org/licenses/LICENSE-2.0",
-      "author": {
-            "@type": "Person",
-            "name": "Sage Hart",
-            "url": "https://github.com/SafetyMP"
-      }
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Agentic Process Safety (APS)",
+  "description": "Investigate AI agent workflow risk: compare controls, follow causal paths, and connect human recommendations to evidence. An open-source HAZOP research sandbox.",
+  "url": "https://safetymp.github.io/Agentic-Process-Safety/",
+  "codeRepository": "https://github.com/SafetyMP/Agentic-Process-Safety",
+  "programmingLanguage": [
+    "Python",
+    "TypeScript",
+    "Rego"
+  ],
+  "license": "https://www.apache.org/licenses/LICENSE-2.0",
+  "author": {
+    "@type": "Person",
+    "name": "Sage Hart",
+    "url": "https://github.com/SafetyMP"
+  }
 }
     </script>
   </head>
   <body>
     <div id="root">
       <main>
-        <h1>Agentic Process Safety: HAZOP for AI agent swarms</h1>
-        <p>APS is an open-source research sandbox applying hazard and operability (HAZOP) analysis to multi-agent AI systems.</p>
-        <h2>Explore hazards, controls and evidence</h2>
-        <p>Follow five procurement workers and an orchestrator through demand forecasting, inventory, supplier selection, finance approval and simulated purchase execution.</p>
-        <p>The interactive explorer includes a HAZOP Lab, simulated policy decisions, a deterministic swarm simulator and recorded experimental evidence. The research implementation uses Python, TypeScript and OPA/Rego.</p>
+        <h1>Agentic Process Safety: investigate AI agent workflow risk</h1>
+        <p>Permission is only the beginning. An AI agent can have the right tool and stay within budget while relying on an approval, task context, or earlier decision that no longer applies.</p>
+        <p>APS is an open-source research sandbox for hazard and operability (HAZOP) analysis of coordinated AI agents. Compare the same request under different control bundles, follow the causal path, and form a human recommendation grounded in evidence.</p>
+        <h2>Start with one purchase request</h2>
+        <p>Finance approved a purchase, but the request arrives 61 logical seconds later. The model requires approval age below 60. Tool permission and spend checks permit it; an added freshness check stops it. Try 59 seconds, retain both results, and investigate what still needs to be known.</p>
+        <h2>Compare, investigate, form a position</h2>
+        <p>The Case Lab connects nine illustrative cases to a hazard study, proposed controls and frozen recorded evidence. Recommendations lead to case-specific evidence questions, policy-review questions, or an explicitly hypothetical recovery. Your notes do not issue approval or change the controls.</p>
+        <p><a href="./guide.html">Read the project and evidence guide</a> for a complete introduction without JavaScript, or use the interactive app when it loads. A <a href="./llms.txt">plain-text source index</a> is also available.</p>
         <h2>Research scope</h2>
-        <p>Hazards remain unverified and controls proposed. Browser simulation is separate from recorded experimental results. No real purchases, safety certification or production protection are provided.</p>
-        <p>The interactive explorer requires JavaScript and runs entirely in your browser, without an account, API key, backend or telemetry.</p>
+        <p>Hazards remain unverified and controls proposed. The illustrative browser model, frozen experiment records and separate Python/OPA research implementation have different evidence boundaries. No real purchase, payment, safety certification or production protection is provided.</p>
+        <p>The interactive app runs entirely in your browser, without an account, API key, backend or telemetry. No live model inference occurs. Human learning and the value of the analysis method have not been established by these software checks.</p>
       </main>
     </div>
     <script type="module" src="/src/main.tsx"></script>

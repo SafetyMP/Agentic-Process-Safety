@@ -1,5 +1,77 @@
 # Development reference
 
+APS has two deliberately separate execution paths: the **guided browser investigation** and the **Python/OPA research implementation**. Start with the [vision](VISION.md), [user guide](USER_GUIDE.md) or [documentation map](README.md) when you need project context. This page gives current development entry points and preserves the earlier implementation notes below.
+
+## Current development workflow
+
+Use Node.js 22.18+ and the single root npm lockfile. From the repository root:
+
+```sh
+npm ci
+npm run demo:dev
+```
+
+Open the Vite URL printed by the command at `/`. The current browser experience follows **Compare → Change/Inspect → Form a position**. It evaluates an explicit request under fixed control bundles, retains prior comparisons, shows case-specific causal stages and attaches local human reasoning. It does not use the historical Start/Pause/Step flow described in the archived notes below.
+
+The frontend is in `apps/aps-demo/`; [the browser domain guide](../apps/aps-demo/src/domain/README.md) identifies the case, comparison, session and presentation contracts. React routes share one session through `SessionContext.tsx`. The browser never calls the Python gateway, OPA or a live procurement service.
+
+Run the checks appropriate to frontend changes:
+
+```sh
+node scripts/verify-repository-readiness.mjs
+node --test scripts/verify-repository-readiness.test.mjs
+npm run demo:fixtures:check
+npm run demo:production:check
+npm run demo:lint
+npm run demo:typecheck
+npm run demo:test
+npm run demo:build
+npm run demo:static:check
+```
+
+For local built-site verification, install the browser version pinned by the root lockfile and explicitly choose the same engine when running it:
+
+```sh
+mkdir -p .harness/tmp
+PLAYWRIGHT_BROWSERS_PATH=.harness/playwright TMPDIR="$PWD/.harness/tmp" npx playwright install chromium --only-shell
+APS_BROWSER=chromium PLAYWRIGHT_BROWSERS_PATH=.harness/playwright npm run demo:e2e
+```
+
+The runner also supports Firefox and defaults to Firefox on macOS when `APS_BROWSER` is absent; it defaults to Chromium on Linux. Browser installation and launch may need host permissions. A local browser result is distinct from the hosted Linux deployment evidence. Run `npm run demo:preview` to inspect a production build locally at the printed origin.
+
+## Research commands
+
+The gateway-backed simulator requires Python 3.11+, OPA 1.x on `PATH`, and the locked Python dependencies:
+
+```sh
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.lock
+npm ci
+npm test
+npm run typecheck
+npm run demo
+```
+
+Use [Phase 2 operations](PHASE2_OPERATIONS.md) for policy and gateway commands, [Phase 3 operations](PHASE3_OPERATIONS.md) for finite experiments and attested assurance, and [methodology](METHODOLOGY.md) for human review boundaries. These are research workflows, separate from the browser's illustrative comparisons. Full `scripts/verify.sh` and Phase 3 commands include broader research work; inspect their scope before running them for a documentation or presentation-only change.
+
+## Release and evidence maintenance
+
+The guided experience was deployed from [PR #32](https://github.com/SafetyMP/Agentic-Process-Safety/pull/32), commit `3ddc4ae9a0dc42c5af98fa7818121cf18a1b364f`, on 2026-11-14. [Deployment run 43645203614](https://github.com/SafetyMP/Agentic-Process-Safety/actions/runs/43645203614) passed. That release passed 233 built-site and 233 live-site browser checks; all nine published files matched its authenticated artifact. This is a dated release observation, not acceptance of subsequent source changes.
+
+[The Pages workflow](../.github/workflows/deploy-pages.yml) builds, checks and deploys only `apps/aps-demo/dist`. Source-bound evidence identifies the commit, workflow, run, artifact and reviewed screenshots. Changes to source or discovery assets require fresh evidence; changing a prior receipt does not validate a new release. Preserve historical ZIPs, review records, original fixtures and production-integrity pins.
+
+- `npm run demo:fixtures:audit` checks available local originals and explicitly reports missing ignored sources; clean CI uses the committed snapshot contract.
+- `scripts/verify-linux-predeploy-evidence.mjs` verifies a reviewed PR artifact without attesting deployment.
+- `scripts/verify-linux-ci-evidence.mjs` verifies the hosted Linux deployment receipt against exact source/build evidence and authenticated metadata.
+- See [search visibility](SEO.md) for canonical URLs, static discovery assets and external indexing limits.
+
+## Historical development notes
+
+The following snapshot is preserved for provenance. Its old interface controls, publication blockers, release counts and proposed-tree statements describe their original revisions. Use the current workflow above and the linked operations references for new work; a historical missing capability or failed gate is not a claim about today's deployment.
+
+<details>
+<summary>Read the retained README and development snapshot</summary>
+
 This document preserves the detailed README notes from the main-branch snapshot used for the README restructuring. Publication status, run identities and validation observations below are retained historical notes, not fresh verification. Start with the [project README](../README.md) for onboarding.
 
 ## Research implementation and retained notes
@@ -134,3 +206,6 @@ AI-generated findings remain marked as such even after review. Approval requires
 ### Readiness revision evidence limit
 
 This PR adds community documentation and npm license metadata. The retained Linux browser evidence is bound to the earlier source manifest; metadata changes make it stale. No current browser acceptance, CI success, deployment or human approval is claimed. See the [readiness audit](../docs/open-source-readiness.md) for validation and owner gates.
+
+
+</details>

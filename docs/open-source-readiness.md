@@ -1,4 +1,42 @@
-# Open-source readiness review
+# Open-source readiness and maintenance
+
+This page separates the **current observed repository state** from the retained 2026-10-24 readiness audit. The [vision](VISION.md), [user guide](USER_GUIDE.md), [documentation map](README.md) and [contribution guide](../CONTRIBUTING.md) describe the current APS project. A public repository and successful deployment do not establish license authority over every imported item, operational safety or a staffed support service.
+
+## Current observed state — 2026-11-14
+
+Authenticated GitHub inspection for `SafetyMP/Agentic-Process-Safety` found the following. These observations are dated; settings may change and should be checked again before a release decision.
+
+| Area | Observed state | Remaining boundary |
+| --- | --- | --- |
+| Identity and publication | Public repository, default branch `main`, Apache-2.0 license metadata, canonical [Pages app](https://safetymp.github.io/Agentic-Process-Safety/). | Public visibility is not a legal or safety clearance. |
+| Guided experience | [PR #32](https://github.com/SafetyMP/Agentic-Process-Safety/pull/32) deployed as `3ddc4ae9a0dc42c5af98fa7818121cf18a1b364f`; [run 43645203614](https://github.com/SafetyMP/Agentic-Process-Safety/actions/runs/43645203614) succeeded. The strict postdeployment gate, 233 hosted Linux checks, 233 live checks, seven capture reviews and nine published-file hash comparisons passed. | This receipt applies to that release, not later source changes. It does not measure learning or operational effectiveness. |
+| Community entry points | Issues enabled, Discussions disabled; GitHub community profile reported 100%. | The profile checks file presence, not support quality or response time. Use the issue forms and [support guide](../SUPPORT.md). |
+| Security reporting | GitHub private vulnerability reporting enabled. | Enabled intake does not verify staffing, acknowledgement time, or a tested reporting exercise. Follow [SECURITY.md](../SECURITY.md). |
+| Secret protection | Secret scanning and push protection enabled. | These are configured protections, not an exhaustive secret-free or history-clean attestation. |
+| Dependency maintenance | Version-update configuration exists; Dependabot security updates were disabled at inspection. | Maintainers must assess security-update enablement and review advisories, lockfiles and offline wheels. This refresh does not enable automatic dependency updates or merge them. |
+| Code scanning | Latest observed main CodeQL checks passed. | A passing scan has bounded coverage; it does not replace threat review or prove absence of vulnerabilities. |
+| GitHub discovery | Homepage points to the app. On 2026-11-14, the description was updated and verified to explain workflow risk, control comparison, causal paths and human recommendations tied to evidence; 17 topics include `assurance` and `human-in-the-loop`. No custom social-preview image was configured at inspection. | These are applied GitHub metadata changes, not publication of this documentation revision. Metadata availability and meaningful descriptions do not guarantee search indexing, ranking or agent retrieval. See [search visibility](SEO.md). |
+
+## Current owner decisions
+
+- Confirm rights to project contributions, source data, generated material, screenshots and third-party distributions. Preserve dependency notices and any conflicting legal terms. The original audit's licensing limitations remain applicable.
+- Maintain and exercise confidential security intake, establish accountable responders and truthful response expectations, and verify conduct-reporting routes. Do not infer staffing from an enabled GitHub setting.
+- Verify current default-branch rulesets, required checks, bypass permissions, Actions permissions and the Pages environment against the actual maintenance workflow. Their complete configuration is not certified by the observations above.
+- Assess enabling Dependabot security updates and monitor dependency advisories, including separately bundled wheels. Package publication and supported-version commitments require their own reviewed release process; both npm workspaces remain private.
+- Preserve research blinding and exposure records, unverified findings, proposed requirements and pending human risk decisions. Browser discussion-ready status is not a human safety approval.
+
+## Current validation workflow
+
+Use `node scripts/verify-repository-readiness.mjs` and `node --test scripts/verify-repository-readiness.test.mjs` for local documentation and community-file checks. Follow [current development checks](DEVELOPMENT_REFERENCE.md#current-development-workflow) for the app, and the source-bound predeployment/postdeployment verifiers for release evidence. Local checks cannot certify remote settings, rights, support staffing or safety suitability.
+
+New documentation, metadata or discovery assets must be checked as their own revision. The source-bound receipt for PR #32 remains historical once those source bytes change; preserve it rather than relabeling it as evidence for a new release.
+
+## Historical readiness audit — 2026-10-24
+
+The original audit below is retained for provenance. Its initial empty-checkout observations, pending publication statements, stale-manifest failures, then-current test counts and owner checklist describe that earlier work. They are not statements that today's repository lacks Git history, lacks a deployment or still has private reporting disabled. The current observed state above supersedes those time-sensitive descriptions; unresolved rights and safety questions remain unresolved.
+
+<details>
+<summary>Read the original readiness review and reconciliation record</summary>
 
 Review date: 2026-10-24. Initial local review followed by authenticated remote reconciliation for a draft PR; release remains pending owner decisions. This is a research prototype, not certified industrial software. Hazards remain unverified, controls proposed, and human approvals pending. No remote settings, intellectual-property rights or safety suitability are certified.
 
@@ -86,3 +124,6 @@ Current proposed-tree checks pass: readiness verification, a positive-tree test 
 The full Python unittest discovery also passes on the proposed tree: 108 tests. These are local macOS results, not a claim about Ubuntu CI. The initial workspace Git metadata was backed up privately. Its configured filesystem policy denies writes to the root `.git/config` and `.git/FETCH_HEAD`, so connecting the original workspace remains blocked; the isolated remote-based checkout retains the valid origin/history and proposed branch. No permission escalation or alternate write method was used.
 
 The first live PR run passed the Python engine job but the simulator tests failed closed with `policy_unavailable_or_error`: GitHub runners lacked OPA. The new workflow now installs OPA v1.21.4 before those tests, verifies the Linux static binary against the official GitHub release asset SHA-256 `2ab571f367f293bb19523b76f92f1945bbf245003392c7f392903f95c2b9b630`, and adds it to PATH. A mutation case rejects loss of checksum verification. Release metadata was queried directly from `open-policy-agent/opa` via authenticated GitHub API. This prerequisite fix changes only the new readiness workflow, never the pinned deployment or policy gates.
+
+
+</details>

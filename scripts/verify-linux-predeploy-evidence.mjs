@@ -10,15 +10,15 @@ import { fileURLToPath } from 'node:url';
 export const BOUNDS = Object.freeze({ archive: 64 * 1024 * 1024, expanded: 128 * 1024 * 1024, entry: 16 * 1024 * 1024, entries: 512, json: 2 * 1024 * 1024, source: 1000, dist: 128, depth: 20, nodes: 20000 });
 export const REPOSITORY = 'safetymp/agentic-process-safety';
 export const WORKFLOW = '.github/workflows/repository-checks.yml';
-export const RELEASE_HEAD_REFS = Object.freeze(['release/aps-github-validation-v1', 'codex/aps-redesign-release', 'codex/aps-guided-investigation']);
+export const RELEASE_HEAD_REFS = Object.freeze(['release/aps-github-validation-v1', 'codex/aps-redesign-release', 'codex/aps-guided-investigation', 'codex/aps-repository-alignment']);
 export const CAPTURES = Object.freeze(['overview', 'hazop', 'governance', 'simulator', 'assurance', 'mobile-light', 'mobile-dark'].map(n => `docs/screenshots/${n}.jpg`));
 // These expectations are reviewed source policy, never supplied by an artifact.
 export const PINS = Object.freeze({
-  [WORKFLOW]: '57f83716af8db23a02624fadfd86d51f0cc973cef45aa8aa7c886eba34e4109d',
+  [WORKFLOW]: 'f0d4c671411929cfc0d9a8f5512f8791c65fbaea8bb3bca0545d624ac8483c7c',
   '.github/workflows/deploy-pages.yml': '8a0a0126bfeba484e1b086cf8faecf872847c05146224bc237a1a331c4330e27',
-  'apps/aps-demo/scripts/e2e.mjs': '862012eff5b9fefe16e2f3829f453b86885e33ea96f6a18445b3d1fc07812ca8',
+  'apps/aps-demo/scripts/e2e.mjs': 'e5858f84a803b2f67fb2c93d30fa7e565a902add418121ad38aafe46eee283ef',
   'apps/aps-demo/scripts/qa-evidence.mjs': '859c2a56553c93ad0f6a1e874ced2bfa51dbc1f7a9ec97ba15ba236783f01926',
-  'apps/aps-demo/scripts/validation-evidence.mjs': '0c1474e3f899626586372476ddf4911dc3bf25e75c3620b01d88e7362fcd92c2',
+  'apps/aps-demo/scripts/validation-evidence.mjs': 'ad2e1b879515eeecef0b90e6cc9a3b4c93400070bc9e9bc6186a61421871ee69',
   'package-lock.json': '6350fea042ab97510b73aa1969e2469731753b5f95814caafa7f8d0ecbe7d303',
 });
 export const hash = bytes => createHash('sha256').update(bytes).digest('hex');

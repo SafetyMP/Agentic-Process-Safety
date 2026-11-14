@@ -9,7 +9,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const repository = 'safetymp/agentic-process-safety';
 const workflow = '.github/workflows/repository-checks.yml';
-const releaseHeadRefs = Object.freeze(['release/aps-github-validation-v1', 'codex/aps-redesign-release', 'codex/aps-guided-investigation']);
+const releaseHeadRefs = Object.freeze(['release/aps-github-validation-v1', 'codex/aps-redesign-release', 'codex/aps-guided-investigation', 'codex/aps-repository-alignment']);
 const destination = '.harness/ci-qa/validation.json';
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const blob = bytes => createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');

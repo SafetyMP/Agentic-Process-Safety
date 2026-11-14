@@ -1,1 +1,8 @@
 blank_issues_enabled: false
+contact_links:
+  - name: APS user guide
+    url: https://github.com/SafetyMP/Agentic-Process-Safety/blob/main/docs/USER_GUIDE.md
+    about: Follow the comparison, decision path and reasoning workflow before opening a usage issue.
+  - name: Report a vulnerability privately
+    url: https://github.com/SafetyMP/Agentic-Process-Safety/security/advisories/new
+    about: Keep vulnerability details and sensitive evidence out of public issues.

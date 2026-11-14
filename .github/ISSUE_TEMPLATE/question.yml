@@ -1,13 +1,18 @@
-name: Question or proposal
-description: Ask a usage question or propose a focused improvement.
+name: Usage or evidence question
+description: Ask about the guided app, local development or what an observation establishes.
 body:
   - type: markdown
     attributes:
-      value: "Read README.md and SUPPORT.md. Keep vulnerabilities and confidential pilot evidence private."
+      value: "Start with README.md, docs/USER_GUIDE.md and SUPPORT.md. Keep vulnerabilities and confidential pilot evidence private."
   - type: textarea
     id: context
     attributes:
-      label: Question, context and proposed outcome
-      description: Include documentation consulted and a synthetic example.
+      label: Question and context
+      description: Include the documentation consulted and the case, route, command or evidence record you mean. Use a synthetic example.
     validations:
       required: true
+  - type: textarea
+    id: interpretation
+    attributes:
+      label: Your current interpretation
+      description: What do you think the result means, and which distinction or missing fact needs clarification?

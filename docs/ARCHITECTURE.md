@@ -1,4 +1,21 @@
-# Phase 1 repository inspection and architecture
+# APS architecture and retained Phase 1 baseline
+
+## Current project layers
+
+The current APS experience connects one request, a comparison of control bundles, a causal explanation, related source evidence and a human position. The browser demonstration and the research runtime have separate state and authority. See the [vision](VISION.md), [user guide](USER_GUIDE.md) and [documentation map](README.md).
+
+| Layer | Entry point | Boundary |
+| --- | --- | --- |
+| Guided browser investigation | `apps/aps-demo/src/routes/`, `components/SessionContext.tsx` | Five views share retained illustrative comparisons and local reasoning; no backend calls. |
+| Browser comparison model | [Domain guide](../apps/aps-demo/src/domain/README.md) | Fixed A/B/C checks, explicit input snapshots, hypothetical effects and recovery; not recorded experiment execution. |
+| Frozen evidence | `apps/aps-demo/src/fixtures/` | Reviewed snapshots with hashes, source relationships and explicit gaps; browser choices cannot alter trials. |
+| HAZOP screening | `packages/engine/` | Proposed findings and review contracts described below. |
+| Gateway-backed research | [Governance architecture](GOVERNANCE_ARCHITECTURE.md) | Python/OPA authorization, simulated adapters and local evidence; not invoked by the public app. |
+| Experiments and assurance | [Phase 3 operations](PHASE3_OPERATIONS.md) | Finite workload measurements and source-bound execution records, separate from user-learning validation. |
+
+The current browser path is **Compare → Change/Inspect → Form a position**. An edited draft never relabels a retained result. Evidence attachments distinguish a modeled check from a recorded event; a recommendation does not grant execution authority. The [development reference](DEVELOPMENT_REFERENCE.md#current-development-workflow) provides setup and checks.
+
+## Retained Phase 1 inspection
 
 This document retains the Phase 1 baseline. Current execution uses the [Phase 2 gateway](GOVERNANCE_ARCHITECTURE.md); Phase 1 analysis contracts remain unchanged.
 
