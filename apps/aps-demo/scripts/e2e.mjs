@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { resolve, extname } from 'node:path';
-/* global document, window */
+/* global document, window, Node */
 
 // Serve only the built artifact at its actual Pages prefix. No SPA server fallback.
 const prefix = '/agentic-process-safety/';
@@ -54,7 +54,9 @@ try {
   const lane = mode => currentComparison().getByRole('article', { name: 'Model ' + mode + ' outcome', exact: true });
   const evaluate = async () => { await page.getByRole('button', { name: 'Run comparison', exact: true }).click(); await expect(currentComparison()).toBeVisible(); };
   const routeWithinApp = async route => { const link = page.locator('nav[aria-label="Main navigation"] a[href="#/' + route + '"]'); await link.click(); await expect(link).toHaveAttribute('aria-current', 'page'); await expect(page.locator('h1')).toBeVisible(); };
-  const openTools = async () => { const details = page.locator('.discussion-session-tools'); if ((await details.getAttribute('open')) === null) await details.locator('summary').click(); };
+  const openDetails = async selector => { const details = page.locator(selector); if ((await details.getAttribute('open')) === null) await details.locator(':scope > summary').click(); };
+  const openTools = async () => openDetails('.discussion-session-tools');
+  const openReasoning = async summary => { const details = page.locator('.reasoning-more').filter({ has: page.locator('summary', { hasText: summary }) }); if ((await details.getAttribute('open')) === null) await details.locator('summary').click(); };
   await mkdir(screenshots, { recursive: true });
   // Every original hash route still supports a direct built-site refresh.
   for (const route of ['overview', 'hazop', 'governance', 'simulator', 'assurance']) {
@@ -86,30 +88,81 @@ try {
   await check(() => expect(freshness).toContainText('Not included'));
   await check(() => expect(freshness).toContainText('Fails'));
   await check(() => expect(checks.getByRole('row').filter({ hasText: 'Human threshold' })).toContainText('Not evaluated'));
-  await page.getByRole('button', { name: /Decision boundary/ }).click();
+  await page.getByRole('button', { name: /C stops at the condition/ }).click();
   await check(() => expect(page.locator('.path-detail')).toContainText('freshness'));
 
+  await page.getByLabel('Recommended next action', { exact: true }).selectOption('Gather more information');
+  await check(() => expect(page.locator('.investigation-next-step')).toContainText('Request the missing business evidence'));
+  await check(() => expect(page.getByRole('button', { name: 'Explore a fresh-approval request', exact: true })).toHaveCount(0));
   await page.getByLabel('Reason for this recommendation', { exact: true }).fill('Hold the purchase and seek new exact authorization.');
+  await page.getByLabel('What remains unknown?', { exact: true }).fill('Is the quotation still valid?');
+  await page.getByRole('button', { name: 'Add this evidence request to my position', exact: true }).click();
+  await check(() => expect(page.getByLabel('What remains unknown?', { exact: true })).toHaveValue(/Is the quotation still valid\?[\s\S]*Who can confirm/));
+  await openReasoning('Inspect supporting evidence');
+  await page.getByLabel('Supporting evidence', { exact: true }).fill('Quotation validity has not been verified.');
+  await page.getByRole('button', { name: 'Attach this comparison’s decisive check', exact: true }).click();
+  await check(() => expect(page.getByLabel('Supporting evidence', { exact: true })).toHaveValue(/Quotation validity has not been verified\.[\s\S]*Approval freshness/));
+  await openReasoning('Record assumptions or disagreement');
   await page.getByLabel('Dissent or another interpretation', { exact: true }).fill('Quotation truth remains unknown.');
   await page.getByRole('button', { name: 'Mark ready for discussion', exact: true }).click();
   await check(() => expect(page.getByText('Ready for discussion · not approval', { exact: true })).toBeVisible());
   const originalId = await page.getByLabel('Selected comparison', { exact: true }).inputValue();
+  await check(() => expect(page.getByLabel('Supporting evidence', { exact: true })).toHaveValue(new RegExp(originalId)));
+  await check(() => expect(page.locator('.position-summary')).toContainText('Is the quotation still valid?'));
   await check(() => expect(lane('C').locator('.lane-result')).toHaveText('BLOCKED · MODEL'));
 
-  for (const route of ['hazop', 'governance', 'assurance', 'overview']) await routeWithinApp(route);
+  for (const route of ['hazop', 'governance', 'assurance', 'overview']) {
+    await routeWithinApp(route);
+    if (route === 'hazop') {
+      await check(() => expect(page.getByRole('region', { name: 'How this source relates to your case', exact: true })).toContainText('Approval freshness does not establish quotation validity'));
+      await check(() => expect(page.locator('.screening-register .register')).not.toBeVisible());
+      assert.ok(await page.evaluate(() => !!(document.querySelector('.case-evidence-bridge').compareDocumentPosition(document.querySelector('.screening-register')) & Node.DOCUMENT_POSITION_FOLLOWING)), 'Case/source relationship precedes the broad register'); assertions++;
+    }
+    if (route === 'assurance') {
+      await page.getByRole('button', { name: 'Recorded experiments', exact: true }).click();
+      await page.getByRole('button', { name: 'Attach this recorded event to your reasoning', exact: true }).click();
+      await check(() => expect(page.getByText('Recorded event attached to ' + originalId + '.', { exact: false })).toBeVisible());
+    }
+  }
   await routeWithinApp('simulator');
   await check(() => expect(page.getByLabel('Selected comparison', { exact: true })).toHaveValue(originalId));
   await check(() => expect(page.getByLabel('Reason for this recommendation', { exact: true })).toHaveValue('Hold the purchase and seek new exact authorization.'));
 
-  await page.getByRole('button', { name: '59 seconds', exact: true }).click();
+  await check(() => expect(page.getByLabel('What remains unknown?', { exact: true })).toHaveValue(/Is the quotation still valid\?[\s\S]*Who can confirm/));
+  await openReasoning('Record assumptions or disagreement');
+  await check(() => expect(page.getByLabel('Dissent or another interpretation', { exact: true })).toHaveValue('Quotation truth remains unknown.'));
+  await openReasoning('Inspect supporting evidence');
+  await check(() => expect(page.getByLabel('Supporting evidence', { exact: true })).toHaveValue(/Related recorded evidence, not this browser execution/));
+  await page.getByRole('button', { name: 'Try 59 seconds', exact: true }).click();
+  await check(() => expect(page.getByLabel('Approval age (logical seconds)', { exact: true })).toBeFocused());
+  await check(() => expect(page.getByLabel('Selected comparison', { exact: true })).toHaveValue(originalId));
   await check(() => expect(page.locator('.draft-notice')).toContainText('Inputs changed — run again'));
   await check(() => expect(lane('C').locator('.lane-result')).toHaveText('BLOCKED · MODEL'));
   await evaluate();
   await check(() => expect(lane('C').locator('.lane-result')).toHaveText('EXECUTED · MODEL'));
+  await check(() => expect(currentComparison()).toContainText('Purchase with current approval'));
+  await check(() => expect(page.locator('.failure-path')).toContainText('Approval remains current'));
+  await check(() => expect(page.locator('.failure-path')).toContainText('Both bundles permit the request'));
+  const timing = page.getByLabel('Timing variation comparison', { exact: true });
+  await check(() => expect(timing).toContainText('61s · B allow · C deny'));
+  await check(() => expect(timing).toContainText('59s · B allow · C allow'));
+  await page.getByRole('button', { name: 'Form a position →', exact: true }).click();
+  await check(() => expect(page.locator('#discussion')).toBeFocused());
+  const recommendation = page.getByLabel('Recommended next action', { exact: true });
+  await check(() => expect(recommendation.locator('option[value="Verify business inputs"]')).toHaveCount(1));
+  await check(() => expect(recommendation.locator('option[value="Obtain a new matching approval"]')).toHaveCount(0));
+  await recommendation.selectOption('Verify business inputs');
+  await check(() => expect(page.locator('.investigation-next-step')).toContainText('Request the missing business evidence'));
+  await check(() => expect(page.getByRole('button', { name: 'Explore a fresh-approval request', exact: true })).toHaveCount(0));
   await page.getByRole('button', { name: '60 seconds', exact: true }).click(); await evaluate();
   await check(() => expect(lane('C').locator('.lane-result')).toHaveText('BLOCKED · MODEL'));
   await page.getByRole('button', { name: 'Return to original comparison', exact: true }).click();
   await check(() => expect(page.getByLabel('Reason for this recommendation', { exact: true })).toHaveValue('Hold the purchase and seek new exact authorization.'));
+  await page.getByLabel('Recommended next action', { exact: true }).selectOption('Obtain a new matching approval');
+  await check(() => expect(page.locator('.investigation-next-step')).toContainText('Explore what a new matching approval would change'));
+  await page.getByRole('button', { name: '59 seconds', exact: true }).click();
+  await check(() => expect(page.getByRole('button', { name: 'Explore a fresh-approval request', exact: true })).toBeDisabled());
+  await page.getByRole('button', { name: 'Use this comparison’s inputs', exact: true }).click();
   await page.getByRole('button', { name: 'Explore a fresh-approval request', exact: true }).click();
   await check(() => expect(currentComparison()).toContainText('Hypothetical recovery from ' + originalId));
   await check(() => expect(lane('B')).toContainText('0 → 300'));
@@ -129,15 +182,24 @@ try {
   assert.deepEqual(child.baseline, { orders: 0, spend: 0 });
   assert.notEqual(child.requestIdentity, original.requestIdentity);
   assert.equal(savedExport.session.discussions[originalId].dissent, 'Quotation truth remains unknown.');
-  assertions += 6;
+  assert.match(savedExport.session.discussions[originalId].question, /Is the quotation still valid\?[\s\S]*Who can confirm/);
+  assert.ok(savedExport.session.discussions[originalId].evidence.includes(originalId));
+  assert.match(savedExport.session.discussions[originalId].evidence, /Quotation validity has not been verified\.[\s\S]*Approval freshness/);
+  assertions += 9;
   await page.getByRole('button', { name: 'Save in this browser', exact: true }).click();
   const countBeforeClear = savedExport.session.runs.length;
   await page.getByRole('button', { name: 'Clear current session', exact: true }).click();
   await page.getByRole('button', { name: 'Clear comparisons and notes', exact: true }).click();
   await check(() => expect(page.getByRole('region', { name: 'Browser comparison', exact: true })).toHaveCount(0));
+  await openTools();
   await page.getByRole('button', { name: 'Load saved session', exact: true }).click();
   await page.getByRole('button', { name: 'Replace with saved session', exact: true }).click();
   await check(() => expect(page.getByLabel('Selected comparison', { exact: true }).locator('option')).toHaveCount(countBeforeClear));
+  await page.getByLabel('Selected comparison', { exact: true }).selectOption(originalId);
+  await check(() => expect(page.getByLabel('What remains unknown?', { exact: true })).toHaveValue(/Is the quotation still valid\?[\s\S]*Who can confirm/));
+  await openReasoning('Record assumptions or disagreement');
+  await check(() => expect(page.getByLabel('Dissent or another interpretation', { exact: true })).toHaveValue('Quotation truth remains unknown.'));
+  await openTools();
   const configLink = await page.getByRole('link', { name: 'Open configuration-only link →', exact: true }).getAttribute('href');
   assert.ok(!configLink.includes('Quotation') && !configLink.includes('rationale')); assertions++;
   await page.getByRole('button', { name: 'Delete browser copy', exact: true }).click();
@@ -162,6 +224,18 @@ try {
     await page.getByRole('button', { name: 'Reset inputs', exact: true }).click();
     await evaluate();
     for (const [index, mode] of ['A', 'B', 'C'].entries()) await check(() => expect(lane(mode).locator('.lane-result')).toHaveText(decisions[index]));
+    if (story === 'conflict') {
+      await check(() => expect(page.locator('.failure-path')).toContainText('Competing goals declared'));
+      await check(() => expect(page.locator('.failure-path')).toContainText('Trade-off remains unresolved'));
+      await check(() => expect(page.locator('.failure-path')).not.toContainText('logical seconds'));
+      await page.getByRole('button', { name: /C asks for a human decision/ }).click();
+      await check(() => expect(page.locator('.path-detail')).toContainText('Objective review'));
+      await page.getByLabel('Recommended next action', { exact: true }).selectOption('Clarify competing objectives');
+      await check(() => expect(page.locator('.investigation-next-step')).toContainText('Ask what would make a trade-off acceptable'));
+      await page.getByRole('button', { name: 'Add this evidence request to my position', exact: true }).click();
+      await check(() => expect(page.getByLabel('What remains unknown?', { exact: true })).toHaveValue(/priority|priorities/));
+      await check(() => expect(page.getByRole('button', { name: 'Explore a fresh-approval request', exact: true })).toHaveCount(0));
+    }
     if (!['normal', 'unauthorized', 'stale'].includes(story)) await check(() => expect(lane('C')).toContainText('Effect projection is not modeled'));
   }
   await page.getByLabel('Choose a case', { exact: true }).selectOption('stale');
@@ -170,6 +244,7 @@ try {
   await page.getByRole('button', { name: 'Reset inputs', exact: true }).click(); await evaluate();
 
   await go('hazop?hazard=unknown&node=invalid'); await page.reload();
+  await openDetails('.screening-register');
   await check(() => expect(page.getByLabel('Agent node', { exact: true })).toHaveValue('all'));
   await check(() => expect(page.locator('.register tbody tr')).toHaveCount(96));
   await page.getByLabel('Search findings', { exact: true }).fill('no-such-finding');
@@ -192,7 +267,18 @@ try {
   for (const link of new Set(links)) await go(link.slice(2));
 
   await go('assurance?trial=15');
+  const bridge = page.getByRole('region', { name: 'How this source relates to your case', exact: true });
+  await check(() => expect(bridge).toBeVisible());
+  await check(() => expect(bridge).toContainText('quotation'));
+  const decisive = page.getByRole('region', { name: 'Decisive recorded event', exact: true });
+  await check(() => expect(decisive).toBeVisible());
+  await check(() => expect(decisive).toContainText('purchase_mock'));
+  await check(() => expect(decisive).toContainText('ALLOW · executed'));
+  await check(() => expect(decisive).toContainText('DENY · not executed'));
   const pair = page.locator('.recorded-pair-table');
+  await check(() => expect(pair).not.toBeVisible());
+  await openDetails('.recorded-full-trace');
+  await check(() => expect(pair).toBeVisible());
   await check(() => expect(pair.locator('tbody tr')).toHaveCount(10));
   await check(() => expect(pair.locator('tbody tr').last()).toContainText('expired_finance_approval'));
   await check(() => expect(pair.locator('tbody tr').last().locator('td').nth(0)).toContainText('ALLOW · executed'));
@@ -203,6 +289,7 @@ try {
   await check(() => expect(page.locator('.replay-list li')).toHaveCount(10));
   await page.getByRole('button', { name: 'Restart replay', exact: true }).click();
   await check(() => expect(page.locator('.replay-list li')).toHaveCount(0));
+  await openDetails('.trial-ledger');
   await page.getByLabel('Filter recorded arm', { exact: true }).selectOption('C');
   await check(() => expect(page.locator('.register tbody tr')).toHaveCount(10));
   await page.getByLabel('Sort recorded trials', { exact: true }).selectOption('fault');
@@ -237,7 +324,7 @@ try {
   await mkdir('.harness/ci-qa', { recursive: true });
   await writeFile('.harness/ci-qa/browser-result.json', JSON.stringify({
     status: 'passed', engine, version: browser.version(), platform: process.platform,
-    assertions, errors, violations, prefix, experience: 'APS redesign increments 1–4',
+    assertions, errors, violations, prefix, experience: 'APS guided investigation',
     screenshots: ['overview', 'hazop', 'governance', 'simulator', 'assurance', 'mobile-light', 'mobile-dark'].map(name => 'docs/screenshots/' + name + '.jpg'),
   }, null, 2) + '\n');
   console.log('Built-site browser QA passed: ' + assertions + ' checks; paired nine-case comparisons, age boundaries, retained history, reasoning/recovery/export, deep links, frozen evidence, responsive themes and keyboard operation; no console/page errors or nonstatic requests.');

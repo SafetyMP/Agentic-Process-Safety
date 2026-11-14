@@ -10,7 +10,7 @@ process.chdir(fileURLToPath(new URL('../', import.meta.url)));
 const repository = 'safetymp/agentic-process-safety';
 const workflow = '.github/workflows/deploy-pages.yml';
 const pins = {
-  'apps/aps-demo/scripts/e2e.mjs': '09f3ac4c7637988c34b1422df07724a8a84c3096b7a46129e775e7b2d3e3316b',
+  'apps/aps-demo/scripts/e2e.mjs': '862012eff5b9fefe16e2f3829f453b86885e33ea96f6a18445b3d1fc07812ca8',
   'apps/aps-demo/scripts/qa-evidence.mjs': '859c2a56553c93ad0f6a1e874ced2bfa51dbc1f7a9ec97ba15ba236783f01926',
   [workflow]: '8a0a0126bfeba484e1b086cf8faecf872847c05146224bc237a1a331c4330e27',
 };
@@ -45,8 +45,8 @@ export function verifyBrowserResult(result, reviewedAssertions) {
   equal(result.status, 'passed', 'Browser assertions incomplete'); equal(result.engine, 'chromium', 'Chromium required');
   equal(result.platform, 'linux', 'Linux browser');
   assert.match(result.version, /^\d+\.\d+\.\d+\.\d+$/, 'Actual Chromium version');
-  equal(result.experience, 'APS redesign increments 1–4', 'Reviewed redesigned experience');
-  equal(result.assertions, 185, 'Complete assertion count for the pinned redesign runner');
+  equal(result.experience, 'APS guided investigation', 'Reviewed guided investigation experience');
+  equal(result.assertions, 233, 'Complete assertion count for the pinned guided investigation runner');
   equal(reviewedAssertions, result.assertions, 'Reviewed assertion count');
   equal(result.errors, [], 'Console/page errors'); equal(result.violations, [], 'Network violations');
   equal(result.prefix, '/agentic-process-safety/', 'Pages base path'); equal(result.screenshots, captures, 'Seven capture calls');

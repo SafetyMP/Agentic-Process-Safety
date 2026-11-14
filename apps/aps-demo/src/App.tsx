@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { SessionProvider, useSession } from './components/SessionContext.tsx';
-import { getCase } from './domain/cases.ts';
+import { runTitle } from './domain/presentation.ts';
 import { Overview } from './routes/Overview.tsx';
 import { Hazop } from './routes/Hazop.tsx';
 import { Governance } from './routes/Governance.tsx';
@@ -71,7 +71,7 @@ function Workspace() {
     <div className="main-shell">
       <header className="topbar"><div><span className="muted">Research workspace</span><span className="topbar-divider">/</span><strong>{currentSection.name}</strong></div><label className="theme-select"><span id="app-theme">Theme</span><select aria-labelledby="app-theme" value={theme} onChange={event => setTheme(event.target.value as Theme)}><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label></header>
       {(location.route !== 'overview' || selectedRun) && <section className="case-context" aria-label="Shared case context">
-        <div><small>ILLUSTRATIVE WORKSPACE</small><strong>{caseDefinition.title}</strong><p>{selectedRun ? `Selected ${selectedRun.id} · ${getCase(selectedRun.caseId).title}` : 'No comparison evaluated yet'}{isDirty && selectedRun ? ' · Inputs changed — run again' : ''}</p></div>
+        <div><small>ILLUSTRATIVE WORKSPACE</small><strong>{selectedRun && !isDirty ? runTitle(selectedRun) : caseDefinition.title}</strong><p>{selectedRun ? `Selected ${selectedRun.id} · ${runTitle(selectedRun)}` : 'No comparison evaluated yet'}{isDirty && selectedRun ? ' · Inputs changed — run again' : ''}</p></div>
         <div className="button-row">{location.route !== 'simulator' && <a className="button" href="#/simulator">Return to comparison →</a>}<a className="text-button" href="#/simulator?panel=discussion">Discussion worksheet</a></div>
       </section>}
       <main id="main-content" tabIndex={-1}>

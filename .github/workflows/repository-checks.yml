@@ -55,7 +55,7 @@ jobs:
           github.event.pull_request.base.ref == 'main' &&
           github.event.pull_request.base.repo.full_name == github.repository &&
           github.event.pull_request.head.repo.full_name == github.repository &&
-          (github.event.pull_request.head.ref == 'release/aps-github-validation-v1' || github.event.pull_request.head.ref == 'codex/aps-redesign-release')
+          (github.event.pull_request.head.ref == 'release/aps-github-validation-v1' || github.event.pull_request.head.ref == 'codex/aps-redesign-release' || github.event.pull_request.head.ref == 'codex/aps-guided-investigation')
         run: node apps/aps-demo/scripts/qa-evidence.mjs
       - name: Record actual PR checkout and workflow identities
         id: validation
@@ -81,7 +81,7 @@ jobs:
           github.event.pull_request.base.ref == 'main' &&
           github.event.pull_request.base.repo.full_name == github.repository &&
           github.event.pull_request.head.repo.full_name == github.repository &&
-          (github.event.pull_request.head.ref == 'release/aps-github-validation-v1' || github.event.pull_request.head.ref == 'codex/aps-redesign-release')
+          (github.event.pull_request.head.ref == 'release/aps-github-validation-v1' || github.event.pull_request.head.ref == 'codex/aps-redesign-release' || github.event.pull_request.head.ref == 'codex/aps-guided-investigation')
         run: node apps/aps-demo/scripts/validation-evidence.mjs finalize
       - name: Retain predeployment evidence including failed runs
         if: >-
@@ -89,7 +89,7 @@ jobs:
           github.event.pull_request.base.ref == 'main' &&
           github.event.pull_request.base.repo.full_name == github.repository &&
           github.event.pull_request.head.repo.full_name == github.repository &&
-          (github.event.pull_request.head.ref == 'release/aps-github-validation-v1' || github.event.pull_request.head.ref == 'codex/aps-redesign-release')
+          (github.event.pull_request.head.ref == 'release/aps-github-validation-v1' || github.event.pull_request.head.ref == 'codex/aps-redesign-release' || github.event.pull_request.head.ref == 'codex/aps-guided-investigation')
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2; ordinary artifact only
         with:
           name: aps-predeploy-${{ steps.validation.outputs.checkout_sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}

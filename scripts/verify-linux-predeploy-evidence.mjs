@@ -10,15 +10,15 @@ import { fileURLToPath } from 'node:url';
 export const BOUNDS = Object.freeze({ archive: 64 * 1024 * 1024, expanded: 128 * 1024 * 1024, entry: 16 * 1024 * 1024, entries: 512, json: 2 * 1024 * 1024, source: 1000, dist: 128, depth: 20, nodes: 20000 });
 export const REPOSITORY = 'safetymp/agentic-process-safety';
 export const WORKFLOW = '.github/workflows/repository-checks.yml';
-export const RELEASE_HEAD_REFS = Object.freeze(['release/aps-github-validation-v1', 'codex/aps-redesign-release']);
+export const RELEASE_HEAD_REFS = Object.freeze(['release/aps-github-validation-v1', 'codex/aps-redesign-release', 'codex/aps-guided-investigation']);
 export const CAPTURES = Object.freeze(['overview', 'hazop', 'governance', 'simulator', 'assurance', 'mobile-light', 'mobile-dark'].map(n => `docs/screenshots/${n}.jpg`));
 // These expectations are reviewed source policy, never supplied by an artifact.
 export const PINS = Object.freeze({
-  [WORKFLOW]: 'df28d662f36f3610a46c192296b5792e4a362de737592e8e7be344d6544ec912',
+  [WORKFLOW]: '57f83716af8db23a02624fadfd86d51f0cc973cef45aa8aa7c886eba34e4109d',
   '.github/workflows/deploy-pages.yml': '8a0a0126bfeba484e1b086cf8faecf872847c05146224bc237a1a331c4330e27',
-  'apps/aps-demo/scripts/e2e.mjs': '09f3ac4c7637988c34b1422df07724a8a84c3096b7a46129e775e7b2d3e3316b',
+  'apps/aps-demo/scripts/e2e.mjs': '862012eff5b9fefe16e2f3829f453b86885e33ea96f6a18445b3d1fc07812ca8',
   'apps/aps-demo/scripts/qa-evidence.mjs': '859c2a56553c93ad0f6a1e874ced2bfa51dbc1f7a9ec97ba15ba236783f01926',
-  'apps/aps-demo/scripts/validation-evidence.mjs': '48a503802f9efe3d1fb59ffe84b160541f9f96cb4316ae98ca17a208d6bc89c8',
+  'apps/aps-demo/scripts/validation-evidence.mjs': '0c1474e3f899626586372476ddf4911dc3bf25e75c3620b01d88e7362fcd92c2',
   'package-lock.json': '6350fea042ab97510b73aa1969e2469731753b5f95814caafa7f8d0ecbe7d303',
 });
 export const hash = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -220,7 +220,7 @@ export async function verifyPredeploy({ review, archive, api, now = Date.now() }
   equal(identity.source, qaSource); equal(identity.sourceDigest, hash(JSON.stringify(qaSource))); equal(identity.dist, observed.dist); equal(identity.distDigest, review.distDigest);
   equal(identity.browserResult, 'See browser-result.json only if assertions completed; absence means no browser pass.');
   const result = json('.harness/ci-qa/browser-result.json'); keys(result, ['status', 'engine', 'version', 'platform', 'assertions', 'errors', 'violations', 'prefix', 'screenshots', 'experience']);
-  equal(result.experience, 'APS redesign increments 1–4');
+  equal(result.experience, 'APS guided investigation');
   equal(result.status, 'passed'); equal(result.platform, 'linux'); equal(result.engine, 'chromium'); equal(result.version, review.browserVersion); equal(result.assertions, review.assertions);
   equal(result.errors, []); equal(result.violations, []); equal(result.prefix, '/agentic-process-safety/'); equal(result.screenshots, CAPTURES);
   equal(observed.browserObservation, 'browser-result.json exists; independent verification required');

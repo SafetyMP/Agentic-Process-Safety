@@ -91,7 +91,7 @@ describe('paired case investigation', () => {
     expect(original.results.C.effect?.after).toEqual({ orders: 0, spend: 0 });
     changeAge('59');
     expect(snapshot().isDirty).toBe(true); expect(snapshot().selectedRun).toEqual(original);
-    expect(screen.getByText(/Inputs changed/)).toBeTruthy();
+    expect(document.querySelector('.draft-notice')?.textContent).toContain('Inputs changed');
     runComparison();
     expect(snapshot().selectedRun!.results.C.decision).toBe('allow');
     expect(snapshot().selectedRun!.results.C.executedViolations).toEqual([]);
@@ -102,6 +102,52 @@ describe('paired case investigation', () => {
     expect(snapshot().runs.every(run => run.results.B.effect?.after.orders === 1)).toBe(true);
     fireEvent.click(screen.getByRole('button', { name: 'Reset inputs' }));
     expect(snapshot().runs).toHaveLength(3);
+  });
+  it('guides a draft-only timing variation into an explicit comparison and position', () => {
+    renderSession(<Simulator/>); runComparison();
+    const original = snapshot().selectedRun!;
+    fireEvent.click(screen.getByRole('button', { name: 'Try 59 seconds' }));
+    expect(document.activeElement).toBe(screen.getByLabelText('Approval age (logical seconds)', { exact: true }));
+    expect(snapshot().selectedRun).toEqual(original);
+    expect(snapshot().runs).toHaveLength(1);
+    expect(snapshot().isDirty).toBe(true);
+    expect(screen.queryByLabelText('Timing variation comparison')).toBeNull();
+    runComparison();
+    const delta = screen.getByLabelText('Timing variation comparison');
+    expect(delta.textContent).toContain('61s · B allow · C deny');
+    expect(delta.textContent).toContain('59s · B allow · C allow');
+    expect(document.querySelector('.comparison-view')?.textContent).toContain('Purchase with current approval');
+    expect(document.querySelector('.failure-path')?.textContent).toContain('Approval remains current');
+    expect(document.querySelector('.failure-path')?.textContent).toContain('Both bundles permit the request');
+    fireEvent.click(screen.getByRole('button', { name: 'Form a position →' }));
+    expect(document.activeElement).toBe(document.getElementById('discussion'));
+    expect(snapshot().runs[0]).toEqual(original);
+  });
+  it('keeps missing evidence unresolved and attaches the selected run despite a changed draft', () => {
+    renderSession(<Simulator/>); runComparison();
+    const original = snapshot().selectedRun!;
+    fireEvent.change(screen.getByLabelText('Recommended next action'), { target: { value: 'Gather more information' } });
+    expect(screen.getByRole('heading', { name: 'Request the missing business evidence' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Explore a fresh-approval request' })).toBeNull();
+    fireEvent.change(screen.getByLabelText('What remains unknown?'), { target: { value: 'Is the quotation valid?' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Add this evidence request to my position' }));
+    changeAge('59');
+    fireEvent.click(screen.getByText('Inspect supporting evidence', { exact: true }));
+    fireEvent.change(screen.getByLabelText('Supporting evidence'), { target: { value: 'No supplier confirmation yet.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Attach this comparison’s decisive check' }));
+    const position = snapshot().discussions[original.id];
+    expect(position.question).toMatch(/Is the quotation valid\?[\s\S]*Who can confirm/);
+    expect(position.evidence).toContain('No supplier confirmation yet.');
+    expect(position.evidence).toContain(original.id);
+    expect(position.evidence).toContain(original.requestIdentity);
+    expect(position.evidence).toContain('Approval freshness');
+    expect(snapshot().selectedRun).toEqual(original);
+    expect(snapshot().runs).toHaveLength(1);
+    fireEvent.change(screen.getByLabelText('Recommended next action'), { target: { value: 'Obtain a new matching approval' } });
+    expect(screen.getByRole('button', { name: 'Explore a fresh-approval request' }).hasAttribute('disabled')).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Use this comparison’s inputs' }));
+    expect(snapshot().isDirty).toBe(false);
+    expect(screen.getByRole('button', { name: 'Explore a fresh-approval request' }).hasAttribute('disabled')).toBe(false);
   });
   it('rejects invalid age drafts without evaluating a different request', () => {
     renderSession(<Simulator/>); runComparison();
@@ -118,7 +164,7 @@ describe('paired case investigation', () => {
     for (const label of ['Choose a case', 'Approval age (logical seconds)', 'Prediction']) expect(exactLabels(document, label), label).toHaveLength(1);
     runComparison();
     for (const label of ['Selected comparison', 'Recommended next action']) expect(exactLabels(document, label), label).toHaveLength(1);
-    fireEvent.click(screen.getByRole('button', { name: /Decision boundary/ }));
+    fireEvent.click(screen.getByRole('button', { name: /C stops at the condition/ }));
     expect(screen.getByLabelText('Selected path stage').textContent).toContain('freshness');
     expect(snapshot().runs).toHaveLength(1);
   });
@@ -129,6 +175,7 @@ describe('paired case investigation', () => {
     expect(screen.getByText(/Add a rationale before marking/)).toBeTruthy();
     fireEvent.change(screen.getByLabelText('Recommended next action'), { target: { value: 'Obtain a new matching approval' } });
     fireEvent.change(screen.getByLabelText('Reason for this recommendation'), { target: { value: 'Permission remains valid but the finance approval expired.' } });
+    fireEvent.click(screen.getByText('Record assumptions or disagreement', { exact: true }));
     fireEvent.change(screen.getByLabelText('Dissent or another interpretation'), { target: { value: 'Fresh approval does not establish quotation validity.' } });
     fireEvent.click(screen.getByRole('button', { name: 'Mark ready for discussion' }));
     expect(snapshot().discussions[original.id].ready).toBe(true);
@@ -175,6 +222,8 @@ describe('full-app context and evidence', () => {
     const prediction = 'Only the lifecycle checks inspect approval freshness.';
     fireEvent.change(exactLabels(document, 'Why do you expect that?')[0], { target: { value: prediction } });
     runComparison();
+    fireEvent.click(screen.getByText('Inspect supporting evidence', { exact: true }));
+    fireEvent.click(screen.getByText('Record assumptions or disagreement', { exact: true }));
     const reasoning = {
       'Reason for this recommendation': 'Keep the denied attempt for discussion.',
       'Supporting evidence': 'Recorded stale approval comparison.',
@@ -237,6 +286,14 @@ describe('full-app context and evidence', () => {
   it('pairs only retained records and replays inspection without changing the browser session', () => {
     const frozen = JSON.stringify(experiment);
     const { container } = renderSession(<Assurance params={new URLSearchParams('trial=15')}/>);
+    const decisive = screen.getByRole('region', { name: 'Decisive recorded event' });
+    expect(decisive.textContent).toContain('purchase_mock');
+    expect(decisive.textContent).toContain('ALLOW · executed');
+    expect(decisive.textContent).toContain('DENY · not executed');
+    const trace = container.querySelector('.recorded-full-trace')!;
+    expect(trace.hasAttribute('open')).toBe(false);
+    fireEvent.click(within(trace as HTMLElement).getByText('Inspect all 10 paired recorded steps'));
+    expect(trace.hasAttribute('open')).toBe(true);
     const pair = container.querySelector('.recorded-pair-table')!;
     expect(pair.querySelectorAll('tbody tr')).toHaveLength(10);
     const last = pair.querySelector('tbody tr:last-child')!;
