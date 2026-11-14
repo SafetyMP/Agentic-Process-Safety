@@ -1,0 +1,212 @@
+[
+  {
+    "width": 375,
+    "theme": "light",
+    "route": "Start here",
+    "pageWidth": 375,
+    "viewport": 375
+  },
+  {
+    "width": 375,
+    "theme": "light",
+    "route": "Case Lab",
+    "pageWidth": 375,
+    "viewport": 375
+  },
+  {
+    "width": 375,
+    "theme": "light",
+    "route": "Hazard study",
+    "pageWidth": 375,
+    "viewport": 375
+  },
+  {
+    "width": 375,
+    "theme": "light",
+    "route": "Controls",
+    "pageWidth": 375,
+    "viewport": 375
+  },
+  {
+    "width": 375,
+    "theme": "light",
+    "route": "Evidence",
+    "pageWidth": 375,
+    "viewport": 375
+  },
+  {
+    "width": 375,
+    "theme": "dark",
+    "route": "Start here",
+    "pageWidth": 375,
+    "viewport": 375
+  },
+  {
+    "width": 375,
+    "theme": "dark",
+    "route": "Case Lab",
+    "pageWidth": 375,
+    "viewport": 375
+  },
+  {
+    "width": 375,
+    "theme": "dark",
+    "route": "Hazard study",
+    "pageWidth": 375,
+    "viewport": 375
+  },
+  {
+    "width": 375,
+    "theme": "dark",
+    "route": "Controls",
+    "pageWidth": 375,
+    "viewport": 375
+  },
+  {
+    "width": 375,
+    "theme": "dark",
+    "route": "Evidence",
+    "pageWidth": 375,
+    "viewport": 375
+  },
+  {
+    "width": 768,
+    "theme": "light",
+    "route": "Start here",
+    "pageWidth": 768,
+    "viewport": 768
+  },
+  {
+    "width": 768,
+    "theme": "light",
+    "route": "Case Lab",
+    "pageWidth": 768,
+    "viewport": 768
+  },
+  {
+    "width": 768,
+    "theme": "light",
+    "route": "Hazard study",
+    "pageWidth": 768,
+    "viewport": 768
+  },
+  {
+    "width": 768,
+    "theme": "light",
+    "route": "Controls",
+    "pageWidth": 768,
+    "viewport": 768
+  },
+  {
+    "width": 768,
+    "theme": "light",
+    "route": "Evidence",
+    "pageWidth": 768,
+    "viewport": 768
+  },
+  {
+    "width": 768,
+    "theme": "dark",
+    "route": "Start here",
+    "pageWidth": 768,
+    "viewport": 768
+  },
+  {
+    "width": 768,
+    "theme": "dark",
+    "route": "Case Lab",
+    "pageWidth": 768,
+    "viewport": 768
+  },
+  {
+    "width": 768,
+    "theme": "dark",
+    "route": "Hazard study",
+    "pageWidth": 768,
+    "viewport": 768
+  },
+  {
+    "width": 768,
+    "theme": "dark",
+    "route": "Controls",
+    "pageWidth": 768,
+    "viewport": 768
+  },
+  {
+    "width": 768,
+    "theme": "dark",
+    "route": "Evidence",
+    "pageWidth": 768,
+    "viewport": 768
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "route": "Start here",
+    "pageWidth": 1440,
+    "viewport": 1440
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "route": "Case Lab",
+    "pageWidth": 1440,
+    "viewport": 1440
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "route": "Hazard study",
+    "pageWidth": 1440,
+    "viewport": 1440
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "route": "Controls",
+    "pageWidth": 1440,
+    "viewport": 1440
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "route": "Evidence",
+    "pageWidth": 1440,
+    "viewport": 1440
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "route": "Start here",
+    "pageWidth": 1440,
+    "viewport": 1440
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "route": "Case Lab",
+    "pageWidth": 1440,
+    "viewport": 1440
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "route": "Hazard study",
+    "pageWidth": 1440,
+    "viewport": 1440
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "route": "Controls",
+    "pageWidth": 1440,
+    "viewport": 1440
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "route": "Evidence",
+    "pageWidth": 1440,
+    "viewport": 1440
+  }
+]

@@ -1,102 +1,88 @@
-import { useCallback, useEffect, useReducer, useState } from 'react';
-import { initialState, reducer } from './domain/simulation.ts';
-import { stories } from './domain/scenarios.ts';
+import { useEffect, useState } from 'react';
+import { SessionProvider, useSession } from './components/SessionContext.tsx';
+import { getCase } from './domain/cases.ts';
 import { Overview } from './routes/Overview.tsx';
 import { Hazop } from './routes/Hazop.tsx';
 import { Governance } from './routes/Governance.tsx';
 import { Simulator } from './routes/Simulator.tsx';
 import { Assurance } from './routes/Assurance.tsx';
-import { controlRequirement, routeLink } from './data.ts';
-import { createWorkflow, exportWorkflow, importWorkflow, scenarioSpec, workflowReducer } from './workflow/index.ts';
-import type { WorkflowCommand } from './workflow/index.ts';
-import { newBriefIdentity } from './decisionBrief.ts';
-import { advanceToDecision } from './workflow/advance.ts';
-import { executiveIssues, issueForRoute, CaseStatus } from './components/ExecutiveCaseShell.tsx';
-import type { Selection } from './components/PurchasingOperations.tsx';
-import type { ReviewContext } from './components/HazopConversation.tsx';
-import { ExecutiveDiscussion, useExecutiveDiscussion } from './components/ExecutiveNarrative.tsx';
-import { MaterialRisk } from './components/ExecutiveCase.tsx';
-import { AudienceProvider, Executive, Technical, useAudience } from './components/AudienceView.tsx';
-import { WorkflowStage, WorkflowSummary } from './components/WorkflowStage.tsx';
 
-const sections = [{ id: 'overview', name: 'Overview', icon: '◈' }, { id: 'hazop', name: 'HAZOP Lab', icon: '⊞' }, { id: 'governance', name: 'Control Plane', icon: '◇' }, { id: 'simulator', name: 'Swarm Simulator', icon: '⇄' }, { id: 'assurance', name: 'Assurance', icon: '◉' }];
+const sections = [
+  { id: 'overview', name: 'Start here', icon: '◈' },
+  { id: 'simulator', name: 'Case Lab', icon: '⇄' },
+  { id: 'hazop', name: 'Hazard study', icon: '⊞' },
+  { id: 'governance', name: 'Controls', icon: '◇' },
+  { id: 'assurance', name: 'Evidence', icon: '◉' },
+];
 type Theme = 'system' | 'light' | 'dark';
 function storedTheme(): Theme {
-  try { const t = localStorage.getItem('aps-theme'); return t === 'dark' || t === 'light' ? t : 'system'; } catch { return 'system'; }
+  try {
+    const value = localStorage.getItem('aps-theme');
+    return value === 'dark' || value === 'light' ? value : 'system';
+  } catch { return 'system'; }
 }
 function locationState() {
   const [path, query = ''] = window.location.hash.replace(/^#\/?/, '').split('?');
-  return { route: sections.some(s => s.id === path) ? path : 'overview', params: new URLSearchParams(query) };
+  return { route: sections.some(section => section.id === path) ? path : 'overview', params: new URLSearchParams(query) };
 }
-export function App() { return <AudienceProvider><AppContent/></AudienceProvider>; }
-function AppContent() {
-  const { audience } = useAudience();
-  const executive = audience === 'executive';
-  const businessNames: Record<string, string> = { overview: 'Why APS matters', simulator: 'How controls work', governance: 'How controls work', hazop: 'How controls work', assurance: 'What leaders decide' };
-  const navigation = executive ? executiveIssues.map(issue => ({ ...issue, icon: sections.find(s => s.id === issue.id)!.icon })) : sections;
+
+function Workspace() {
   const [location, setLocation] = useState(locationState);
   const [theme, setTheme] = useState<Theme>(storedTheme);
-  const [state, dispatch] = useReducer(reducer, undefined, () => initialState(42, 'C', 'unauthorized'));
-  const [workflow, setWorkflow] = useState(() => createWorkflow(scenarioSpec()));
-  const [runId, setRunId] = useState(newBriefIdentity);
-  const workflowCommand = useCallback((command: WorkflowCommand) => {
-    if (command.type === 'reset' || command.type === 'configure') { setRunId(newBriefIdentity()); setReviewContext(undefined); setCaseSelection(null); setRequestedInspection(null); }
-    setWorkflow(current => workflowReducer(current, command));
-  }, []);
+  const { caseDefinition, selectedRun, isDirty, setCase, resetInputs, configError } = useSession();
+  const currentSection = sections.find(section => section.id === location.route)!;
   useEffect(() => {
-    if (location.route !== 'simulator') setWorkflow(current => current.running ? workflowReducer(current, { type: 'pause' }) : current);
-  }, [location.route]);
-  const [reviewContext, setReviewContext] = useState<ReviewContext | undefined>();
-  const [caseSelection, setCaseSelection] = useState<Selection | null>(null);
-  const discussion = useExecutiveDiscussion(workflow, caseSelection, { persistent: true, runId });
-  const [requestedInspection, setRequestedInspection] = useState<string | null>(null);
-  const inspectionHandled = useCallback(() => setRequestedInspection(null), []);
-  const { reveal } = useAudience();
-  function inspectFromPitch(id: string) {
-    if (!workflow.events.some(event => event.id === id)) return;
-    setRequestedInspection(id); reveal(); window.location.hash = '#/simulator';
-  }
-  const [guide, setGuide] = useState(false);
-  const [guideStep, setGuideStep] = useState(0);
-  const [guideResetPending, setGuideResetPending] = useState(false);
-  useEffect(() => {
-    function changed() { const next = locationState(); setLocation(next); const story = stories.find(s => s.id === next.params.get('story')); if (story) dispatch({ type: 'configure', story: story.id }); }
-    changed(); window.addEventListener('hashchange', changed); return () => window.removeEventListener('hashchange', changed);
+    const changed = () => setLocation(locationState());
+    window.addEventListener('hashchange', changed);
+    return () => window.removeEventListener('hashchange', changed);
   }, []);
   useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: dark)');
     const apply = () => { document.documentElement.dataset.theme = theme === 'system' ? media.matches ? 'dark' : 'light' : theme; };
-    apply(); media.addEventListener('change', apply); try { localStorage.setItem('aps-theme', theme); } catch { /* Storage can be disabled; theme remains functional for this visit. */ }
+    apply();
+    media.addEventListener('change', apply);
+    try { localStorage.setItem('aps-theme', theme); } catch { /* Theme works without storage. */ }
     return () => media.removeEventListener('change', apply);
   }, [theme]);
-  useEffect(() => { if (!state.running) return; const timer = window.setInterval(() => dispatch({ type: 'timer' }), 700); return () => window.clearInterval(timer); }, [state.running]);
-  useEffect(() => { document.title = `${executive ? businessNames[location.route] : sections.find(s => s.id === location.route)!.name} | Agentic Process Safety${location.route === 'overview' ? ' | HAZOP for AI Agent Swarms' : ''}`; }, [location.route, executive]);
-  useEffect(() => { document.querySelector<HTMLElement>('#main-content h1')?.focus(); }, [location.route]);
-  const effectiveStory = stories.find(s => s.id === (state.fault ?? state.story))!;
-  const lastDecision = state.events.at(-1);
-  const requirement = controlRequirement(effectiveStory.control);
-  const steps = [
-    { title: 'Inspect the objective', text: effectiveStory.objective, link: routeLink('overview') },
-    { title: 'Inspect the attempted operation', text: effectiveStory.operation, link: routeLink('governance') },
-    { title: 'Inspect the proposed HAZOP mapping', text: 'Findings remain unverified; mappings do not establish control effectiveness.', link: requirement ? routeLink('hazop', 'hazard', requirement.hazard_id) : routeLink('hazop') },
-    { title: lastDecision ? `Current SIMULATED decision: ${lastDecision.decision.toUpperCase()}` : 'Evaluate the SIMULATED request', text: lastDecision ? lastDecision.reason : 'No decision has been observed. Select Evaluate simulated request to inspect the current mode and request.', link: routeLink('governance') },
-    { title: lastDecision ? 'Inspect the current SIMULATED outcome' : 'No SIMULATED outcome yet', text: lastDecision ? 'The current policy-illustration outcome appears first. Frozen experimental results are separate below.' : 'You advanced without evaluating. No blocked or executed outcome is claimed; return to the Control Plane to evaluate.', link: routeLink('assurance') },
-  ];
-  function walk(index: number) {
-    setGuide(true); setGuideStep(index); window.location.hash = steps[index].link;
+  useEffect(() => {
+    document.title = `${currentSection.name} | Agentic Process Safety`;
+    document.documentElement.scrollIntoView?.({ block: 'start' });
+    document.getElementById('main-content')?.focus({ preventScroll: true });
+  }, [currentSection.name]);
+  useEffect(() => {
+    if (location.route === 'simulator' && location.params.get('panel') === 'discussion') {
+      document.getElementById('discussion')?.scrollIntoView?.({ block: 'start' });
+      document.getElementById('discussion')?.focus({ preventScroll: true });
+    }
+  }, [location]);
+  function openCase() {
+    setCase('stale');
+    resetInputs();
+    window.location.hash = '/simulator';
   }
-  function startGuide() {
-    dispatch({ type: 'reset' });
-    dispatch({ type: 'configure', story: 'unauthorized', mode: 'C', seed: 42 });
-    setGuideResetPending(false); walk(0);
-  }
-  function requestGuide() {
-    if (state.tick || state.running || state.pending || state.fault || state.events.length) setGuideResetPending(true);
-    else startGuide();
-  }
-  return <div className="app-shell"><a href="#main-content" className="skip-link" onClick={e => { e.preventDefault(); document.getElementById('main-content')?.focus(); }}>Skip to content</a><aside className="sidebar"><a className="brand" href="#/overview"><span className="brand-icon">A</span><span>APS<small>Agentic Process Safety</small></span></a><div className="workspace-tag">PROCUREMENT / SANDBOX</div><nav aria-label="Main navigation">{navigation.map((s, i) => <a key={s.id} href={`#/${s.id}`} aria-current={(executive ? issueForRoute(location.route).id === s.id : location.route === s.id) ? 'page' : undefined}><span aria-hidden="true">{s.icon}</span>{executive ? businessNames[s.id] : s.name}<small aria-hidden="true">0{i + 1}</small></a>)}</nav><div className="sidebar-bottom"><span className="status-dot"/> Fully static demonstration<p>Local models. Frozen evidence.<br/>No live operational authority.</p><Executive><details><summary>Separate request illustration</summary><p>A different, single-request model. It does not configure your purchasing run.</p><button onClick={requestGuide}>Guided walkthrough →</button></details></Executive><Technical><button onClick={requestGuide}>Guided walkthrough →</button></Technical></div></aside>
-    <div className="main-shell"><header className="topbar"><div><span className="muted">{executive ? "Purchasing decision exercise" : "Research workspace"}</span><span className="topbar-divider">/</span><strong>{executive ? businessNames[location.route] : sections.find(s => s.id === location.route)!.name}</strong></div><label className="theme-select"><span id="app-theme">Theme</span><select aria-labelledby="app-theme" value={theme} onChange={e => setTheme(e.target.value as Theme)}><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label></header><div className="evidence-strip" aria-label="Evidence categories"><Executive><span>SIMULATION ONLY · Orders are not deliveries · No operational authority</span></Executive><Technical><span>Recorded experimental results</span><span>Replayed test evidence</span><span>Illustrative browser simulation</span></Technical></div>
-    {guideResetPending && <section className="notice" aria-label="Walkthrough reset consequence"><h2>Start a new policy walkthrough?</h2><p>This clears the current single-request policy illustration and its decision history, then selects the unauthorized-tool example in mode C with seed 42. The separate workflow run and frozen evidence are unaffected.</p><div className="button-row"><button onClick={startGuide}>Start walkthrough and clear policy run</button><button onClick={() => setGuideResetPending(false)}>Keep current policy run</button></div></section>}
-    {guide && <section className="walkthrough" aria-label="Guided walkthrough"><div><small>WALKTHROUGH / {guideStep + 1} OF {steps.length}</small><strong>{steps[guideStep].title}</strong><p>{steps[guideStep].text}</p></div><div className="button-row"><button disabled={guideStep === 0} onClick={() => walk(guideStep - 1)}>Back</button><button disabled={guideStep === steps.length - 1} onClick={() => walk(guideStep + 1)}>Next</button><button onClick={requestGuide}>Restart</button><button onClick={() => setGuide(false)}>Close walkthrough</button></div></section>}
-    <main id="main-content" tabIndex={-1}><MaterialRisk state={state} workflow={workflow}/><div hidden={location.route !== 'simulator'}><WorkflowStage runId={runId} wholeExperience={true} visibleRoute={location.route === 'simulator'} selection={caseSelection} onSelectionChange={setCaseSelection} requestedInspection={requestedInspection} onInspectionHandled={inspectionHandled} state={workflow} onReviewContext={setReviewContext} reviewContext={reviewContext} onCommand={workflowCommand} onAdvance={() => setWorkflow(current => advanceToDecision(current))} onExport={() => exportWorkflow(workflow)} onImport={text => { const result = importWorkflow(text); if (!result.ok) return { ok: false, message: `${result.code}: ${result.message}. Current workflow retained.` }; setRunId(newBriefIdentity()); setReviewContext(undefined); setCaseSelection(null); setRequestedInspection(null); setWorkflow(workflowReducer(result.state, { type: 'pause' })); return { ok: true, message: 'Replay recomputed and imported. Workflow paused; previous browser run replaced. No recorded evidence changed.' }; }}/></div>{location.route === 'overview' ? <><Overview state={state} workflow={workflow} onWalkthrough={requestGuide}/>{workflow.transitionCount > 0 && <Technical><WorkflowSummary state={workflow}/></Technical>}</> : location.route === 'hazop' ? <Hazop key={location.params.toString()} params={location.params} workflow={workflow} reviewContext={reviewContext}/> : location.route === 'governance' ? <Governance state={state} dispatch={dispatch} params={location.params}/> : location.route === 'simulator' ? <><details className="panel legacy-policy"><summary>Separate single-request policy illustration</summary><p>This original three-stage illustration shares state with the Control Plane. It does not execute the six-agent workflow above.</p><Simulator state={state} dispatch={dispatch}/></details></> : <><Assurance runId={runId} key={location.params.toString()} brief={discussion} state={state} params={location.params} workflow={workflow} selection={caseSelection} onSelectionChange={setCaseSelection} onInspect={inspectFromPitch} reviewContext={reviewContext} onReviewContext={setReviewContext}/><Technical><WorkflowSummary state={workflow}/></Technical><Executive><ExecutiveDiscussion discussion={discussion}/></Executive></>}<Executive><CaseStatus state={workflow} route={location.route}/></Executive></main><footer>APS Research Demonstration <span>All hazards unverified · Browser decisions are SIMULATED · No safety certification</span></footer></div></div>;
+  return <div className="app-shell">
+    <a className="skip-link" href="#main-content" onClick={event => { event.preventDefault(); document.getElementById('main-content')?.focus(); }}>Skip to content</a>
+    <aside className="sidebar">
+      <a className="brand" href="#/overview"><span className="brand-icon">A</span><span>APS<small>Agentic Process Safety</small></span></a>
+      <div className="workspace-tag">PROCUREMENT / SANDBOX</div>
+      <nav aria-label="Main navigation">{sections.map((section, index) => <a key={section.id} href={`#/${section.id}`} aria-current={location.route === section.id ? 'page' : undefined}><span aria-hidden="true">{section.icon}</span>{section.name}<small aria-hidden="true">0{index + 1}</small></a>)}</nav>
+      <div className="sidebar-bottom"><span className="status-dot"/> A shared question<p>Permission is one condition.<br/>What else must hold?</p><button onClick={openCase}>Explore the opening case →</button><p>Illustrative models · frozen evidence<br/>No live operational authority</p></div>
+    </aside>
+    <div className="main-shell">
+      <header className="topbar"><div><span className="muted">Research workspace</span><span className="topbar-divider">/</span><strong>{currentSection.name}</strong></div><label className="theme-select"><span id="app-theme">Theme</span><select aria-labelledby="app-theme" value={theme} onChange={event => setTheme(event.target.value as Theme)}><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label></header>
+      {(location.route !== 'overview' || selectedRun) && <section className="case-context" aria-label="Shared case context">
+        <div><small>ILLUSTRATIVE WORKSPACE</small><strong>{caseDefinition.title}</strong><p>{selectedRun ? `Selected ${selectedRun.id} · ${getCase(selectedRun.caseId).title}` : 'No comparison evaluated yet'}{isDirty && selectedRun ? ' · Inputs changed — run again' : ''}</p></div>
+        <div className="button-row">{location.route !== 'simulator' && <a className="button" href="#/simulator">Return to comparison →</a>}<a className="text-button" href="#/simulator?panel=discussion">Discussion worksheet</a></div>
+      </section>}
+      <main id="main-content" tabIndex={-1}>
+        {configError && <div className="notice input-error" role="alert">{configError}</div>}
+        {location.route === 'overview' ? <Overview/> : location.route === 'hazop' ? <Hazop key={location.params.toString()} params={location.params}/> : location.route === 'governance' ? <Governance params={location.params}/> : location.route === 'simulator' ? <Simulator/> : <Assurance key={location.params.toString()} params={location.params}/>}
+      </main>
+      <footer>APS Research Demonstration<span>All hazards unverified · Browser effects illustrative · No safety certification</span></footer>
+    </div>
+  </div>;
+}
+
+export function App() {
+  return <SessionProvider><Workspace/></SessionProvider>;
 }

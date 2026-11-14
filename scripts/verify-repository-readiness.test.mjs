@@ -23,11 +23,13 @@ test('negative cases reject broken links, privilege escalation, unpinned actions
     };
     mutate('CONTRIBUTING.md', s => s + '\n[missing](missing-file.md)\n', 'Broken local link in CONTRIBUTING.md');
     mutate('.github/workflows/repository-checks.yml', s => s.replace('contents: read', 'contents: write'), 'Unsafe CI');
+    mutate('.github/workflows/repository-checks.yml', s => s.replace('node --test apps/aps-demo/scripts/production.test.mjs', 'echo skipped'), 'Missing CI guard/check: node --test apps/aps-demo/scripts/production.test.mjs');
     mutate('.github/workflows/repository-checks.yml', s => s.replace(/checkout@[a-f0-9]{40}/g, 'checkout@main'), 'Unpinned action');
     mutate('package.json', s => s.replace('Apache-2.0', 'MIT'), 'License metadata mismatch');
     mutate('LICENSE', s => s.slice(0, 100), 'Apache license text truncated');
     mutate('.github/ISSUE_TEMPLATE/bug.yml', s => s.replace('description:', 'omitted:'), 'Invalid issue form');
     mutate('.github/workflows/repository-checks.yml', s => s.replace('- run: .venv/bin/pip install -r requirements.lock', '- run: echo skipped'), 'Missing Python gateway prerequisites');
     mutate('.github/workflows/repository-checks.yml', s => s.replace('sha256sum --check', 'echo unchecked'), 'Missing pinned OPA gateway prerequisite');
+    mutate('.github/workflows/repository-checks.yml', s => s.replace(".venv/bin/python -m unittest discover -s tests -p 'test_purchase_*.py' -v", 'echo skipped'), 'Missing purchase regression gate');
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

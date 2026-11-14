@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "baseline_production_digest": "3577671495d2080cef3db985b3d30b3735750e2de894e481a6c0f52e70e24497",
+  "scope": "Exact technical-test additions recognized for source integrity; no baseline replacement or human approval",
+  "review_status": "Source provenance reconciled; pilot and independent human approvals remain pending",
+  "files": {
+    "tests/test_purchase_completion.py": {
+      "sha256": "65dc670cb23b6fdb2c1faa519ed74cac8318a469e5f8c9ed6a94c200ae7490ae",
+      "provenance": "docs/pilot-readiness/kickoff/execution/review/zero-quantity-completion.json",
+      "technical_status": "implemented_for_verification",
+      "approval_status": "pending"
+    },
+    "tests/test_purchase_expiry.py": {
+      "sha256": "54c07dd21bb89f63fcc13ffe08d08341ab953f8ab7bea1b4c4dfbb8a1fa2c0c7",
+      "provenance": "docs/pilot-readiness/kickoff/execution/review/authorization-expiry-boundaries.json",
+      "technical_status": "implemented_for_verification",
+      "approval_status": "pending"
+    },
+    "tests/test_purchase_lost_response.py": {
+      "sha256": "140cc5d073b2c2d12939011f503d296705263d0dc882fac13e675415164d1fba",
+      "provenance": "docs/pilot-readiness/kickoff/execution/review/lost-response-rehearsal.json",
+      "technical_status": "implemented_for_verification",
+      "approval_status": "pending"
+    }
+  }
+}
