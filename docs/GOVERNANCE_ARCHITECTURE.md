@@ -1,4 +1,8 @@
-# Phase 2 authorization architecture
+# Research gateway architecture
+
+The Python/OPA gateway described here is a separate research implementation. The public APS app illustrates selected request checks in TypeScript; it does not invoke this gateway, issue signed grants or execute real procurement. Its recommendation-driven investigation and local discussion notes have no operational authority. Start with the [project architecture](ARCHITECTURE.md), [user guide](USER_GUIDE.md) or [development reference](DEVELOPMENT_REFERENCE.md) to choose the appropriate runtime.
+
+The following Phase 2 architecture remains the gateway contract. Phase 3 adds finite experiments and assurance around it; see [Phase 3 operations](PHASE3_OPERATIONS.md). Original environment/version observations below retain their implementation-time meaning; current CI dependencies are pinned in the workflows and lockfiles.
 
 ## Decision and repository boundaries
 

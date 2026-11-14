@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use APS in research or teaching, cite this repository and identify the commit or recorded evidence revision you used."
+type: software
+title: "Agentic Process Safety (APS)"
+authors:
+  - name: "SafetyMP"
+    website: "https://github.com/SafetyMP"
+repository-code: "https://github.com/SafetyMP/Agentic-Process-Safety"
+url: "https://safetymp.github.io/Agentic-Process-Safety/"
+license: Apache-2.0
+abstract: >-
+  An open-source research sandbox for investigating agent workflow hazards
+  through same-request control comparisons, case-specific causal paths,
+  recorded synthetic evidence and human reasoning. APS includes a static
+  guided investigation app and a separate HAZOP-inspired Python/OPA research
+  implementation. Illustrative outcomes and finite experiments do not
+  establish operational safety or the superiority of an analysis method.
+keywords:
+  - agentic process safety
+  - multi-agent systems
+  - hazard analysis
+  - HAZOP
+  - agent governance
+  - human reasoning

@@ -11,7 +11,7 @@ test('the proposed repository passes readiness checks', () => {
 test('negative cases reject broken links, privilege escalation, unpinned actions and metadata drift', () => {
   const base = resolve(root, '.harness/tmp'); mkdirSync(base, { recursive: true });
   const dir = mkdtempSync(resolve(base, 'readiness-test-'));
-  const files = [...documents, 'LICENSE', 'package.json', 'package-lock.json', 'apps/aps-demo/package.json', '.github/ISSUE_TEMPLATE/bug.yml', '.github/ISSUE_TEMPLATE/question.yml', '.github/dependabot.yml', '.github/workflows/repository-checks.yml'];
+  const files = [...documents, 'CITATION.cff', 'LICENSE', 'package.json', 'package-lock.json', 'apps/aps-demo/package.json', '.github/ISSUE_TEMPLATE/bug.yml', '.github/ISSUE_TEMPLATE/question.yml', '.github/ISSUE_TEMPLATE/proposal.yml', '.github/dependabot.yml', '.github/workflows/repository-checks.yml'];
   try {
     for (const p of files) { mkdirSync(dirname(resolve(dir, p)), { recursive: true }); copyFileSync(resolve(root, p), resolve(dir, p)); }
     // Other existing README links are absent in this minimal fixture; test targeted diagnostics.
@@ -22,6 +22,12 @@ test('negative cases reject broken links, privilege escalation, unpinned actions
       writeFileSync(target, original);
     };
     mutate('CONTRIBUTING.md', s => s + '\n[missing](missing-file.md)\n', 'Broken local link in CONTRIBUTING.md');
+    mutate('AGENTS.md', s => s + '\n[missing](docs/UNKNOWN.md)\n', 'Broken local link in AGENTS.md');
+    mutate('docs/USER_GUIDE.md', s => s + '\n[missing section](VISION.md#unknown-section)\n', 'Broken anchor in docs/USER_GUIDE.md');
+    mutate('CITATION.cff', s => s.replace('authors:', 'omitted:'), 'Missing citation field: authors:');
+    writeFileSync(resolve(dir, 'docs/UNLISTED.md'), '# Unlisted guide\n');
+    assert.ok(verify(dir).includes('Documentation missing from index: docs/UNLISTED.md'));
+    rmSync(resolve(dir, 'docs/UNLISTED.md'));
     mutate('.github/workflows/repository-checks.yml', s => s.replace('contents: read', 'contents: write'), 'Unsafe CI');
     mutate('.github/workflows/repository-checks.yml', s => s.replace('node --test apps/aps-demo/scripts/production.test.mjs', 'echo skipped'), 'Missing CI guard/check: node --test apps/aps-demo/scripts/production.test.mjs');
     mutate('.github/workflows/repository-checks.yml', s => s.replace(/checkout@[a-f0-9]{40}/g, 'checkout@main'), 'Unpinned action');

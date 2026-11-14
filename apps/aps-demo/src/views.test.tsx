@@ -217,6 +217,20 @@ describe('paired case investigation', () => {
 });
 
 describe('full-app context and evidence', () => {
+  it('offers a static project guide, agent reading map and repository from every app view', async () => {
+    render(<App/>);
+    for (const route of ['overview', 'hazop', 'governance', 'simulator', 'assurance']) {
+      await navigate(`#/${route}`);
+      const resources = screen.getByRole('navigation', { name: 'Project resources' });
+      for (const link of within(resources).getAllByRole('link')) {
+        expect(link.getAttribute('target')).toBe('_blank');
+        expect(link.getAttribute('rel')).toMatch(/(?:^|\s)noopener(?:$|\s)/);
+      }
+      expect(within(resources).getByRole('link', { name: 'Project guide (opens in a new tab)' }).getAttribute('href')).toBe('./guide.html');
+      expect(within(resources).getByRole('link', { name: 'Agent reading map (opens in a new tab)' }).getAttribute('href')).toBe('./llms.txt');
+      expect(within(resources).getByRole('link', { name: 'Source repository (opens in a new tab)' }).getAttribute('href')).toBe('https://github.com/SafetyMP/Agentic-Process-Safety');
+    }
+  });
   it('preserves comparison and exact labels for populated reasoning across supporting views', async () => {
     window.location.hash = '#/simulator'; render(<App/>);
     const prediction = 'Only the lifecycle checks inspect approval freshness.';

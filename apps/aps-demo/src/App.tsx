@@ -45,10 +45,10 @@ function Workspace() {
     return () => media.removeEventListener('change', apply);
   }, [theme]);
   useEffect(() => {
-    document.title = `${currentSection.name} | Agentic Process Safety`;
+    document.title = location.route === 'overview' ? 'Agentic Process Safety | Investigate AI Agent Workflow Risk' : `${currentSection.name} | Agentic Process Safety`;
     document.documentElement.scrollIntoView?.({ block: 'start' });
     document.getElementById('main-content')?.focus({ preventScroll: true });
-  }, [currentSection.name]);
+  }, [currentSection.name, location.route]);
   useEffect(() => {
     if (location.route === 'simulator' && location.params.get('panel') === 'discussion') {
       document.getElementById('discussion')?.scrollIntoView?.({ block: 'start' });
@@ -78,7 +78,7 @@ function Workspace() {
         {configError && <div className="notice input-error" role="alert">{configError}</div>}
         {location.route === 'overview' ? <Overview/> : location.route === 'hazop' ? <Hazop key={location.params.toString()} params={location.params}/> : location.route === 'governance' ? <Governance params={location.params}/> : location.route === 'simulator' ? <Simulator/> : <Assurance key={location.params.toString()} params={location.params}/>}
       </main>
-      <footer>APS Research Demonstration<span>All hazards unverified · Browser effects illustrative · No safety certification</span></footer>
+      <footer><div>APS Research Demonstration<nav aria-label="Project resources"><a href="./guide.html" target="_blank" rel="noopener">Project guide <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a><a href="./llms.txt" target="_blank" rel="noopener">Agent reading map <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a><a href="https://github.com/SafetyMP/Agentic-Process-Safety" target="_blank" rel="noopener">Source repository <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a></nav></div><span>All hazards unverified · Browser effects illustrative · No safety certification</span></footer>
     </div>
   </div>;
 }

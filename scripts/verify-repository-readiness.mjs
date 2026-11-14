@@ -1,8 +1,14 @@
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const documents = ['README.md', 'CONTRIBUTING.md', 'CODE_OF_CONDUCT.md', 'SECURITY.md', 'SUPPORT.md', 'docs/open-source-readiness.md', '.github/PULL_REQUEST_TEMPLATE.md'];
+export const documents = [
+  'README.md', 'AGENTS.md', 'CONTRIBUTING.md', 'CODE_OF_CONDUCT.md', 'SECURITY.md', 'SUPPORT.md',
+  'docs/README.md', 'docs/VISION.md', 'docs/USER_GUIDE.md', 'docs/SEO.md', 'docs/assets/README.md',
+  'docs/DEVELOPMENT_REFERENCE.md', 'docs/ARCHITECTURE.md', 'docs/METHODOLOGY.md',
+  'docs/GOVERNANCE_ARCHITECTURE.md', 'docs/THREAT_MODEL.md', 'docs/open-source-readiness.md',
+  'apps/aps-demo/src/domain/README.md', '.github/PULL_REQUEST_TEMPLATE.md',
+];
 export function verify(root) {
   const errors = [];
   const read = p => { try { return readFileSync(resolve(root, p), 'utf8'); } catch { errors.push('Missing file: ' + p); return ''; } };
@@ -21,6 +27,24 @@ export function verify(root) {
       }
     }
   }
+  const index = read('docs/README.md');
+  const indexed = new Set([...index.matchAll(/\[[^\]\n]+\]\(([^)\s]+)\)/g)]
+    .map(match => match[1].split('#')[0]).filter(path => path && !/^(https?:|mailto:)/.test(path))
+    .map(path => resolve(root, 'docs', decodeURIComponent(path))));
+  function checkIndex(directory) {
+    if (!existsSync(resolve(root, directory))) return;
+    for (const item of readdirSync(resolve(root, directory), { withFileTypes: true })) {
+      const path = directory + '/' + item.name;
+      if (path === 'docs/screenshots') continue; // Generated release captures are not documentation.
+      if (item.isDirectory()) checkIndex(path);
+      else if (item.isFile() && /\.(?:md|json|jpg)$/i.test(item.name) && !indexed.has(resolve(root, path))) errors.push('Documentation missing from index: ' + path);
+    }
+  }
+  checkIndex('docs');
+  const citation = read('CITATION.cff');
+  for (const marker of ['cff-version: 1.2.0', 'type: software', 'title:', 'authors:', 'repository-code:', 'license: Apache-2.0']) {
+    if (!citation.includes(marker)) errors.push('Missing citation field: ' + marker);
+  }
   const license = read('LICENSE');
   for (const marker of ['Version 2.0, January 2004', '1. Definitions.', '9. Accepting Warranty or Additional Liability.', 'END OF TERMS AND CONDITIONS', 'APPENDIX: How to apply the Apache License']) {
     if (!license.includes(marker)) errors.push('Incomplete Apache license: ' + marker);
@@ -32,7 +56,7 @@ export function verify(root) {
     if (pkg.license !== 'Apache-2.0' || lock.packages?.[p]?.license !== pkg.license) errors.push('License metadata mismatch: ' + p);
     if (pkg.private !== true) errors.push('Unexpected package publication enabled: ' + p);
   }
-  for (const p of ['bug', 'question']) {
+  for (const p of ['bug', 'question', 'proposal']) {
     const form = read('.github/ISSUE_TEMPLATE/' + p + '.yml');
     for (const pattern of [/^name: .+/m, /^description: .+/m, /^body:/m, /type: textarea/, /required: true/]) if (!pattern.test(form)) errors.push('Invalid issue form: ' + p);
   }

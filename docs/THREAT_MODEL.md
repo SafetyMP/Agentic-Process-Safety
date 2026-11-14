@@ -1,4 +1,14 @@
-# Phase 2 threat model
+# APS threat boundaries
+
+## Browser investigation and research gateway
+
+The public app is a static research demonstration. Its browser comparisons, hypothetical recovery branches, evidence attachments and discussion-ready status do not authenticate a person, alter a policy or authorize a purchase. Drafts and notes live in memory unless explicitly saved in the visitor's browser. Exported briefs and session JSON contain the user's free-text notes; configuration links contain bounded inputs, not those notes. Use synthetic, non-sensitive examples. See [the user guide](USER_GUIDE.md) and [security policy](../SECURITY.md).
+
+Frozen charts and recorded events come from committed research snapshots, separately from browser-generated comparisons. Their hashes support consistency and provenance checks, not independent authenticity or real-world safety. A passing constraint in the browser cannot establish that a quotation, stock record or demand forecast is true.
+
+The gateway threat model below applies to the Python/OPA research runtime, not to the public app. It preserves the Phase 2 assumptions and evidence matrix. Phase 3 adds experiments and assurance described in [Phase 3 operations](PHASE3_OPERATIONS.md); the final Phase 2 exclusion statement is scoped to that original implementation.
+
+## Retained Phase 2 threat model
 
 ## Assets and assumptions
 

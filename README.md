@@ -1,113 +1,103 @@
-# Agentic Process Safety (APS): HAZOP for AI Agent Swarms
+# Agentic Process Safety (APS)
 
-Open-source research sandbox for **hazard and operability (HAZOP) analysis of AI agents and multi-agent systems**. APS combines deterministic hazard screening, a simulated procurement swarm, and policy-as-code experiments using **Open Policy Agent (OPA) and Rego**.
+**Permission is only the first question.** APS is an open-source research and learning workspace for examining what must hold when an AI agent acts within a coordinated workflow: the right role, current approval, task-bound context, bounded delegation, and a defensible reason to proceed.
 
-Compare the same illustrative request under different control bundles, follow the point where their outcomes diverge, and connect a proposed response to hazards and evidence. The separate research implementation models demand forecasting, inventory, supplier selection, finance approval and purchase execution. All tools are simulated; no real purchase or payment can be made.
-
-**SafetyMP research thesis — managing risk enables sustainable AI operations.** APS examines how delegation, shared context, and approval boundaries can introduce failure modes in multi-agent workflows. It links simulated hazards to proposed controls and repeatable experiments, asking whether risk can be managed without making agent collaboration impractical. These are research hypotheses, not proven production safeguards. See the [portfolio thesis](https://github.com/SafetyMP/SafetyMP).
+[**Explore the live app**](https://safetymp.github.io/Agentic-Process-Safety/) · [Start the guided investigation](docs/USER_GUIDE.md) · [Project vision](docs/VISION.md) · [Documentation](docs/README.md)
 
 [![Repository checks](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/repository-checks.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/repository-checks.yml)
-[![Static demo workflow](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/deploy-pages.yml)
+[![Pages deployment](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/deploy-pages.yml)
 [![License: Apache-2.0](https://img.shields.io/github/license/SafetyMP/Agentic-Process-Safety)](LICENSE)
-[![Node 22.18+](https://img.shields.io/badge/node-%E2%89%A522.18-339933?logo=node.js&logoColor=white)](package.json)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
 
-> **Scope:** Research sandbox. Hazards remain unverified, requirements proposed, ratings null and actual human approvals zero. APS provides no safety certification or production protection.
+## The problem APS makes tangible
 
-**Jump to:** [Demo](#demo) · [Quick start](#quick-start) · [Architecture](#architecture) · [Verification](#verification) · [Security](#security) · [Documentation](#documentation-map) · [Contributing](CONTRIBUTING.md)
+A purchase worker has permission to use its tool and stays within budget. Finance approved the purchase, but its request reaches the execution boundary **61 logical seconds later**, after the modeled approval has expired. One control bundle permits the request; another holds it. The purchase is still outstanding.
 
----
+APS connects that concrete situation to the next human question: **what evidence or authority would justify a different action?** Compare the same request, inspect the causal path, change one condition, and form a position that preserves supporting evidence, uncertainty and disagreement.
 
-## What you can study
+The project applies hazard and operability (**HAZOP**) analysis to AI agents and multi-agent systems. Its procurement setting makes dependencies between demand, inventory, supplier selection, finance and purchase visible. It is useful for engineers examining agent controls, researchers inspecting the method and evidence, and reviewers discussing what remains unresolved.
 
-- **AI agent risk analysis:** trace tool use, delegation, shared context and approval hazards through the [HAZOP methodology](docs/METHODOLOGY.md).
-- **Agent governance and policy enforcement:** inspect the Python gateway and OPA/Rego controls in the [governance architecture](docs/GOVERNANCE_ARCHITECTURE.md), separate from browser-only simulations.
-- **Reproducible multi-agent experiments:** compare baseline, conventional access checks and HAZOP-informed checks with [Phase 3 experiments and assurance](docs/PHASE3_OPERATIONS.md). Finite sandbox results do not establish real-world safety.
+## Try the experience
 
-## Demo
+The [live app](https://safetymp.github.io/Agentic-Process-Safety/) needs no account, API key, paid inference, installation or backend.
 
-The React/TypeScript explorer runs entirely in the browser, with no account, API key, paid inference, backend or telemetry.
+1. Open the approval case and **Run comparison**. B checks tool permission and spend; C adds lifecycle conditions. Both receive the same request and starting state.
+2. Follow the decision path, then choose **Try 59 seconds** and run again. The original comparison remains available. C now permits the request because the approval is current.
+3. Choose **Form a position**. A recommendation opens a relevant evidence request, review question or eligible hypothetical recovery. Attach the modeled check or a related recorded event, explain the rationale, and state what would change your mind.
 
-The opening case asks: **the purchase agent has permission, but is its approval still valid?** An illustrative purchase arrives 61 logical seconds after finance approval; the modeled validity rule requires an age below 60. The amount is 300 sandbox units, a teaching input rather than a recovered historical trial amount.
+Five connected views support that investigation: **Start here → Case Lab**, with **Hazard study**, **Controls** and **Evidence** available as supporting inspections. The [user guide](docs/USER_GUIDE.md) covers all nine cases, saved discussions, exports and the distinction between a new request and a retained result.
 
-The five views support one connected investigation:
+![APS compares the same request: B executes with expired approval, while C stops the request and leaves the purchase outstanding.](docs/assets/aps-comparison.jpg)
 
-- **Start here:** launch the approval-expiry case, browse all nine illustrative cases, and inspect the declared procurement topology.
-- **Case Lab:** compare B (tool permission and spend limit) with C (additional lifecycle checks) against identical inputs; optionally include A (no modeled checks). Inspect decisions, a selectable failure path, and bounded illustrative effects.
-- **Hazard study:** examine the selected case's intended behavior, deviations, assumptions and proposed controls, with the full 96-entry screening register, node × deviation matrix and 16 authored references available.
-- **Controls:** inspect what a protection checks, where its authority comes from, and its implementation/test mapping. The Case Lab is the single browser request runner.
-- **Evidence:** inspect the retained browser comparison separately from recorded experiments, paired B/C calls, replay, charts, source lineage and explicit gaps.
+The guided experience was deployed on **2026-11-14** through [PR #32](https://github.com/SafetyMP/Agentic-Process-Safety/pull/32), at commit [`3ddc4ae`](https://github.com/SafetyMP/Agentic-Process-Safety/commit/3ddc4ae9a0dc42c5af98fa7818121cf18a1b364f). Its [deployment workflow](https://github.com/SafetyMP/Agentic-Process-Safety/actions/runs/43645203614) and 233-check browser run passed. This is a dated implementation result; badges and later runs describe subsequent revisions.
 
-Choose **Run comparison**, then vary approval age using 59/60/61 shortcuts or the age input. At 59 both B and C allow; at 60 and 61 B allows and C denies. Changing inputs creates a draft and does not relabel an earlier result. Retained comparisons preserve their inputs, predictions and reasoning across views. Normal and unauthorized-tool cases also show where B and C reach the same outcome. Six secondary cases retain rule exploration with business effects explicitly unmodeled.
+## What the evidence means
 
-The **Discussion worksheet** attaches a recommendation, rationale, evidence, assumptions, unanswered question and dissent to a particular run. Marking a position ready grants no authority. **Explore a fresh-approval request** creates a hypothetical child from C's no-effect state with a new request identity; it preserves the denied parent and does not continue B's already executed purchase. A fresh approval still does not establish that a quotation, forecast or stock record is correct.
+| Material | What it supports | What it does not establish |
+| --- | --- | --- |
+| Illustrative browser comparison | How the fixed model's checks respond to the selected request | A live gateway decision, real purchase or complete business outcome |
+| Frozen recorded experiments and replay | The retained synthetic trial's actual recorded calls and outcomes | That an edited browser request was executed in that trial |
+| HAZOP findings and proposed controls | Questions, possible deviations and control mappings to investigate | Verified hazards, approved requirements or validated risk ratings |
+| Human discussion | A recommendation, rationale, sources, uncertainty and dissent | Operational authorization or independent verification of the cited evidence |
 
-Use **Keep or export this discussion** for explicit browser-local save/load/delete, a readable Markdown brief, session JSON, and a configuration-only link. Notes remain in memory unless explicitly saved; loading a browser copy is an explicit action. Configuration links carry bounded inputs, not notes, outcomes or approvals. See the [redesign plan](docs/APS_EXPERIENCE_REDESIGN_PLAN.md) and [local implementation and verification record](docs/APS_REDESIGN_IMPLEMENTATION.md) for delivered scope and verification limits.
+All hazards remain unverified, requirements proposed and risk ratings unset in the published fixtures. No real purchase or payment is made. The app does not establish production safety, safety certification, or that HAZOP outperforms another review method. Conventional systems can implement the same lifecycle checks. See the [vision and research questions](docs/VISION.md), [methodology](docs/METHODOLOGY.md) and [threat model](docs/THREAT_MODEL.md).
 
-Keyboard entity buttons accompany the topology, the failure path has an ordered text representation, and charts include data tables. System, light and dark themes persist locally. The comparison explains these selected control bundles; it does not establish that HAZOP uniquely discovers the checks or outperforms other analysis methods.
+## Run locally
 
-The earlier executive journey, **Prepare example**, **Advance to next decision**, and decision-brief JSON import described in [continuity and saved brief usage](docs/CONTINUITY_IMPLEMENTATION.md) belong to a previous interface. That document is retained as historical implementation evidence, not instructions for this redesign.
+For the browser app, use **Node.js 22.18+** and npm from the repository root. There is one root lockfile.
 
-**Project URL:** [safetymp.github.io/Agentic-Process-Safety](https://safetymp.github.io/Agentic-Process-Safety/). This README describes the redesign source; publication and source-bound CI acceptance for this revision require separate verification. The [earlier publication handoff](docs/STATIC_DEMO_PUBLICATION_HANDOFF.md) is retained as historical evidence and does not establish deployment of this redesign.
-
-## Quick start
-
-For the browser demo, install Node.js **22.18+** and npm. Run from the repository root using the single root lockfile:
-
-```bash
+```sh
 git clone https://github.com/SafetyMP/Agentic-Process-Safety.git
 cd Agentic-Process-Safety
 npm ci
 npm run demo:dev
 ```
 
-Open the local URL printed by Vite at `/`. For a production build and local preview:
+Open the local URL printed by Vite. To inspect the production build locally:
 
-```bash
+```sh
 npm run demo:build
 npm run demo:preview
 ```
 
-The browser demo is separate from the Python/OPA research implementation. It does not call OPA or authorize real operations.
+The separate research implementation requires **Python 3.11+** and **OPA 1.x** on `PATH`:
 
-### Setup and verification
-
-The research engine and gateway also require **Python 3.11+** and **OPA 1.x** on `PATH`:
-
-```bash
+```sh
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.lock
 npm ci
-mkdir -p artifacts/phase2
-bash scripts/verify.sh > artifacts/phase2/full-verification.log 2>&1
+npm run demo
 ```
 
-Run `npm run demo` for the gateway-backed procurement simulation. Generated reports, CSV exports and verification logs stay in the ignored `artifacts/` directory. See the [development reference](docs/DEVELOPMENT_REFERENCE.md#setup-and-verification) for analysis CLI commands.
+The browser app never calls this Python/OPA gateway. See [Phase 2 operations](docs/PHASE2_OPERATIONS.md) for setup and policy workflows, and [Phase 3 operations](docs/PHASE3_OPERATIONS.md) for experiments, offline dependencies and evidence inspection.
 
-## Architecture
+## Repository map
 
-| Layer | Location | Responsibility |
-| --- | --- | --- |
-| HAZOP screening — Phase 1 | `packages/engine/`, `schemas/`, `examples/` | Deterministic findings, cascade paths, schema validation, review workflow and exports |
-| Procurement swarm | `packages/simulator/` | TypeScript orchestrator and five simulated workers |
-| Independent gateway — Phase 2 | `packages/governance/`, `policies/v1/` | OPA/Rego decisions, scoped identities, atomic transaction controls and signed authorization receipts |
-| Experiments and assurance — Phase 3 | `packages/governance/`, `scripts/verify-phase3.sh` | Finite adversarial A/B/C experiments, telemetry, reports and source-bound execution attestation |
-| Static explorer | `apps/aps-demo/` | Sanitized frozen snapshots and a separate illustrative TypeScript browser model |
+```mermaid
+flowchart LR
+  H[HAZOP screening] --> F[Unverified findings and proposed controls]
+  G[Python and OPA research gateway] --> E[Recorded synthetic experiments]
+  F --> S[Frozen public snapshots]
+  E --> S
+  S --> U[Guided browser investigation]
+  M[Separate TypeScript illustration] --> U
+  U --> D[Human discussion and open questions]
+```
 
-The explorer keeps **Recorded experimental results**, **Replayed test evidence** and **Illustrative browser simulation** distinct. Browser outcomes never replace frozen trial results.
+| Location | Responsibility |
+| --- | --- |
+| [`apps/aps-demo/`](apps/aps-demo/) | React/TypeScript guided workspace; [browser model](apps/aps-demo/src/domain/README.md) and [fixture provenance](apps/aps-demo/src/fixtures/README.md) |
+| [`packages/engine/`](packages/engine/) · [`schemas/`](schemas/) · [`examples/`](examples/) | Deterministic HAZOP screening, review contracts and authored examples |
+| [`packages/simulator/`](packages/simulator/) | Procurement orchestrator and simulated workers |
+| [`packages/governance/`](packages/governance/) · [`policies/v1/`](policies/v1/) | Research gateway, OPA/Rego controls, experiments and assurance tooling |
+| [`tests/`](tests/) · [`scripts/`](scripts/) | Regression tests, integrity checks and evidence verification |
+| [`docs/`](docs/README.md) | Current guides, technical references and clearly classified historical records |
 
-Read the [Phase 1 architecture](docs/ARCHITECTURE.md), [gateway architecture](docs/GOVERNANCE_ARCHITECTURE.md) and [methodology](docs/METHODOLOGY.md) for component and trust boundaries.
+## Verify a change
 
-## Verification
-
-Run the repository readiness check and frontend checks from the root:
-
-```bash
+```sh
 node scripts/verify-repository-readiness.mjs
-node --test scripts/verify-repository-readiness.test.mjs
-npm run demo:fixtures:check
-npm run demo:fixtures:audit
 npm run demo:production:check
+npm run demo:fixtures:check
 npm run demo:lint
 npm run demo:typecheck
 npm run demo:test
@@ -115,58 +105,12 @@ npm run demo:build
 npm run demo:static:check
 ```
 
-The fixture audit reports missing ignored originals explicitly and fails on differing available originals. For root simulator tests and types, complete the Python/OPA setup above, then run `npm test` and `npm run typecheck`.
+Real-browser verification uses `npm run demo:e2e` with the pinned Playwright browser. Follow the browser setup in [Contributing](CONTRIBUTING.md) and the [development reference](docs/DEVELOPMENT_REFERENCE.md). Root `npm test` invokes the research gateway and needs the Python/OPA setup. Fresh acceptance must bind the exact source, workflow, artifact and reviewed screenshots; historical receipts cannot qualify new source.
 
-Real-browser checks require the pinned Playwright browser. The runner defaults to Firefox on macOS and Chromium on Linux; unsupported values fail without fallback. See [browser setup](docs/DEVELOPMENT_REFERENCE.md#static-demonstration) for installation and `npm run demo:e2e`.
+## Contribute and discuss
 
-Phase 3 requires the pinned offline OpenTelemetry SDK before its complete assurance workflow:
+Start with [Contributing](CONTRIBUTING.md), [Support](SUPPORT.md), the [Code of conduct](CODE_OF_CONDUCT.md), and [Security reporting](SECURITY.md). Useful contributions improve causal explanations, evidence mappings, reproducibility, accessibility and the quality of open questions. The [vision](docs/VISION.md) distinguishes current capability from research still needed.
 
-```bash
-.venv/bin/python -m pip install --no-index --find-links dependencies/otel-wheels --require-hashes -r dependencies/otel-wheels/requirements.lock
-bash scripts/verify.sh
-bash scripts/verify-otel-wheelhouse.sh
-bash scripts/verify-phase3.sh
-```
+Coding agents should start with [AGENTS.md](AGENTS.md) for repository navigation and contribution constraints. Cite a specific revision using the [citation metadata](CITATION.cff); research results and interface revisions have different evidence boundaries.
 
-See [Phase 3 operations](docs/PHASE3_OPERATIONS.md) for fresh acceptance runs and evidence inspection. Historical logs and badges do not establish current browser acceptance, deployment success or human approval.
-
-## Security
-
-- Discussion notes and hypothetical fresh-approval branches affect local illustrative state only; they issue no operational authorization. The browser model omits authentication, real policy execution, atomic persistence, signed receipts and production objective arbitration.
-- Local attestations, signing keys and ledger heads cannot independently establish identity or resist an owner replacing all local evidence.
-- Finite experiment observations and unequal early-termination denominators are not real-world effectiveness estimates. Missing measurements remain unknown.
-- Keep signing keys, databases and operational logs out of static deployments. Publish only reviewed public assets.
-- Human review, risk acceptance and production decisions remain pending actual human work.
-
-Read the [threat model](docs/THREAT_MODEL.md), [security reporting policy](SECURITY.md) and [readiness audit](docs/open-source-readiness.md). Detailed experimental counts and evidence limitations remain in the [development reference](docs/DEVELOPMENT_REFERENCE.md#methodology-and-authenticity).
-
-## Community
-
-- [Contributing](CONTRIBUTING.md): setup, focused changes and required checks
-- [Code of conduct](CODE_OF_CONDUCT.md): participation and enforcement expectations
-- [Support](SUPPORT.md): questions and reproducible issue reports
-- [Security](SECURITY.md): vulnerability reporting and supported scope
-
-Part of the [SafetyMP portfolio](https://github.com/SafetyMP).
-
-### Related projects
-
-- [FidusGate: MCP tool-call policy gateway](https://github.com/SafetyMP/FidusGate) explores policy decisions and signed receipts.
-- [Corporate/Site Harness: evidence-gated software delivery](https://github.com/SafetyMP/corporate-site-harness) explores verification gates and human approval in agent-assisted development.
-
-## License
-
-Project-owned material is offered under [Apache 2.0](LICENSE), subject to preserved third-party terms and the pending source-data and rights review in the [readiness audit](docs/open-source-readiness.md). No release rights or industrial suitability are certified.
-
-## Documentation map
-
-| Topic | Start here |
-| --- | --- |
-| Analysis method and review gates | [Methodology](docs/METHODOLOGY.md) |
-| Engine and gateway boundaries | [Phase 1 architecture](docs/ARCHITECTURE.md) · [Governance architecture](docs/GOVERNANCE_ARCHITECTURE.md) |
-| Gateway operation and policy workflow | [Phase 2 operations](docs/PHASE2_OPERATIONS.md) |
-| Experiments and attested assurance | [Phase 3 operations](docs/PHASE3_OPERATIONS.md) |
-| Current browser redesign and local verification | [Redesign plan](docs/APS_EXPERIENCE_REDESIGN_PLAN.md) · [Implementation and verification](docs/APS_REDESIGN_IMPLEMENTATION.md) |
-| Earlier browser QA and publication records (historical) | [Browser QA](docs/STATIC_DEMO_BROWSER_QA.md) · [Publication handoff](docs/STATIC_DEMO_PUBLICATION_HANDOFF.md) |
-| Full CLI examples, human review syntax and retained evidence notes | [Development reference](docs/DEVELOPMENT_REFERENCE.md) |
-| Open-source readiness and owner gates | [Readiness audit](docs/open-source-readiness.md) |
+Part of the [SafetyMP portfolio](https://github.com/SafetyMP). Project-owned material is offered under [Apache-2.0](LICENSE), with third-party terms preserved. The [open-source readiness record](docs/open-source-readiness.md) documents remaining ownership and governance questions; a license is not certification of industrial suitability.
