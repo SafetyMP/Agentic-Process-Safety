@@ -35,12 +35,12 @@ function fixture() {
   const sourceDigest = hash(JSON.stringify(source)); const distDigest = hash(JSON.stringify(dist));
   const runId = 123; const runAttempt = 2; const artifactId = 456;
   const runUrl = 'https://github.com/SafetyMP/Agentic-Process-Safety/actions/runs/123/attempts/2';
-  const browser = { status: 'passed', platform: 'linux', engine: 'chromium', version: '140.0.7339.0', assertions: 180, errors: [], violations: [], prefix: '/agentic-process-safety/', screenshots: [...CAPTURES], experience: 'APS redesign increments 1–4' };
+  const browser = { status: 'passed', platform: 'linux', engine: 'chromium', version: '140.0.7339.0', assertions: 233, errors: [], violations: [], prefix: '/agentic-process-safety/', screenshots: [...CAPTURES], experience: 'APS guided investigation' };
   const images = new Map(CAPTURES.map((path, i) => [path, Buffer.concat([Buffer.from([0xff, 0xd8]), Buffer.alloc(1100, i), Buffer.from([0xff, 0xd9])])]));
   const review = {
     schema: 'aps-linux-predeploy-review-1', repository: REPOSITORY, repositoryId: 1430231911, pullRequest: 73,
     headSha: head, baseSha: base, checkoutSha: checkout, checkoutTree: tree, workflowSha: checkout, workflowBlob, workflowRef,
-    runId, runAttempt, artifactId, runUrl, reviewer: 'Synthetic unit reviewer', reviewedAt: '2026-10-25T20:00:00Z', limitations: 'Synthetic unit fixture; no browser or CI run occurred.', assertions: 180,
+    runId, runAttempt, artifactId, runUrl, reviewer: 'Synthetic unit reviewer', reviewedAt: '2026-10-25T20:00:00Z', limitations: 'Synthetic unit fixture; no browser or CI run occurred.', assertions: 233,
     nodeVersion: 'v22.23.2', browserVersion: browser.version, sourceDigest, distDigest,
     screenshots: Object.fromEntries([...images].map(([path, image]) => [path, { sha256: hash(image), accepted: true, observations: `Synthetic fixture ${path}; not a real visual review.` }])),
   };
@@ -121,6 +121,10 @@ const mutations = {
   'fork PR': f => { f.metadata.get('/pulls/73').head.repo.fork = true; },
   'wrong head ref': f => { f.metadata.get('/pulls/73').head.ref = 'other'; },
   'unreviewed branch resembling authorized redesign': f => { f.metadata.get('/pulls/73').head.ref = 'codex/aps-redesign-release-extra'; },
+  'unreviewed branch resembling guided investigation': f => { f.metadata.get('/pulls/73').head.ref = 'codex/aps-guided-investigation-extra'; },
+  'guided run branch substituted for a different allowed PR': f => { f.metadata.get('/actions/runs/123/attempts/2').head_branch = 'codex/aps-guided-investigation'; },
+  'guided observed branch substituted for a different allowed PR': f => { f.observed.pullRequest.head.ref = 'codex/aps-guided-investigation'; },
+  'prior redesign experience substituted for guided investigation': f => { f.browser.experience = 'APS redesign increments 1–4'; },
   'run branch substituted with other allowed branch': f => { f.metadata.get('/actions/runs/123/attempts/2').head_branch = 'codex/aps-redesign-release'; },
   'observed branch substituted with other allowed branch': f => { f.observed.pullRequest.head.ref = 'codex/aps-redesign-release'; },
   'wrong redesigned browser experience': f => { f.browser.experience = 'Legacy app'; },

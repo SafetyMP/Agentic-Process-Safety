@@ -1,6 +1,7 @@
 import { getCase, isCaseId, presetDraft, validateDraft, type ScenarioDraft } from './cases.ts';
 import { createComparison, MODEL_VERSION, type ComparisonRun, type Prediction } from './comparison.ts';
 import type { StoryId } from './scenarios.ts';
+import { runTitle } from './presentation.ts';
 
 export interface DiscussionDraft {
   recommendation: string; rationale: string; evidence: string; assumptions: string;
@@ -148,7 +149,7 @@ export function discussionMarkdown(session: Session): string {
   const lines = ['# APS discussion brief', '', 'Illustrative browser comparisons and local reasoning. No operational authorization or hazard approval.', '', `Model: ${MODEL_VERSION}`, ''];
   for (const run of session.runs) {
     const definition = getCase(run.caseId);
-    lines.push(`## ${run.id}: ${definition.title}`, '', `Request identity: ${run.requestIdentity}`, `Actor: ${run.request.actor}; amount: ${run.request.amount} sandbox units; approval age: ${run.request.approvalAge} logical seconds.`, `Prediction: ${run.prediction.choice || 'Not supplied'}`, `Prediction rationale: ${run.prediction.rationale || 'Not supplied'}`, '');
+    lines.push(`## ${run.id}: ${runTitle(run)}`, '', `Request identity: ${run.requestIdentity}`, `Actor: ${run.request.actor}; amount: ${run.request.amount} sandbox units; approval age: ${run.request.approvalAge} logical seconds.`, `Prediction: ${run.prediction.choice || 'Not supplied'}`, `Prediction rationale: ${run.prediction.rationale || 'Not supplied'}`, '');
     if (run.parent) lines.push(`Parent: ${run.parent.runId}, lane ${run.parent.lane}.`, '');
     for (const mode of ['B', 'C', 'A'] as const) {
       const lane = run.results[mode];
