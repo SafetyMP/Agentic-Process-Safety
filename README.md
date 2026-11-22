@@ -1,27 +1,23 @@
 # Agentic Process Safety (APS)
 
-Thursday’s assembly needs **24 bearings**. Finance has approved purchase request **REQ-218**, and a software agent is waiting to send it to the supplier. While it waits, the supplier’s quote can expire, finance approval can lapse, or another shipment can cover the job. What should the buyer do when the request reaches purchasing?
+Agentic Process Safety is a research sandbox for studying what can go wrong when software agents hand work to one another. Its central question is **what must still be true when an agent acts?** A purchasing agent, for example, can have permission to place an order even after the approval for that particular order has expired.
 
-[Explore the interactive bearings case](https://safetymp.github.io/Agentic-Process-Safety/#/study)
+[Explore the interactive case](https://safetymp.github.io/Agentic-Process-Safety/#/study) · [Read the research questions](docs/VISION.md) · [Browse the documentation](docs/README.md)
 
-[![The bearings case opens with the order for Thursday and follows it from planning through receiving.](docs/assets/req-218-case.jpg)](https://safetymp.github.io/Agentic-Process-Safety/#/study)
+## How APS investigates a workflow
 
-## Follow the order
+1. **Identify what could go wrong.** The screening engine applies hazard and operability study (HAZOP) guide words such as *LATE* to each step in a workflow. It traces how a deviation at one step could affect other agents. A reviewer decides whether a proposed hazard applies, assesses the risk and can approve a control as a requirement. [Screening method](docs/METHODOLOGY.md) · [Example workflow](examples/procurement.json)
+2. **Test a control at the point of action.** In the procurement simulator, agents delegate tasks, check inventory, obtain supplier terms and request finance approval. A Python gateway uses Open Policy Agent (OPA) to evaluate tool requests before a simulated purchase can take effect. Its receipts record the decision and whether the action ran. [Gateway architecture](docs/GOVERNANCE_ARCHITECTURE.md)
+3. **Examine what happened.** The experiments compare sets of controls on synthetic workloads. Readers can inspect individual trials to ask both whether a control blocked an invalid action and whether the workflow could still finish. The published records describe those runs. How well the controls work at an operating site remains a research question. [Experiment guide](docs/PHASE3_OPERATIONS.md) · [Recorded data and provenance](apps/aps-demo/src/fixtures/README.md)
 
-1. **Start on the assembly line.** Follow the buyer, planner and receiving team from requisition to Thursday’s run. Try an empty bin and a full set of bearings. An order acknowledgment tells the buyer what the supplier accepted. The receiving and allocation records tell the crew what it can use.
-2. **Examine the delay.** In the hazard and operability study (HAZOP), the guide word **LATE** prompts a question about supplier quote Q-82. Then try the APS finance check on the same order. Approval is current at 59 seconds and expires at 60. The buyer still verifies the supplier’s terms and Thursday’s stock.
-3. **Decide what is worth funding.** Compare buyer-led purchasing, an approval check in the existing system and a four-week shadow pilot. The worked example frees six buyer minutes after a release and three after a hold. At the assumed volume and costs, including setup, the first year breaks even at 4.5 minutes per request. What do the site’s time records, open holds and on-time receipts tell you about those assumptions? [Financial worksheet and sources](docs/BUSINESS_CASE.md) · [Discussion prompts](docs/AUDIENCE_WALKTHROUGHS.md)
+## Try the bearings case
 
-## Open REQ-218 in the IT workspace
+REQ-218 calls for **24 bearings for Thursday’s assembly**. In the browser, try releasing the same order 59 seconds after finance approval, then at 60 seconds. A rule that checks permission and spending limits releases it both times. Adding an approval-age check puts the second attempt on hold. Now try the order before and after the supplier quote expires, or change the stock available on Thursday. Which facts does the finance check establish, and what does the buyer still need to verify? [Open the case](https://safetymp.github.io/Agentic-Process-Safety/#/study)
 
-Follow the selected request through the policy check and illustrative receipt. The table in the workspace compares your selection with a recorded synthetic trial. These two links reopen directly at contrasting points in the case.
+[![Opening of the REQ-218 case showing the bearings order for Thursday’s assembly.](docs/assets/req-218-case.jpg)](https://safetymp.github.io/Agentic-Process-Safety/#/study)
 
-| Shared case | Supplier quote Q-82 | Stock for Thursday | Recorded trial |
-| --- | --- | --- | --- |
-| [Release at 59 seconds](https://safetymp.github.io/Agentic-Process-Safety/#/overview?age=59&quote=14%3A05&stock=0&trial=14) | Expired at Tuesday’s 14:05 attempt | 0 of 24 | B · 14 allowed the delayed purchase |
-| [Hold at 61 seconds](https://safetymp.github.io/Agentic-Process-Safety/#/overview?age=61&quote=13%3A55&stock=24&trial=15) | Current at Tuesday’s 13:55 attempt | 24 of 24 | C · 15 denied the delayed purchase |
-
-To share your own example, choose the timing, quote and stock in the case, open **Technical workspace**, select a trial and choose **Copy comparison link**. The link carries all four selections. The workspace also links the request schema, Rego policy and gateway tests. [User guide](docs/USER_GUIDE.md) · [Gateway architecture](docs/GOVERNANCE_ARCHITECTURE.md)
+- **Inspect the evidence.** The technical workspace puts the browser’s modeled decision beside a recorded synthetic trial from the separate research runtime. Open a [release at 59 seconds](https://safetymp.github.io/Agentic-Process-Safety/#/overview?age=59&quote=14%3A05&stock=0&trial=14) or a [hold at 61 seconds](https://safetymp.github.io/Agentic-Process-Safety/#/overview?age=61&quote=13%3A55&stock=24&trial=15) to trace the request, policy decision and effect.
+- **Weigh the business decision.** Would the site keep buyer-led purchasing, add an approval rule to its existing system or fund a shadow pilot? The worksheet estimates how much buyer time an agent would have to save to cover its first-year costs. The site would also need receiving and allocation records to judge whether the bearings reach the line on time. [Business-case worksheet](docs/BUSINESS_CASE.md) · [Discussion prompts](docs/AUDIENCE_WALKTHROUGHS.md)
 
 ## Run locally
 
@@ -34,14 +30,14 @@ npm ci
 npm run demo:dev
 ```
 
-Open the local URL printed by Vite. To inspect the production build locally:
+Open the local URL printed by Vite to follow the case. The [user guide](docs/USER_GUIDE.md) explains the timing controls and how to share a comparison. To preview a production build, run
 
 ```sh
 npm run demo:build
 npm run demo:preview
 ```
 
-The separate research implementation requires **Python 3.11+** and **OPA 1.x** on `PATH`:
+To run the procurement simulator, also install **Python 3.11+** and put **OPA 1.x** on `PATH`. From the repository root, run
 
 ```sh
 python3 -m venv .venv
@@ -50,7 +46,7 @@ npm ci
 npm run demo
 ```
 
-The browser app never calls this Python/OPA gateway. See [Phase 2 operations](docs/PHASE2_OPERATIONS.md) for setup and policy workflows, and [Phase 3 operations](docs/PHASE3_OPERATIONS.md) for experiments, offline dependencies and evidence inspection.
+The browser app runs its own TypeScript model. The local simulator calls the Python/OPA gateway. See [Phase 2 operations](docs/PHASE2_OPERATIONS.md) for setup and policy workflows.
 
 ## Repository map
 
