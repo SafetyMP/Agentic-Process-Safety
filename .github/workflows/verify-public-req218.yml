@@ -1,0 +1,33 @@
+name: Open shared REQ-218 links on GitHub Pages
+on:
+  push:
+    branches: [codex/verify-req218-pages-1183149]
+permissions:
+  contents: read
+jobs:
+  open-public-links:
+    name: Open and refresh the shared release and hold
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium --only-shell
+      - name: Verify links copied from the published case
+        shell: bash
+        run: |
+          node scripts/verify-public-req218.mjs receive scripts/req218-shared-links.json | tee "$RUNNER_TEMP/comparisons.txt"
+          {
+            echo '### Chromium on a fresh Ubuntu runner'
+            echo
+            echo 'Each link opened in a separate browser context at 390 × 844. The assertions checked the live request, receipt, quote, stock count and recorded trial on opening and after refresh.'
+            echo
+            echo '```text'
+            cat "$RUNNER_TEMP/comparisons.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
