@@ -37,6 +37,24 @@ Use **Attach this comparison’s decisive check** to append the actual modeled c
 
 **Mark ready for discussion** requires a rationale. It invites review; it does not certify the evidence, complete every field or change either modeled outcome. Editing the position makes it a draft again.
 
+## Review a held order with a buying team
+
+Take the held 61-second request into **Form a position**. Suppose a planner still needs the material for Thursday’s production run. That deadline is a discussion prompt. The simulator supplies the order decision and approval age.
+
+| Ask | Evidence to bring | Decision it informs |
+| --- | --- | --- |
+| Planner or inventory controller | Current demand, on-hand stock and open orders due before Thursday | Is there still a shortage, and when would it affect production? |
+| Buyer | Supplier’s current quote, lead time and purchase-order history for this requisition | Do the terms still meet the need? Has an earlier attempt already placed the order? |
+| Finance approver | Spending authority for the current requisition and amount | Can the buyer proceed on these terms, or must the request change? |
+
+Record who will resolve the hold and when the planner needs an answer. For example, if an open order already covers Thursday’s demand, the buyer could recommend closing the requisition. If the shortage remains and the quote still holds, the buyer could seek renewed approval. Both recommendations are consistent with the same modeled hold.
+
+## Design a supply chain study
+
+Start with one requisition as the unit of analysis. Predict which orders will execute with expired approval. In **Case Lab**, run 59, 60 and 61 logical seconds under both bundles. Keep the request amount and starting state fixed. Record approval age, bundle, decision and modeled order count for each comparison. At exactly 60 seconds the approval has expired. Repeating an input reproduces a deterministic decision. It supplies no additional independent observation.
+
+Open **Evidence** to inspect a related recorded event and its trial ID. Keep its outcome with the recorded trial and the browser decision with its own comparison. For a field study, pair comparable requisitions handled by a buyer using ERP and by an agent-assisted team. Give both the same approval policy and access to stock, open orders and supplier terms. Record expired releases per attempted release, buyer minutes per requisition, and time from hold to resolution. Include unresolved holds at the end of observation and account for urgency and supplier lead time when comparing groups. These measures require purchasing records or observation of buyers at work. [Experiment operations and recorded evidence](PHASE3_OPERATIONS.md)
+
 ## What the five views do
 
 | View | Use it to | Return with |

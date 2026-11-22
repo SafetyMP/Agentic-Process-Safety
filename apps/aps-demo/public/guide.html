@@ -35,10 +35,10 @@
 <main>
   <p class="eyebrow">AGENTIC PROCESS SAFETY · PROJECT GUIDE</p>
   <h1>Permission is only the beginning.</h1>
-  <p class="lead">An agent can have the right tool and stay within budget while acting on an approval or task context that no longer applies. APS makes that problem concrete, then asks what the people responsible should do next.</p>
+  <p class="lead">Should purchasing release an order if finance approved the spend but the approval has since expired? A buyer and a supply chain researcher can use the same case to answer different questions.</p>
   <p>Agentic Process Safety is an open-source research sandbox applying hazard and operability (HAZOP) analysis to coordinated AI agent workflows. It connects intended behavior, possible deviations, proposed controls, evidence and human judgment. This guide works without JavaScript; the interactive app adds retained comparisons and a discussion worksheet.</p>
   <h2>A purchase request arrives too late</h2>
-  <p>Demand, inventory and supplier workers contribute information. Finance supplies approval, purchase attempts the order, and an orchestrator coordinates the work. The final action depends on earlier conditions still holding.</p>
+  <p>Before AI agents, a planner could raise a requisition against a shortage. Purchasing software could route it for approval and create an order under preset rules. A buyer checked exceptions against supplier terms and open orders. In APS, a coordinator delegates the steps to software workers. Purchasing can act on the finance worker’s result even if the approval has expired in transit.</p>
   <div class="callout"><strong>The opening case:</strong> a purchase worker requests 300 sandbox units, 61 logical seconds after an assumed matching finance approval. The fixed browser rule requires approval age below 60 seconds. The browser does not contact finance or observe a real quotation.</div>
   <div class="comparison" aria-label="Same-request control comparison">
     <article><h3>B · Tool permission + spend limit</h3><p>The worker has permission and the amount is within the ceiling. B permits the request. In this illustration, execution carries the expired approval condition into an order effect.</p></article>
@@ -48,6 +48,8 @@
   <p>B is the particular tool-and-spend comparator used here. Conventional systems can implement freshness and task-binding checks too. The comparison does not show that HAZOP uniquely discovers those checks or outperforms another review method.</p>
   <figure><img src="./social-preview.jpg" width="1440" height="1000" alt="APS comparison: an expired-approval request executes under B and is stopped under C. Illustrative model only." loading="lazy"><figcaption>The interactive comparison keeps the same request visible in both lanes. These are illustrative effects, not a real order.</figcaption></figure>
   <h2>Use APS to form a position</h2>
+  <p><strong>For purchasing teams.</strong> A hold leaves the material requirement open. Who will check whether another delivery covers it, confirm that the supplier can still meet the need date, and request fresh authority to buy?</p>
+  <p><strong>For supply chain researchers.</strong> Compare the modeled release decision on either side of expiry, then examine the related synthetic trial. A study of buyer workload or service levels would also need a conventional purchasing workflow with equivalent controls and observations from the field.</p>
   <ol>
     <li><strong>Compare.</strong> Optionally predict the result, then run the same request through B and C from the same starting state. A, with no modeled checks, is available as an optional baseline.</li>
     <li><strong>Change or inspect.</strong> Try the other side of the expiry boundary and retain both results. For other cases, follow the specific condition through the decision path. A draft edit never relabels an earlier result.</li>

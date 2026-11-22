@@ -1,6 +1,6 @@
 # Agentic Process Safety (APS)
 
-**Permission is only the first question.** APS is an open-source research and learning workspace for examining what must hold when an AI agent acts within a coordinated workflow: the right role, current approval, task-bound context, bounded delegation, and a defensible reason to proceed.
+**Finance approved the purchase yesterday. Can the buyer release the order today?** A buyer would want to know whether the approval still covers this supplier, amount and requisition, and whether the stock is still needed. Agentic Process Safety (APS) lets supply chain teams and researchers investigate that same decision when software agents carry the request from replenishment planning to order release.
 
 [**Explore the live app**](https://safetymp.github.io/Agentic-Process-Safety/) · [Start the guided investigation](docs/USER_GUIDE.md) · [Project vision](docs/VISION.md) · [Documentation](docs/README.md)
 
@@ -8,13 +8,25 @@
 [![Pages deployment](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/deploy-pages.yml)
 [![License: Apache-2.0](https://img.shields.io/github/license/SafetyMP/Agentic-Process-Safety)](LICENSE)
 
-## The problem APS makes tangible
+## How a replenishment request reaches a purchase order
 
-A purchase worker has permission to use its tool and stays within budget. Finance approved the purchase, but its request reaches the execution boundary **61 logical seconds later**, after the modeled approval has expired. One control bundle permits the request; another holds it. The purchase is still outstanding.
+Before AI agents, a planner could review a material requirements planning (MRP) recommendation against stock on hand and open orders. A buyer could check the supplier and terms, then send a requisition for approval. Enterprise resource planning (ERP) systems already routed approvals and could convert an approved requisition into a purchase order under configured rules. Buyers handled exceptions such as a changed quote. [Oracle Purchasing guide to requisitions](https://docs.oracle.com/cd/A60725_05/html/comnls/us/po/reqov.htm) · [Oracle Release 11 procurement workflows](https://docs.oracle.com/cd/A60725_05/html/comnls/us/ponew/ponew11.htm)
 
-APS connects that concrete situation to the next human question: **what evidence or authority would justify a different action?** Compare the same request, inspect the causal path, change one condition, and form a position that preserves supporting evidence, uncertainty and disagreement.
+| Purchasing decision | What an agent can contribute | What can go wrong at the handoff |
+| --- | --- | --- |
+| Do we need to buy? | An inventory agent can use a demand estimate to work out a replenishment need and pass it to sourcing. | An estimate for another requisition can travel with the request. A buyer tracing the quantity needs the underlying demand and stock records. |
+| Which supplier and terms can we use? | A sourcing agent can select an eligible supplier and hand its result to finance. | A quote can change while the request is waiting. Even a current spending approval leaves the price to be checked. |
+| May we place the order now? | A purchasing agent can invoke the order tool once it receives the finance decision. | An approval can expire before release. A retry after an uncertain response can also duplicate an order unless the prior outcome is checked. |
 
-The project applies hazard and operability (**HAZOP**) analysis to AI agents and multi-agent systems. Its procurement setting makes dependencies between demand, inventory, supplier selection, finance and purchase visible. It is useful for engineers examining agent controls, researchers inspecting the method and evidence, and reviewers discussing what remains unresolved.
+A buyer given a shortage to resolve might check inbound deliveries first and ask for a new quote only if the shortage remains. An AI agent with access to those tools could choose its next step from what it finds and bring the buyer an exception to decide. That discretion creates a practical question at each handoff. Which supplier, requisition and authority does this result belong to? APS isolates that question using fixed worker roles and simulated tool calls. The browser runs no live AI inference.
+
+Risk review also predates agents. In a hazard and operability (HAZOP) study, a team works through a process and uses prompts such as “late” to ask what could go wrong. For purchasing, “late” might mean approval arrives after a supplier’s cutoff. APS applies that method to software handoffs and generates candidate findings for people to assess. A reviewer still has to establish whether the failure is plausible in their operation and what its consequences would be. [IEC guide to HAZOP studies](https://webstore.iec.ch/en/publication/24321) · [APS screening method](docs/METHODOLOGY.md)
+
+## One case, two ways to use it
+
+**For supply chain professionals.** In the opening case, the purchasing agent has permission and budget. Its request arrives 61 logical seconds after finance approval, one second past the model’s expiry boundary. The basic checks release the order. Adding an expiry check holds it, leaving the replenishment request open. In the worksheet, name who owns that exception, what the buyer should verify with planning and the supplier, and who can renew the spending authority before another attempt. [Walk through the approval case](docs/USER_GUIDE.md#follow-the-opening-case)
+
+**For supply chain researchers.** Does checking approval again at release change which orders go through? Hold the request, spend and starting state fixed, then compare the two control bundles at 59 and 61 logical seconds. Record whether the order executes and whether approval was current. Both bundles evaluate the same agent request. A comparison with a buyer using an ERP requires a separate baseline with equivalent approval rules. The 30 recorded synthetic trials provide traces to inspect. Estimating effects on fill rate, buyer workload or time to resolve a hold would require operational observations. [Research exercise](docs/USER_GUIDE.md#design-a-supply-chain-study) · [Recorded experiment methods](docs/PHASE3_OPERATIONS.md)
 
 ## Try the experience
 
