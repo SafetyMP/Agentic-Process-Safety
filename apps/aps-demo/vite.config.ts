@@ -1,7 +1,9 @@
 import { defineConfig } from 'vite';
+import { buildIdentity } from './scripts/build-identity.mjs';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
+  define: { __APS_BUILD__: JSON.stringify(buildIdentity()) },
   base: './', plugins: [tailwindcss()], esbuild: { jsx: 'automatic' },
   build: {
     sourcemap: false,

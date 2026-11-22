@@ -1,3 +1,5 @@
+import { LearnerSheet } from './components/ResearchLab.tsx';
+import { buildLabel } from './domain/audience.ts';
 import { useEffect, useState } from 'react';
 import { SessionProvider, useSession } from './components/SessionContext.tsx';
 import { runTitle } from './domain/presentation.ts';
@@ -30,6 +32,7 @@ function Workspace() {
   const [location, setLocation] = useState(locationState);
   const [theme, setTheme] = useState<Theme>(storedTheme);
   const { caseDefinition, selectedRun, isDirty, setCase, resetInputs, configError } = useSession();
+  const learner = location.route === 'simulator' && location.params.get('task') === 'learner';
   const currentSection = sections.find(section => section.id === location.route)!;
   useEffect(() => {
     const changed = () => setLocation(locationState());
@@ -48,7 +51,7 @@ function Workspace() {
     document.title = location.route === 'overview' ? 'Agentic Process Safety | Investigate AI Agent Workflow Risk' : `${currentSection.name} | Agentic Process Safety`;
     document.documentElement.scrollIntoView?.({ block: 'start' });
     document.getElementById('main-content')?.focus({ preventScroll: true });
-  }, [currentSection.name, location.route]);
+  }, [currentSection.name, location.route, learner]);
   useEffect(() => {
     if (location.route === 'simulator' && location.params.get('panel') === 'discussion') {
       document.getElementById('discussion')?.scrollIntoView?.({ block: 'start' });
@@ -70,15 +73,15 @@ function Workspace() {
     </aside>
     <div className="main-shell">
       <header className="topbar"><div><span className="muted">Research workspace</span><span className="topbar-divider">/</span><strong>{currentSection.name}</strong></div><label className="theme-select"><span id="app-theme">Theme</span><select aria-labelledby="app-theme" value={theme} onChange={event => setTheme(event.target.value as Theme)}><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label></header>
-      {(location.route !== 'overview' || selectedRun) && <section className="case-context" aria-label="Shared case context">
+      {!learner && (location.route !== 'overview' || selectedRun) && <section className="case-context" aria-label="Shared case context">
         <div><small>ILLUSTRATIVE WORKSPACE</small><strong>{selectedRun && !isDirty ? runTitle(selectedRun) : caseDefinition.title}</strong><p>{selectedRun ? `Selected ${selectedRun.id} · ${runTitle(selectedRun)}` : 'No comparison evaluated yet'}{isDirty && selectedRun ? ' · Inputs changed — run again' : ''}</p></div>
         <div className="button-row">{location.route !== 'simulator' && <a className="button" href="#/simulator">Return to comparison →</a>}<a className="text-button" href="#/simulator?panel=discussion">Discussion worksheet</a></div>
       </section>}
       <main id="main-content" tabIndex={-1}>
         {configError && <div className="notice input-error" role="alert">{configError}</div>}
-        {location.route === 'overview' ? <Overview/> : location.route === 'hazop' ? <Hazop key={location.params.toString()} params={location.params}/> : location.route === 'governance' ? <Governance params={location.params}/> : location.route === 'simulator' ? <Simulator/> : <Assurance key={location.params.toString()} params={location.params}/>}
+        {location.route === 'overview' ? <Overview/> : location.route === 'hazop' ? <Hazop key={location.params.toString()} params={location.params}/> : location.route === 'governance' ? <Governance params={location.params}/> : location.route === 'simulator' ? (learner ? <LearnerSheet/> : <Simulator task={location.params.get('task')}/>) : <Assurance key={location.params.toString()} params={location.params}/>}
       </main>
-      <footer><div>APS Research Demonstration<nav aria-label="Project resources"><a href="./guide.html" target="_blank" rel="noopener">Project guide <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a><a href="./llms.txt" target="_blank" rel="noopener">Agent reading map <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a><a href="https://github.com/SafetyMP/Agentic-Process-Safety" target="_blank" rel="noopener">Source repository <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a></nav></div><span>All hazards unverified · Browser effects illustrative · No safety certification</span></footer>
+      <footer><div>APS Research Demonstration · build {buildLabel}<nav aria-label="Project resources"><a href="./guide.html" target="_blank" rel="noopener">Project guide <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a><a href="./llms.txt" target="_blank" rel="noopener">Agent reading map <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a><a href="https://github.com/SafetyMP/Agentic-Process-Safety" target="_blank" rel="noopener">Source repository <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a></nav></div><span>All hazards unverified · Browser effects illustrative · No safety certification</span></footer>
     </div>
   </div>;
 }

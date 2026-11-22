@@ -1,3 +1,4 @@
+import { downloadText } from '../download.ts';
 import { useState } from 'react';
 import { emptyDiscussion } from '../domain/session.ts';
 import type { DiscussionDraft } from '../domain/session.ts';
@@ -104,15 +105,7 @@ function appendDistinct(existing: string, addition: string) {
 
 
 function downloadBrief(contents: string, extension: 'json' | 'md') {
-  const blob = new Blob([contents], { type: extension === 'json' ? 'application/json' : 'text/markdown;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `aps-discussion-brief.${extension}`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  downloadText(contents, `aps-discussion-brief.${extension}`, extension === 'json' ? 'application/json' : undefined);
 }
 
 export function DiscussionWorksheet() {
@@ -185,11 +178,12 @@ export function DiscussionWorksheet() {
             <select aria-labelledby="discussion-recommendation-label" value={draft.recommendation} onChange={event => edit('recommendation', event.target.value)}>
               <option value="">Choose a response, or leave this draft unresolved</option>
               <option value={investigation!.primary[0]}>{investigation!.primary[1]}</option>
+              {selectedRun.caseId === 'stale' && selectedRun.results.C.decision === 'deny' && <option value="Reconcile inbound supply">Reconcile inbound supply and propose closing the covered requirement</option>}
               <option value="Gather more information">{investigation!.gatherLabel}</option>
               <option value="Propose a policy revision">{investigation!.policyLabel}</option>
               <option value="Insufficient evidence">Insufficient evidence to recommend proceeding</option>
               <option value="Unresolved disagreement">Leave the decision unresolved and record disagreement</option>
-              {draft.recommendation && ![investigation!.primary[0], 'Gather more information', 'Propose a policy revision', 'Insufficient evidence', 'Unresolved disagreement'].includes(draft.recommendation) && <option value={draft.recommendation}>Saved recommendation: {draft.recommendation}</option>}
+              {draft.recommendation && ![investigation!.primary[0], 'Reconcile inbound supply', 'Gather more information', 'Propose a policy revision', 'Insufficient evidence', 'Unresolved disagreement'].includes(draft.recommendation) && <option value={draft.recommendation}>Saved recommendation: {draft.recommendation}</option>}
             </select>
           </label>
       <section className="notice investigation-next-step discussion-wide" aria-labelledby="investigation-next-title">
@@ -197,6 +191,8 @@ export function DiscussionWorksheet() {
         {draft.recommendation === 'Obtain a new matching approval' ? <>
           <h3 id="investigation-next-title">Explore what a new matching approval would change</h3>
           {canFork ? <><p>Start both comparison lanes from C’s unchanged state with a new request identity and a fresh matching approval. Assume the task and context remain valid. The denied attempt and its discussion remain available.</p><p><strong>Hypothetical recovery; not demonstrated by the recorded trial.</strong> This app cannot issue finance approval or continue B’s already executed purchase.</p><button type="button" disabled={isDirty} onClick={() => { forkFreshApproval(); setFeedback('A new hypothetical comparison starts from C’s no-effect state. The original comparison and its discussion are retained.'); }}>Explore a fresh-approval request</button>{isDirty && <p>Restore this comparison’s inputs above before exploring its recovery.</p>}</> : <p>This comparison has no modeled fresh-approval recovery branch. {selectedRun.caseId === 'stale' ? 'Its approval is already current; renewing it would not answer the remaining business questions.' : 'Identify the failed request condition and the authority needed before proposing another attempt.'} No new approval or outcome is created.</p>}
+        </> : draft.recommendation === 'Reconcile inbound supply' ? <>
+          <h3 id="investigation-next-title">Check the inbound order against the need</h3><p>Confirm the remaining quantity, its allocation and the arrival time with the planner. Record the proposed closure and its owner in the shift handoff.</p><a href="#/simulator?task=field">Prepare the shift handoff →</a>
         </> : draft.recommendation === 'Gather more information' || draft.recommendation === investigation!.primary[0] ? <>
           <h3 id="investigation-next-title">{investigation!.gatherTitle}</h3><p>{investigation!.gatherDetail}</p>
           <p><strong>Evidence request · unresolved:</strong> {investigation!.question}</p><button type="button" onClick={() => { edit('question', appendDistinct(draft.question, investigation!.question)); setFeedback('Added an unresolved evidence request to this position. No evidence has been obtained or verified.'); }}>Add this evidence request to my position</button>

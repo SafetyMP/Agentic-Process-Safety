@@ -1,3 +1,4 @@
+import { buildLabel } from './audience.ts';
 import { getCase, validateDraft, type ScenarioDraft } from './cases.ts';
 import type { Mode, StoryId } from './scenarios.ts';
 import { decisionTrace, evaluate, type Decision, type Request, type RuleResult } from './simulation.ts';
@@ -19,6 +20,7 @@ export interface LaneResult {
 export interface ComparisonRun {
   id: string;
   modelVersion: string;
+  build?: string;
   caseId: StoryId;
   requestIdentity: string;
   request: Request;
@@ -75,7 +77,7 @@ function freezeRun(run: ComparisonRun): ComparisonRun {
   return Object.freeze(run);
 }
 
-export function createComparison(id: string, draft: ScenarioDraft, prediction: Prediction = { choice: '', rationale: '' }, parent?: ComparisonRun): ComparisonRun {
+export function createComparison(id: string, draft: ScenarioDraft, prediction: Prediction = { choice: '', rationale: '' }, parent?: ComparisonRun, build: string | null = buildLabel): ComparisonRun {
   const validated = validateDraft(draft);
   if (!validated.request) throw new Error(validated.error!);
   if (parent && !(draft.caseId === 'stale' && parent.caseId === 'stale' && parent.results.C.decision === 'deny' && parent.request.approvalAge >= 60)) {
@@ -88,7 +90,7 @@ export function createComparison(id: string, draft: ScenarioDraft, prediction: P
   const projectPurchase = getCase(draft.caseId).effectMode === 'purchase';
   const results = Object.fromEntries((['A', 'B', 'C'] as Mode[]).map(mode => [mode, compareLane(mode, { ...request }, { ...baseline }, projectPurchase)])) as Record<Mode, LaneResult>;
   return freezeRun({
-    id, modelVersion: MODEL_VERSION, caseId: draft.caseId, requestIdentity: `${id}-unused-nonce`,
+    id, ...(build === null ? {} : { build }), modelVersion: MODEL_VERSION, caseId: draft.caseId, requestIdentity: `${id}-unused-nonce`,
     request, baseline: { ...baseline }, results, prediction: { ...prediction },
     ...(parent ? { parent: { runId: parent.id, lane: 'C' as const } } : {}),
     assumptions: parent ? [

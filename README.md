@@ -22,11 +22,17 @@ A buyer given a shortage to resolve might check inbound deliveries first and ask
 
 Risk review also predates agents. In a hazard and operability (HAZOP) study, a team works through a process and uses prompts such as “late” to ask what could go wrong. For purchasing, “late” might mean approval arrives after a supplier’s cutoff. APS applies that method to software handoffs and generates candidate findings for people to assess. A reviewer still has to establish whether the failure is plausible in their operation and what its consequences would be. [IEC guide to HAZOP studies](https://webstore.iec.ch/en/publication/24321) · [APS screening method](docs/METHODOLOGY.md)
 
-## One case, two ways to use it
+## One purchasing case for three audiences
 
-**For supply chain professionals.** In the opening case, the purchasing agent has permission and budget. Its request arrives 61 logical seconds after finance approval, one second past the model’s expiry boundary. The basic checks release the order. Adding an expiry check holds it, leaving the replenishment request open. In the worksheet, name who owns that exception, what the buyer should verify with planning and the supplier, and who can renew the spending authority before another attempt. [Walk through the approval case](docs/USER_GUIDE.md#follow-the-opening-case)
+In the opening case, a purchasing agent attempts to commit 300 simulated spend units. Its request arrives 61 logical seconds after approval. The basic permission and spending checks release the order. An additional freshness check holds it. Thursday’s material requirement still needs an owner.
 
-**For supply chain researchers.** Does checking approval again at release change which orders go through? Hold the request, spend and starting state fixed, then compare the two control bundles at 59 and 61 logical seconds. Record whether the order executes and whether approval was current. Both bundles evaluate the same agent request. A comparison with a buyer using an ERP requires a separate baseline with equivalent approval rules. The 30 recorded synthetic trials provide traces to inspect. Estimating effects on fill rate, buyer workload or time to resolve a hold would require operational observations. [Research exercise](docs/USER_GUIDE.md#design-a-supply-chain-study) · [Recorded experiment methods](docs/PHASE3_OPERATIONS.md)
+| Choose a task on **Start here** | Decision or exercise | Take away |
+| --- | --- | --- |
+| **Prepare a shift handoff** | A fictional site needs 24 bearings. See how a confirmed inbound order or an uncovered shortage changes the buyer’s next action under the same hold. | A handoff for one update with its evidence, action owner, deadline and escalation condition. [Buying-team guide](docs/USER_GUIDE.md#review-a-held-order-with-a-buying-team) |
+| **Decide on a purchasing pilot** | Scope a shadow evaluation against the buyer-led ERP process, defer it pending evidence, or retain the current workflow. | A sponsor brief with a stop condition, review date, field measures and optional cost assumptions. [Executive guide](docs/USER_GUIDE.md#prepare-a-sponsor-decision) |
+| **Reproduce or teach the case** | Reproduce the expiry boundary and trace a related recorded event. For class, collect predictions and ask teams to defend different handoffs. | Browser and recorded CSVs, a field-study worksheet, a learner sheet and an instructor guide with rubric. [Research exercise](docs/USER_GUIDE.md#design-a-supply-chain-study) · [Teaching guide](docs/USER_GUIDE.md#teach-the-purchasing-case) |
+
+For a demonstration or audience study, record the build shown in the app and give everyone links to that same installation. The local setup below runs this checkout. [Audience task cards and observation sheet](docs/AUDIENCE_WALKTHROUGHS.md)
 
 ## Try the experience
 

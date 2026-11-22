@@ -13,6 +13,7 @@ function Lane({ result }: { result: LaneResult }) {
   const meaning = laneMeaning(result);
   return <article className={`comparison-lane outcome-${meaning.tone}`} aria-label={`Model ${result.mode} outcome`} data-mode={result.mode}>
     <div className="lane-label"><span className="lane-letter" aria-hidden="true">{result.mode}</span><h3>{laneLabels[result.mode]}</h3></div>
+    {result.effect && <p className="buying-outcome"><strong>{result.executed ? 'Order placed' : 'Order held · material need still open'}</strong></p>}
     <strong className="lane-result">{outcomeLabel(result)}</strong>
     <p className="lane-reason">{result.reason}</p>
     <p className={`lane-meaning constraint-status-${meaning.tone}`}><strong>{meaning.label}</strong></p>

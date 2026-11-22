@@ -39,21 +39,40 @@ Use **Attach this comparison’s decisive check** to append the actual modeled c
 
 ## Review a held order with a buying team
 
-Take the held 61-second request into **Form a position**. Suppose a planner still needs the material for Thursday’s production run. That deadline is a discussion prompt. The simulator supplies the order decision and approval age.
+From **Start here**, select **Prepare a shift handoff**, then **Run comparison** with approval age at 61. You can also select a retained result in Case Lab and choose the task under **Use this comparison**. At 61 seconds lane C holds the order. The request amount of 300 is simulated spend. The separate fictional requisition calls for 24 bearings at North assembly by Thursday at 08:00 plant time.
 
-| Ask | Evidence to bring | Decision it informs |
+| Purchasing update | Evidence the buyer receives | A disposition to consider |
 | --- | --- | --- |
-| Planner or inventory controller | Current demand, on-hand stock and open orders due before Thursday | Is there still a shortage, and when would it affect production? |
-| Buyer | Supplier’s current quote, lead time and purchase-order history for this requisition | Do the terms still meet the need? Has an earlier attempt already placed the order? |
-| Finance approver | Spending authority for the current requisition and amount | Can the buyer proceed on these terms, or must the request change? |
+| **Wednesday inbound confirmed** | The receiving desk confirms inbound PO-417. Planning has reserved its 24 bearings for Thursday. | Reconcile the inbound order and propose closing the requisition. Give the next shift a checkpoint in case the delivery slips. |
+| **Thursday requirement uncovered** | The planner reports no covering inbound. A supplier can meet the need if the buyer orders before the Tuesday quote cutoff. | Check order history, confirm the current terms and seek renewed authority. Identify who will escalate if the cutoff is at risk. |
 
-Record who will resolve the hold and when the planner needs an answer. For example, if an open order already covers Thursday’s demand, the buyer could recommend closing the requisition. If the shortage remains and the quote still holds, the buyer could seek renewed approval. Both recommendations are consistent with the same modeled hold.
+Choose **Proposed disposition** and record the **Action owner**, **Due by**, evidence, next checkpoint, escalation condition, and reason or dissent. **Preview this shift handoff** shows what the next shift will read. **Download selected handoff** exports the selected comparison, lane C, fictional update and its proposed action. Each update has its own draft, so you can return to the other ending and recover its notes. The purchasing records are discussion material. Selecting an update leaves the modeled order counts and spend fixed.
+
+For a second exercise, choose **Practice a missing order acknowledgment** and run the replay case. The team inbox lacks a reply and the supplier ledger still needs reconciliation. Tell the next shift what record would establish whether the original order exists and when to escalate an uncertain outcome.
+
+## Prepare a sponsor decision
+
+Choose **Decide on a purchasing pilot** and run the opening comparison. Use the pilot form to propose a shadow evaluation at one site, defer pending evidence, or retain the current workflow. In a shadow pilot, staff would compare recommendations with buyer-led ERP purchasing under the same approval policy and records. Buyers would retain release authority.
+
+Identify the site and category, sponsor, policy and renewal owner, material availability owner, stop condition, and next review date. Describe the trade-off and what evidence would change the decision. The scorecard suggests a source and owner for each field measure, including expired releases per attempted release, buyer minutes per requisition, time a shortage stays open, and material covered by the need date. Set the observation window and owners for the proposed pilot.
+
+**Estimate the cost of a hold** accepts handling minutes, hourly labor cost, and expedite cost in one currency. For example, 15 minutes at 40 per hour plus 20 for expediting gives 30 currency units per hold. Those inputs are assumptions to discuss. Actual cost and service impacts require field observations. Use **Preview sponsor brief** and **Download sponsor brief** to share the decision for this comparison.
 
 ## Design a supply chain study
 
-Start with one requisition as the unit of analysis. Predict which orders will execute with expired approval. In **Case Lab**, run 59, 60 and 61 logical seconds under both bundles. Keep the request amount and starting state fixed. Record approval age, bundle, decision and modeled order count for each comparison. At exactly 60 seconds the approval has expired. Repeating an input reproduces a deterministic decision. It supplies no additional independent observation.
+Choose **Reproduce or teach the case**. State a prediction, then run the opening case at 59, 60 and 61 logical seconds. Record the amount and baseline. **Download browser comparison CSV** exports B and C rows for retained original expiry comparisons, including the run and request IDs, build, model version, baseline, age, spend, decision and modeled order count. A repeated input reproduces a deterministic answer and adds no independent requisition.
 
-Open **Evidence** to inspect a related recorded event and its trial ID. Keep its outcome with the recorded trial and the browser decision with its own comparison. For a field study, pair comparable requisitions handled by a buyer using ERP and by an agent-assisted team. Give both the same approval policy and access to stock, open orders and supplier terms. Record expired releases per attempted release, buyer minutes per requisition, and time from hold to resolution. Include unresolved holds at the end of observation and account for urgency and supplier lead time when comparing groups. These measures require purchasing records or observation of buyers at work. [Experiment operations and recorded evidence](PHASE3_OPERATIONS.md)
+Expand **Replication instructions and variable dictionary** to find the expected outputs, frozen selection and source command. **Download recorded pair CSV** exports the related synthetic B and C trial records. Inspect **000-stale_approval**, B sequence 14 and C sequence 15, by case digest, configuration and record hash. The browser ID identifies a local comparison. The trial sequence identifies an event record in the separate frozen experiment. Match these sources by the question they examine.
+
+From the matching checkout, `npm run demo:fixtures:check` checks the public snapshot hashes and relationships. To generate fresh runtime evidence, use the research setup and verification commands. [Experiment operations and recorded evidence](PHASE3_OPERATIONS.md)
+
+Open **Plan a field comparison** for the field-study worksheet. Specify eligibility, urgency, supplier lead time, assignment or matching, and a common approval policy for one requisition as the unit of analysis. Include unresolved holds at the end of observation. Record material available by its need date separately from order release.
+
+## Teach the purchasing case
+
+Under **Reproduce or teach the case**, open **Teach the case** and share **Open learner task** from the build used in class. Students can download a blank learner sheet and record predictions before entering Case Lab. The downloadable instructor guide includes the answer key, timing, debrief prompts and scoring rubric.
+
+Allow 20 minutes. Collect predictions, run the three timing comparisons, then assign one fictional purchasing update to each team. Have students exchange shift handoffs and defend a disposition using the cited record. Ask what would change their decision, then transfer the exercise to a missing purchase acknowledgment. Score the explanation, cited evidence, alternative interpretation and conditions that would change the recommendation.
 
 ## What the five views do
 
@@ -97,7 +116,7 @@ Under **Keep or export this discussion**:
 
 - **Save in this browser** writes an explicit local copy. Later edits require saving again.
 - **Load saved session** asks before replacing the current in-memory session.
-- **Download discussion brief** produces Markdown; **Download session JSON** retains structured session data. Both contain the retained comparisons and local free-text reasoning.
+- **Download discussion brief** produces Markdown; **Download session JSON** retains structured session data. Both include retained comparisons, discussion notes and entered audience drafts. Use **Download selected handoff** or **Download sponsor brief** when the recipient needs only that task.
 - The **configuration-only link** carries the draft’s case and bounded inputs. It carries no notes, outcomes or approvals and does not turn them into recorded evidence.
 - **Delete browser copy** leaves the current in-memory session intact. **Clear current session** leaves a separately saved browser copy intact. Both ask for confirmation.
 

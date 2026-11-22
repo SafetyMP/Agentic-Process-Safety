@@ -1,58 +1,57 @@
-# Buyer and researcher walkthroughs
+# Walkthroughs for supply chain audiences
 
-Use these sessions to decide whether the current experience helps a buying team act on a hold and a researcher design a defensible comparison. Run each task on the local branch so the participant sees the revision under review.
+Use these tasks to observe how executives make a pilot decision, field managers hand off a held order, and researchers or professors reproduce or teach the result. The outputs give a second reader something concrete to interpret. The activities below are a proposed study protocol.
 
 ## Moderator setup
 
-Use Node 22.18+ and npm. A first installation needs registry access or a populated npm cache. Record `git rev-parse HEAD`, run `npm ci` and `npm run demo:dev`, and open the local URL Vite prints. Use a fresh browser profile or private session for each participant. Start on **Start here**. Give participants only their task card and a blank sheet. Before the researcher opens the app or guide, capture their prediction and preferred field measure in their own words. Then let participants use the app and guide as they ordinarily would. Record which they consult and when. Use fictional purchasing information in notes and exports.
+Run the checkout under review with Node 22.18+ and npm. A first installation needs registry access or a populated npm cache. From the repository root run `npm ci` if dependencies are missing, then `npm run demo:dev`. Record the URL, `git rev-parse HEAD`, and the build identifier in the app footer. Use that installation for the task cards, handoffs and learner links. Start each participant in a fresh browser session with fictional notes.
 
-Ask both audiences, “Who handles this request in an ERP purchasing workflow? What work or decision changes when an agent can submit it?” Ask again at the end and keep both answers. During a task, use “What are you looking for?” or “What would you do next?” If someone stalls, record the last screen and what they expected before offering help.
+Give each participant only their task. Ask what they would do in their own ERP workflow and what work changes if an agent can submit the order. Capture their answer before and after the exercise. For the academic tasks, collect predictions before showing the guide or answer key. Note time, prompts, misunderstandings and which sources participants opened. If they stall, ask what they expected to find before offering help.
 
-## Buyer and planner task card
+## Field manager task
 
-A requisition is waiting for a decision ahead of Thursday’s production run. Open the approval case and compare what happens to the request. Tell the next shift what happened, what remains open, and which records you would check. What does the displayed amount tell you?
+A requisition needs a decision before Thursday’s assembly run. Open **Prepare a shift handoff**. Run the 61-second case and explain what happened in each lane, what quantity the site needs, and what the 300 measures.
 
-The moderator will give you a fictional update. For that version of the case, use the worksheet to leave the next shift a decision, its reason, the person who should act, and when the team needs an answer. Choose the wording or worksheet option you would use at work. Export a discussion brief.
+Give the manager one update at a time. Counterbalance the order across participants. Use the same retained comparison for both endings. Keep the second ending out of the discussion until the first brief has been exported.
 
-Give the brief to a colleague who did not see the exercise. Ask them to explain what already happened, who should do what next, and what would justify releasing or closing the requisition.
+- **Wednesday inbound confirmed.** Work out whether the planned delivery covers the need. Record the decision, next action, owner, timing, record and escalation condition. Preview and download the selected handoff.
+- **Thursday requirement uncovered.** Examine the material plan, quote, cutoff and approval status. Prepare the next shift’s handoff for this version. Switch back to check the first handoff.
 
-## Moderator slips for the buyer
+Give each export to a colleague who did not see the exercise. Ask them to name what already happened, what remains open, which record they will check, who acts and by when. Repeat on a narrow screen. For transfer, ask the participant to run the missing-acknowledgment case and identify the evidence required before a retry.
 
-Give only the buyer task card and one slip. Each slip is an alternative version of the opening case. After collecting the first brief, start a fresh session and recreate the same 61-second input before revealing the other slip. A brief includes all retained comparisons and notes in its session. Label each export externally with the session and slip name.
+## Executive task
 
-- **Inbound delivery.** The planner confirms that a separate inbound order will arrive Wednesday and covers Thursday’s requirement.
-- **Uncovered demand.** The planner confirms a shortage for Thursday. The supplier confirms the quote and lead time. Finance has supplied no newer approval for this request.
+Your team is considering delegated purchasing at one site. Take three minutes to examine the opening case and prepare a proposal for another director. Choose whether to evaluate in shadow mode, defer pending evidence, or retain the current workflow. Set the scope, accountable sponsor, authority, review date and condition that would cause someone to pause.
 
-## Researcher task card
+Ask the director to preview and export the sponsor brief. Give it to a colleague who did not attend. Ask which decision is sought, which policy both groups would use, who can release an order and who can pause the work. Ask which measure would expose an expensive hold and where the data would come from. If the participant entered cost assumptions, ask the reader to identify those assumptions and explain the separate modeled spend figure.
 
-You want to study how approval expiry affects purchasing. Write a prediction and define one observation. Use the opening case to compare approval ages of 59, 60 and 61 logical seconds. Keep a record another researcher could use to reproduce the comparison. What did you hold fixed? What changes if you run the same input twice?
+## Researcher task
 
-| Approval age | First bundle, decision and order count | Second bundle, decision and order count | Retained comparison ID |
-| --- | --- | --- | --- |
-| 59 | | | |
-| 60 | | | |
-| 61 | | | |
+Write a prediction and define one observation. Under **Reproduce or teach the case**, compare ages of 59, 60 and 61 logical seconds. Export the browser comparisons and the recorded pair. Give a peer the files, build identifier, model version and directions to the recorded event. Ask them to reproduce the boundary and identify what is held fixed. What does an extra click at 61 add?
 
-Find a related recorded event in **Evidence**. Give a colleague its trial identifier, what happened in that trial, and which conclusions can be drawn from it. Starting from the user guide, find one command to check the recorded snapshot in a fresh checkout. Describe what a fresh experiment would add.
+Starting from the replication instructions, find the snapshot check and explain what a fresh gateway experiment would add. Use the field-study worksheet to design a comparison with buyer-led ERP. Choose the unit, common policy, information and authority, observation window, outcome, treatment of open holds and likely confounders. Identify which measurements would require purchasing records or observations outside APS.
 
-Design a comparison with buyers using ERP in the field. Name the unit, comparator, information and policy available to each group, a measurable outcome, and what you would do with a hold still open at the end. Which of your proposed measures would require observations outside APS?
+## Professor and learner task
 
-## Moderator observations and decision
+Ask the instructor to give students the learner URL or prediction sheet before opening the instructor guide. Collect predictions and an explanation, then allow 20 minutes for the activity. Assign one purchasing update to each group. After students exchange briefs, ask them to defend their disposition to a group with the other update. Give them the missing-acknowledgment case and ask what they would check before another purchase attempt.
 
-Alternate which buyer slip comes first across participants. Ask the colleague to interpret each brief independently, without the task card. For the researcher, collect the table and trial reference before discussing expected results.
+Collect the initial predictions, the two handoffs and a response to the transfer question. Ask the instructor to use the rubric and identify where students attributed a result to finance authority, material availability or human judgment. Ask how much setup they needed and what they would change for their own class.
 
-| Check | What to look for after the task |
+## Moderator observations
+
+| Task | Evidence to look for |
 | --- | --- |
-| Buying decision | The 300 is modeled spend. B executes one order and C holds at 61 seconds. The deadline and stock information came from the card. Inbound delivery supports reconciling the inbound order and closing the duplicate need. Uncovered demand supports checking order history and obtaining current authority before another release. Credit another decision if the participant names the evidence that justifies it. |
-| Handoff | Can the colleague recover the disposition, owner, deadline and outstanding evidence from each brief? Record any difference between what the author intended and what the reader understood. Note if a suitable decision fit only in free text. |
-| Boundary comparison | Both bundles evaluate the same agent request at each age with the amount and baseline held fixed. B permits one modeled order in all three runs. C permits one at 59 and blocks with zero at 60 and 61. A deterministic repeat adds no independent requisition. |
-| Evidence | The browser comparison has its own ID. The stale-approval trial has a case identity, configuration and ledger sequence. A snapshot check validates the recorded selection. A new runtime execution produces new evidence. Neither browser lane represents an observed human buyer. |
-| Field design | Look for comparable requisitions and a common approval rule, records and decision rights. Ask how expired releases per attempted release, buyer minutes per requisition, or time from hold to resolution would be measured. Keep unresolved holds in the analysis and record urgency or lead-time differences. |
+| Field decision | The participant identifies 24 physical bearings and 300 simulated spend units. Lane B creates one order and C holds. The inbound and uncovered records can justify different dispositions for that same hold. Credit another decision grounded in the supplied evidence. |
+| Shift handoff | A reader recovers disposition, owner, due time, next checkpoint and outstanding evidence from each selected handoff. Switching updates preserves the first draft. For replay the participant asks about the original order or receipt. |
+| Sponsor brief | A colleague recovers pilot disposition, comparator, scope, accountable people and a stop or review trigger. The reader distinguishes a proposed field measure or cost assumption from a modeled observation. |
+| Replication | The browser data has one B and one C row per original expiry comparison. B yields one order at each age. C yields one at 59 and zero at 60 and 61. The peer uses recorded pair B #14 / C #15 and its case digest for a separate question. |
+| Field-study design | The proposed comparison keeps the policy and information comparable, defines numerator and denominator, and accounts for unresolved holds, urgency and lead time. |
+| Teaching | Students identify the decisive condition, cite a record, give an alternative explanation and say what evidence would change the recommendation. On transfer they identify the need to reconcile the previous purchase. |
 
-Use one row per observed task. Record unaided, completed after a prompt, or blocked. Keep participant wording distinct from the moderator’s interpretation.
+For a first formative round, aim for five people per audience and include both research and teaching faculty. A proposed target is four of five completing the audience’s core task unaided. Report the actual counts for each task, including separate researcher and instructor counts. Investigate consequential misunderstandings even when the group meets its target.
 
-| Session / role / revision | Task and outcome | Observed action or quote | Help or source used | Artifact or discrepancy |
+| Session / role / build | Task and elapsed time | Outcome (unaided, prompted, blocked) | Observed action or quotation | Handoff discrepancy or follow-up |
 | --- | --- | --- | --- | --- |
 | | | | | |
 
-Debrief with “What would you keep, and what made the decision harder?” If the buyer reaches a defensible decision but the recipient cannot recover it, investigate the worksheet and export together. If a researcher can explain the boundary but loses a retained run, investigate the comparison view. Record disagreements and successful paths alongside failures. Use the observations to prioritize changes after these sessions.
+Record participant words separately from moderator interpretation. Revisit the screen or export where a handoff failed. After revision, repeat the same task with a new reader and note the build tested.
