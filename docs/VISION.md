@@ -1,26 +1,16 @@
 # APS vision and research questions
 
-APS helps people examine whether an agent's action is justified within a coordinated process. Tool access answers who may invoke an operation. It does not, by itself, establish that an earlier approval is still current, information belongs to the task, a request has not already executed, or the requested work still makes sense.
+Agentic Process Safety (APS) starts with a job a site already does. The site must get the right parts to the assembly line by their need date and buy them under current authority. The bearings case follows the buyer-led process from a request for material to receipt. Readers then examine what a purchasing agent inherits from earlier handoffs, what can change while it waits, and how to find out whether the site has a problem worth addressing. [Read the case](https://safetymp.github.io/Agentic-Process-Safety/#/study)
 
-The project connects a concrete request to its possible failure path, proposed control, observed evidence and human judgment. Its organizing question is: **what must remain true when the action occurs, and what should happen when a condition no longer holds?**
+## One case, one recommendation
 
-Start with the [live investigation](https://safetymp.github.io/Agentic-Process-Safety/) or the [user guide](USER_GUIDE.md). The [documentation map](README.md) separates current guidance from technical references and retained historical records.
+Change the time at release and observe the effect of checking approval. Change the minutes saved and see when a proposed agent could cover its first-year costs. The same question closes the case for every reader. Would you keep the current process, add an approval rule or run a shadow pilot? The three alternatives carry different costs and leave different questions for the site to answer. [Investment assumptions and sources](BUSINESS_CASE.md) · [Discussion prompts](AUDIENCE_WALKTHROUGHS.md)
 
-## What the experience is for
+## Where the research begins
 
-- Engineers can compare the behavior of explicit control bundles and inspect the condition where decisions diverge.
-- Researchers can examine HAZOP-inspired screening, source mappings and bounded synthetic experiments.
-- Reviewers can explain a recommendation, attach its evidence, preserve disagreement and identify the information or accountable decision still needed.
+The underlying question is **what must still be true when an agent acts?** In a hazard and operability (HAZOP) study, the guide word LATE prompts the team to examine what may have expired while the order waited. The source scenario concerns a supplier quote. The browser example tests a related condition, the age of finance approval. Both questions matter at purchase.
 
-The procurement setting provides a shared concrete example: demand, inventory and supplier information feed finance and purchase decisions, with an orchestrator coordinating work. It is a way to reason about dependencies and authority across an agent workflow. It does not require users to assume that the model contains independently reasoning agents or represents a deployed purchasing system.
-
-## The current product contract
-
-**Compare → Change or inspect → Form a position** is the main journey. Each comparison retains its inputs and starting state. The interface explains a case-specific causal path and distinguishes execution with an invalid condition, a held boundary, a pending review and an outstanding task. A blocked request is not presented as completion of the intended work.
-
-Recommendations change what the user investigates next. Current approvals lead to business-evidence questions; missing or expired approvals raise authorization questions; replay, scope, delegation, context and conflict cases raise their own questions. A narrowly modeled fresh-approval exploration creates a separate hypothetical request. Free-text reasoning and a “ready for discussion” status do not authorize operations.
-
-Supporting views connect the selected request to hazards, controls and recorded trials. They explain where those sources differ before showing the larger register or trace. For example, approval freshness is narrower than quotation validity; a recorded demand-stage context substitution is not the same execution as the browser's purchase-stage illustration; a budget violation does not demonstrate objective arbitration.
+The IT workspace lets an engineer inspect the approval contract, compare two recorded purchase calls and trace the associated controls to the research repository. Its boundary tests connect a policy decision with the adapter effect and receipt. [IT workspace](https://safetymp.github.io/Agentic-Process-Safety/#/overview) · [User guide](USER_GUIDE.md)
 
 ## Three kinds of evidence, three responsibilities
 

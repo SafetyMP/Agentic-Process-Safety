@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
   <title>APS Project Guide | Compare Controls, Trace Causes, Examine Evidence</title>
-  <meta name="description" content="Understand APS: a HAZOP research sandbox for comparing AI agent controls, tracing causal paths, and recording evidence-based human recommendations.">
+  <meta name="description" content="Explore the bearings business case in the APS research sandbox. Compare purchase rules, first-year value and three options for a site facing an expired approval.">
   <link rel="canonical" href="https://safetymp.github.io/Agentic-Process-Safety/guide.html">
   <link rel="sitemap" type="application/xml" href="./sitemap.xml">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Agentic Process Safety">
   <meta property="og:title" content="APS Project Guide | Compare Controls, Trace Causes, Examine Evidence">
-  <meta property="og:description" content="Understand APS: a HAZOP research sandbox for comparing AI agent controls, tracing causal paths, and recording evidence-based human recommendations.">
+  <meta property="og:description" content="Explore the bearings business case in the APS research sandbox. Compare purchase rules, first-year value and three options for a site facing an expired approval.">
   <meta property="og:url" content="https://safetymp.github.io/Agentic-Process-Safety/guide.html">
   <meta name="twitter:card" content="summary_large_image">
     <link rel="image_src" href="./social-preview.jpg">
@@ -22,45 +22,60 @@
     <meta name="twitter:image" content="https://safetymp.github.io/Agentic-Process-Safety/social-preview.jpg">
     <meta name="twitter:image:alt" content="APS comparison: an expired-approval request executes under B and is stopped under C. Illustrative model only.">
   <meta name="twitter:title" content="APS Project Guide | Compare Controls, Trace Causes, Examine Evidence">
-  <meta name="twitter:description" content="Understand APS: a HAZOP research sandbox for comparing AI agent controls, tracing causal paths, and recording evidence-based human recommendations.">
+  <meta name="twitter:description" content="Explore the bearings business case in the APS research sandbox. Compare purchase rules, first-year value and three options for a site facing an expired approval.">
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"WebPage","name":"APS project and evidence guide","description":"Understand APS: a HAZOP research sandbox for comparing AI agent controls, tracing causal paths, and recording evidence-based human recommendations.","url":"https://safetymp.github.io/Agentic-Process-Safety/guide.html","isPartOf":{"@type":"WebSite","name":"Agentic Process Safety","url":"https://safetymp.github.io/Agentic-Process-Safety/"},"about":{"@type":"SoftwareSourceCode","name":"Agentic Process Safety (APS)","codeRepository":"https://github.com/SafetyMP/Agentic-Process-Safety"}}
+  {"@context":"https://schema.org","@type":"WebPage","name":"APS project and evidence guide","description":"Explore the bearings business case in the APS research sandbox. Compare purchase rules, first-year value and three options for a site facing an expired approval.","url":"https://safetymp.github.io/Agentic-Process-Safety/guide.html","isPartOf":{"@type":"WebSite","name":"Agentic Process Safety","url":"https://safetymp.github.io/Agentic-Process-Safety/"},"about":{"@type":"SoftwareSourceCode","name":"Agentic Process Safety (APS)","codeRepository":"https://github.com/SafetyMP/Agentic-Process-Safety"}}
   </script>
   <style>
     :root{color-scheme:light dark;--bg:#f6f8fb;--panel:#fff;--text:#172b3a;--muted:#465b6d;--line:#ccd7df;--accent:#176459}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:17px/1.65 system-ui,sans-serif}main,header,footer{max-width:960px;margin:auto;padding:28px clamp(20px,4vw,48px)}header{padding-bottom:0}nav{display:flex;flex-wrap:wrap;gap:12px 24px}a{color:var(--accent);text-underline-offset:3px}a:focus-visible{outline:3px solid #bd7800;outline-offset:5px}h1{font-size:clamp(2rem,5vw,3.3rem);line-height:1.12;letter-spacing:-.035em;max-width:800px}h2{line-height:1.25;margin-top:2.4rem}h3{font-size:1.1rem}p,li{max-width:78ch}.eyebrow{font-weight:700;letter-spacing:.1em;font-size:.75rem;color:var(--accent)}.lead{font-size:1.2rem}.comparison{display:grid;grid-template-columns:1fr 1fr;gap:16px}.comparison article{background:var(--panel);padding:20px;border:1px solid var(--line);border-radius:8px}.comparison h3{margin-top:0}footer{border-top:1px solid var(--line);font-size:.9rem;color:var(--muted)}@media(prefers-color-scheme:dark){:root{--bg:#111b29;--panel:#1c2939;--text:#e3eaf2;--muted:#b8c5d2;--line:#3b4c5e;--accent:#9bd4c9}}@media(max-width:600px){.comparison{grid-template-columns:1fr}main{padding-top:14px}}
   </style>
 </head>
 <body>
-<header><nav aria-label="Project navigation"><a href="./index.html">Open APS at its default entry</a><a href="https://github.com/SafetyMP/Agentic-Process-Safety">Source repository</a><a href="./llms.txt">Plain-text source index</a></nav></header>
+<header><nav aria-label="Project navigation"><a href="./index.html">Open interactive APS</a><a href="./index.html#/overview">IT implementation workspace</a></nav></header>
 <main>
-  <p class="eyebrow">AGENTIC PROCESS SAFETY · PROJECT GUIDE</p>
+  <p class="eyebrow">Agentic Process Safety · Purchasing case</p>
   <h1>Permission is only the beginning.</h1>
-  <p class="lead">Can this purchase go ahead? You need 24 bearings by Thursday. In the short APS hazard and operability (HAZOP) study, follow a purchasing request for 300 simulated spend units, predict what could go wrong if it goes out late, and record one proposed decision.</p>
-  <p><a href="./index.html">Open interactive APS</a> · <a href="./index.html#/overview">Open the full workspace</a></p>
-  <h2>Follow one purchase</h2>
-  <ol>
-    <li><strong>Follow the handoff.</strong> Buyer-led purchasing in an enterprise resource planning (ERP) system and agent-delegated purchasing can both automate work and both can use stale information. In a delegated workflow, the purchasing worker can act on evidence passed along by earlier workers.</li>
-    <li><strong>Apply the HAZOP guide word LATE.</strong> The intent is one currently authorized order. Predict what could go stale, then reveal what happens when the same agent request runs through two fixed control bundles. Compare 59, 60 and 61 logical seconds of finance approval age.</li>
-    <li><strong>Decide what comes next.</strong> Choose a role after the reveal, submit one decision for discussion, then review and revise its summary.</li>
-  </ol>
-  <h2>Use APS to form a position</h2>
-  <p><strong>Executive.</strong> Decide whether to sponsor a shadow pilot and name a stop condition. <a href="./index.html#/simulator?story=stale&amp;age=61&amp;task=pilot">Full pilot worksheet and sponsor brief</a></p>
-  <p><strong>Field manager.</strong> Use a 60- or 61-second comparison where C holds the order. Choose one fictional purchasing update and propose a disposition with evidence, an owner and a deadline. <a href="./index.html#/simulator?story=stale&amp;age=61&amp;task=field">Full shift handoff and download</a></p>
-  <p><strong>Professor or researcher.</strong> Interpret the timing boundary and name one limit or field observation. <a href="./index.html#/simulator?story=stale&amp;age=61&amp;task=research">Timing data, recorded pair and teaching materials</a> · <a href="./index.html#/simulator?task=learner">Open learner task</a></p>
-  <h2>Inspect the evidence</h2>
-  <p>REF-008 is an unverified HAZOP scenario. A late purchase could use an expired supplier quotation and exceed the authorized price. The browser checks finance approval age. Approval freshness is not quotation validity. The frozen B/C trial pair comes from a separate synthetic experiment.</p>
-  <details>
-    <summary>Read the modeled outcome</summary>
-    <div class="comparison" aria-label="Same-request control comparison">
-      <article><h3>B · Tool permission + spend limit</h3><p>At 61 logical seconds, B permits the request. The worker has tool permission and the amount is within the ceiling.</p></article>
-      <article><h3>C · Lifecycle checks added</h3><p>At 61 logical seconds, C holds the request because finance approval has expired. The purchase remains outstanding.</p></article>
-    </div>
-    <p>At 59 seconds both bundles permit the same request; at 60 and 61 seconds C stops it. The model requires approval age below 60 logical seconds. A current approval leaves supplier terms, inventory and the need to buy open.</p>
-  </details>
-  <p>The full Case Lab has all nine cases, retained comparisons, reasoning and discussion exports. The evidence views give the source scenario, proposed controls and the recorded trials. <a href="./index.html#/simulator">Case Lab</a> · <a href="./index.html#/hazop?hazard=APS-f47191931b96a999a61c">Hazard study</a> · <a href="./index.html#/governance?control=CTL-EXPIRY">Controls</a> · <a href="./index.html#/assurance?story=stale">Evidence</a></p>
-  <p>APS is a browser research sandbox. Model results describe simulated orders, and recorded decisions are proposals for discussion. Hazards remain unverified and controls remain proposed.</p>
+  <p class="lead"><strong>The bearings are due Thursday.</strong> Assembly needs 24 bearings for its run. Purchasing has a request for 300 simulated spend units, with a finance approval attached. What can change between approval and release?</p>
+  <h2>How the bearings reach the line</h2>
+  <p>Planning starts with a need date. Stock in the storeroom or a scheduled delivery might cover all or part of the requirement. The buyer checks that position, confirms supplier terms and asks finance to authorize the quantity and amount. Purchasing can then release the order to the supplier. Receiving counts what actually arrives.</p>
+  <p>In a buyer-led purchasing system, an exception goes to a person who can look up the original records. An agent may instead receive a supplier choice, amount and approval from earlier workers. The handoff lets it place a purchase without the original buyer being present. That matters when the request waits.</p>
+  <h2>What changes while the request waits?</h2>
+  <div class="comparison">
+    <article><h3>If the order goes out</h3><p>The buyer checks which price and delivery date the supplier accepted and whether finance still authorizes the spend. The planner tracks the delivery. Receiving must count the bearings before the crew can use them.</p></article>
+    <article><h3>If the order waits</h3><p>The buyer looks for an open order that could cover the shortage. If the site still needs the bearings, the buyer confirms the quote and obtains fresh authority. The planner can move the job if supply will miss the need date.</p></article>
+  </div>
+  <p>Follow either path to Thursday at 08:00. With 24 bearings received and allocated, the crew can draw the full set. With none available, the planner needs an alternative source or a different assembly slot. These are possible stock records for the case.</p>
+  <p>At a real site, start by matching attempted releases to approval timestamps. Count affected requests, time the work of resolving them, and check material availability by each need date. Keep open exceptions in the count. These facts establish the scale of the problem before the site prices an alternative.</p>
+  <h2>How HAZOP examines a late release</h2>
+  <p>In a hazard and operability study (HAZOP), a team states what a step should do and uses a guide word to explore what could go wrong. Apply <strong>LATE</strong> to the release of REQ-218 for 24 bearings. Supplier quote Q-82 offers Wednesday delivery if the order is placed by Tuesday 14:00, plant time. At 13:55 the terms are current. At 14:05 the buyer needs a new price and delivery date. REF-008 identifies the risk of buying on a stale quote above the amount finance authorized. The proposed action is to expire old quotations. <a href="https://github.com/SafetyMP/Agentic-Process-Safety/blob/main/docs/METHODOLOGY.md">APS study method and IEC reference</a></p>
+  <h2>One second changes the order</h2>
+  <p>Keep the release time for REQ-218 and vary how long ago finance authorized it. Finance approval has a separate lifetime of 60 logical seconds from authorization.</p>
+  <div class="comparison" aria-label="Same-request control comparison">
+    <article><h3>Check permission and spend</h3><p>The agent can use the purchase tool and the amount is within its limit. These checks, called B in the model, allow the order to go out even after approval has expired.</p></article>
+    <article><h3>Also check approval at release</h3><p>These checks, called C, release the order at 59 seconds. At 60, approval has expired and the rule holds it. The purchase remains outstanding.</p></article>
+  </div>
+  <p>At 14:05 a 59-second-old approval lets the modeled order go out even though Q-82 has expired. At 13:55 a 60-second-old approval triggers the APS hold even while Q-82 is current. The buyer checks the supplier’s acknowledgment, accepted price and promised arrival, seeks fresh authority for a held purchase if still needed, and asks receiving to confirm that all 24 are on hand and allocated for Thursday 08:00.</p>
+  <h2>Would an agent earn its place?</h2>
+  <p>Follow REQ-218 into the buyer’s time record. Assume 12 minutes on a comparable buyer-led request and 2 minutes to review the agent’s recommendation. After release, allow 4 minutes to reconcile the acknowledgment, price and delivery, freeing 6 minutes. After a hold, allow 7 minutes to trace supply and resolve the exception, freeing 3 minutes. These are illustrative estimates of active work.</p>
+  <p>A site with 200 eligible orders a month values buyer time at $40 an hour. Introducing an agent would cost $2,400 to set up and $400 per month to operate. The site needs to free 4.5 buyer minutes per request to cover those costs in year one. Include the time people spend resolving holds.</p>
+  <ul>
+    <li><strong>3 minutes freed.</strong> Buyer capacity worth $4,800 leaves a $2,400 shortfall.</li>
+    <li><strong>4.5 minutes freed.</strong> Buyer capacity worth $7,200 covers the $7,200 first-year cost.</li>
+    <li><strong>6 minutes freed.</strong> Buyer capacity worth $9,600 yields $2,400 of first-year net value.</li>
+  </ul>
+  <p>These illustrative values assume the site can use the released time. Identifying an expense the business can actually avoid would support a claim about cash savings.</p>
+  <h2>What would you do?</h2>
+  <p>REQ-218 illustrates one path. If the site handles 100 releases and 100 holds per month, its average saving under these assumptions is 4.5 minutes, exactly break-even. Use actual release and hold counts, buyer time records, and receipts by need date to judge the opportunity. A separately priced shadow pilot is worth considering if recurring work remains beyond what the existing approval rule could address and the site has a credible path above break-even.</p>
+  <ul>
+    <li><strong>Keep buyer-led purchasing.</strong> Establish how often approvals expire and who owns the shortage when an order is held.</li>
+    <li><strong>Add the approval check.</strong> Ask the existing purchasing system to recheck approval at release. Price this change and test whether buyers can resolve holds before the material is needed.</li>
+    <li><strong>Run a shadow pilot.</strong> Compare agent recommendations with buyer decisions for four weeks at one site. Buyers keep release authority. Record disagreements and review time before asking for an operating trial.</li>
+  </ul>
+  <h2>Implement the release check</h2>
+  <p>At 59 seconds both bundles permit the same request; at 60 and 61 seconds C stops it. Approval freshness is not quotation validity. The implementation workspace follows your selected REQ-218 request through its policy check and an unsigned receipt excerpt. Compare the selected age, decision and adapter effect with recorded trials 14 and 15. Both trials used 61-second-old finance approval. Inspect the request and policy contract, then open <strong>Trace the HAZOP finding to the control</strong> to follow REF-008 through the proposed quotation-expiry requirement to <code>CTL-EXPIRY</code>. The linked expiry tests reproduce the finance-approval boundary. Checking an inbound delivery and supplier terms still needs a named buyer. <a href="./index.html#/overview">Open the IT implementation workspace</a>.</p>
   <h2>Project references</h2>
   <ul>
+    <li><a href="https://github.com/SafetyMP/Agentic-Process-Safety">Source repository</a></li>
     <li><a href="https://github.com/SafetyMP/Agentic-Process-Safety/blob/main/docs/VISION.md">Project vision and research questions</a></li>
     <li><a href="https://github.com/SafetyMP/Agentic-Process-Safety/blob/main/docs/USER_GUIDE.md">Interactive user guide</a></li>
     <li><a href="https://github.com/SafetyMP/Agentic-Process-Safety/blob/main/docs/README.md">Current documentation and historical record index</a></li>

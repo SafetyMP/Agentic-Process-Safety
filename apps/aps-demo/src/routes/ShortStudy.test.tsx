@@ -1,157 +1,137 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { App } from '../App.tsx';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
+import { ShortStudy as Case } from './ShortStudy.tsx';
+import { useBearingsSelection } from '../components/useBearingsSelection.ts';
 
-beforeEach(() => {
-  vi.stubGlobal('matchMedia', vi.fn(() => ({
-    matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn(),
-  })));
-});
-afterEach(() => {
-  cleanup();
-  vi.unstubAllGlobals();
-});
-
-function navigate(path: string) {
-  act(() => {
-    window.history.replaceState(null, '', path);
-    window.dispatchEvent(new HashChangeEvent('hashchange'));
-  });
+function ShortStudy() {
+  const order = useBearingsSelection();
+  return <Case order={order}/>;
 }
 
-function click(name: string) {
-  fireEvent.click(screen.getByRole('button', { name }));
+afterEach(cleanup);
+
+function choose(label: string) {
+  fireEvent.click(screen.getByRole('button', { name: label }));
 }
 
-function change(label: string, value: string) {
-  fireEvent.change(screen.getByLabelText(label), { target: { value } });
-}
-
-function begin() {
-  navigate('/index.html#/study');
-  render(<App/>);
-  click('Apply HAZOP at purchase');
-  click('Reveal the comparison');
-}
-
-describe('short purchasing study', () => {
-  it.each(['/', '/index.html', '/index.html#/study'])('opens the walkthrough at %s', path => {
-    navigate(path);
-    render(<App/>);
-    expect(screen.getByRole('heading', { name: 'Can this purchase go ahead?' })).toBeTruthy();
-    expect(document.title).toBe('Short study | Agentic Process Safety');
-    expect(screen.getByRole('link', { name: 'Short study' }).getAttribute('aria-current')).toBe('page');
-    expect(screen.getByRole('link', { name: 'Start here' }).getAttribute('href')).toBe('#/overview');
-    expect(screen.getByRole('link', { name: 'Case Lab' }).getAttribute('href')).toBe('#/simulator');
+describe('interactive purchasing case', () => {
+  it('keeps the opening request and a common decision visible without selecting a role', () => {
+    render(<ShortStudy/>);
+    const story = screen.getByRole('article', { name: 'The bearings are due Thursday.' });
+    expect(within(story).getAllByRole('heading', { level: 2 }).map(item => item.id)).toEqual(['case-workflow', 'case-problem', 'case-hazop', 'case-evidence', 'case-decision', 'case-choice']);
+    expect(within(story).getByText('24 bearings')).toBeTruthy();
+    expect(within(story).getByText('300 simulated spend units')).toBeTruthy();
+    expect(within(story).getByRole('link', { name: 'See how to implement the check' }).getAttribute('href')).toBe('#/overview?age=60&quote=13%3A55&stock=unknown&trial=15');
   });
 
-  it('keeps the result and audience choice behind reveal and evaluates the strict boundary', () => {
-    navigate('/');
-    render(<App/>);
-    click('Apply HAZOP at purchase');
-    expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'What could happen if release is late?' }));
-    change('What could go stale while the request waits, and what do you predict will happen?', 'The quote might change.');
-    expect(screen.queryByText(/REF-008/)).toBeNull();
-    expect(screen.queryByText(/approval has expired/i)).toBeNull();
-    expect(screen.queryByLabelText('Choose your role')).toBeNull();
-    click('Reveal the comparison');
-    const result = within(screen.getByRole('status'));
-    expect(result.getByText('C holds.')).toBeTruthy();
-    expect(result.getByText(/Finance approval has expired. The purchase is still outstanding/)).toBeTruthy();
-    expect(screen.getByText(/quote could expire/)).toBeTruthy();
-    click('59 seconds');
-    expect(result.getByText('C releases.')).toBeTruthy();
-    expect(result.getByText(/Finance approval is still current/)).toBeTruthy();
-    click('60 seconds');
-    expect(result.getByText('C holds.')).toBeTruthy();
-    expect(result.getByText('B releases.')).toBeTruthy();
-    fireEvent.click(screen.getByText('Timing data from this study'));
-    const timing = within(screen.getByRole('table'));
-    expect(timing.getAllByRole('row').slice(1).map(row => Array.from(row.children, cell => cell.textContent)))
-      .toEqual([['59', '1', '1'], ['60', '1', '0'], ['61', '1', '0']]);
+  it('establishes the buyer-led workflow and the site baseline before asking readers to test a control', () => {
+    render(<ShortStudy/>);
+    const workflow = within(screen.getByRole('region', { name: 'How the bearings reach the line' }));
+    expect(workflow.getAllByRole('listitem')).toHaveLength(4);
+    const problem = within(screen.getByRole('region', { name: 'What changes while the request waits?' }));
+    expect(problem.getByText('If the order goes out')).toBeTruthy();
+    expect(problem.getByText('If the order waits')).toBeTruthy();
+    expect(problem.getByText(/Match attempted releases to approval expiry times/)).toBeTruthy();
+    expect(problem.queryByRole('button', { name: '60 seconds' })).toBeNull();
   });
 
-  it('links the exact sources and keeps the detailed learner route reachable', () => {
-    begin();
-    fireEvent.click(screen.getByText('Sources and full workspace'));
-    expect(screen.getByRole('link', { name: 'REF-008 source finding' }).getAttribute('href'))
-      .toBe('#/hazop?hazard=APS-f47191931b96a999a61c');
-    expect(screen.getByRole('link', { name: 'Approval freshness control' }).getAttribute('href'))
-      .toBe('#/governance?control=CTL-EXPIRY');
-    expect(screen.getAllByRole('link', { name: /^[BC] trial / }).map(link => link.getAttribute('href')))
-      .toEqual(['#/assurance?trial=14', '#/assurance?trial=15']);
-    expect(screen.getByRole('link', { name: 'Research, teaching and full downloads' }).getAttribute('href'))
-      .toBe('#/simulator?story=stale&age=61&task=research');
-    navigate('/index.html#/simulator?task=learner');
-    expect(screen.getByRole('heading', { name: 'Predict the purchase decision' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Download blank learner sheet' })).toBeTruthy();
+  it('keeps the illustrative stock record independent of the purchase decision', () => {
+    render(<ShortStudy/>);
+    const problem = within(screen.getByRole('region', { name: 'What changes while the request waits?' }));
+    const result = problem.getByRole('status');
+    expect(result.textContent).toContain('Availability unknown');
+    choose('24 bearings available');
+    choose('61 seconds');
+    expect(result.textContent).toContain('24 of 24');
+    choose('No bearings available');
+    expect(result.textContent).toContain('0 of 24');
+    expect(screen.getByRole('button', { name: '61 seconds' }).getAttribute('aria-pressed')).toBe('true');
+    choose('No bearings available');
+    expect(result.textContent).toContain('Availability unknown');
   });
 
-  it('keeps each role and fictional update attached to its original comparison and allows revision', () => {
-    begin();
-    click('Choose your decision');
-    change('Choose your role', 'field');
-    change('Proposed disposition', 'Reconcile and propose closing the requisition');
-    change('Evidence supporting the disposition', 'Inbound PO-417');
-    change('Action owner', 'Materials planner');
-    change('Deadline', 'Wednesday at 14:00');
-    click('Record decision');
-    expect(screen.getByText('Inbound PO-417')).toBeTruthy();
+  it('updates both release paths and their handoff at the exact expiry boundary', () => {
+    render(<ShortStudy/>);
+    const outcomes = () => Array.from(document.querySelectorAll('.release-lanes dd'), item => item.textContent);
+    expect(outcomes()).toEqual(['Release', 'Hold']);
+    choose('59 seconds');
+    expect(outcomes()).toEqual(['Release', 'Release']);
+    expect(screen.getByText('Approval is current')).toBeTruthy();
+    for (const age of [60, 61]) {
+      choose(age + ' seconds');
+      expect(outcomes()).toEqual(['Release', 'Hold']);
+      expect(screen.getByText('Approval has expired')).toBeTruthy();
+      expect(screen.getByRole('button', { name: age + ' seconds' }).getAttribute('aria-pressed')).toBe('true');
+    }
+  });
 
-    change('Fictional purchasing update', 'shortage');
-    expect(screen.getByText(/Quote Q-82/)).toBeTruthy();
-    expect(screen.queryByRole('heading', { name: 'Decision recorded for discussion' })).toBeNull();
-    change('Proposed disposition', 'Seek current authorization and recheck the quote');
-    change('Choose your role', 'pilot');
-    change('Sponsor decision', 'Sponsor a shadow pilot');
-    change('Stop condition and who can pause the pilot', 'Controls lead pauses if an expired release is recommended.');
-    click('Record decision');
+  it('carries the cutoff, finance result and receiving record through the same requisition', () => {
+    render(<ShortStudy/>);
+    const exhibit = screen.getByRole('region', { name: 'One second changes the order' });
+    const buyer = within(exhibit).getByRole('region', { name: 'Buyer handoff for REQ-218' });
+    choose('Tuesday 14:05');
+    choose('59 seconds');
+    choose('24 bearings available');
+    expect(exhibit.textContent).toContain('REQ-218 at release · Tuesday 14:05');
+    expect(exhibit.textContent).toContain('Both models release the purchase on fresh finance approval even though Q-82 has expired');
+    expect(buyer.textContent).toContain('Get updated terms');
+    expect(buyer.textContent).toContain('24 of 24');
+    choose('Tuesday 13:55');
+    choose('60 seconds');
+    expect(exhibit.textContent).toContain('Q-82 is current');
+    expect(exhibit.textContent).toContain('APS catches the expired finance approval');
+    expect(buyer.textContent).toContain('seeking fresh authority');
+    expect(buyer.textContent).toContain('24 of 24');
+  });
 
-    change('Choose your role', 'research');
-    change('Interpretation of the boundary', 'Evidence of a modeled finance-approval boundary');
-    change('One limit or field observation to collect', 'Measure release and approval timestamps.');
-    click('Record decision');
-    expect(screen.getByText('Measure release and approval timestamps.')).toBeTruthy();
-    click('Revise decision');
-    expect((screen.getByLabelText('One limit or field observation to collect') as HTMLInputElement).value).toBe('Measure release and approval timestamps.');
+  it('keeps the order work separate from the monthly mix and updates an already selected decision', () => {
+    render(<ShortStudy/>);
+    const ledger = document.querySelector('.order-time')!;
+    const decision = document.querySelector('.decision-record')!;
+    choose('Run a shadow pilot');
+    expect(ledger.textContent).toContain('12 − 2 − 7 = 3 min');
+    choose('59 seconds');
+    choose('Tuesday 14:05');
+    choose('No bearings available');
+    expect(ledger.textContent).toContain('12 − 2 − 4 = 6 min');
+    expect(decision.textContent).toContain('REQ-218 · Released');
+    expect(decision.textContent).toContain('Q-82 expired');
+    expect(decision.textContent).toContain('0 of 24');
+    expect(decision.textContent).toContain('50% held');
+    expect(screen.getByText(/Your time assumption gives \$0/)).toBeTruthy();
+    choose('3 minutes saved');
+    expect(ledger.textContent).toContain('12 − 2 − 4 = 6 min');
+    expect(decision.textContent).toContain('100% held');
+    expect(screen.getByText(/Your time assumption gives −\$2,400/)).toBeTruthy();
+    choose('60 seconds');
+    expect(ledger.textContent).toContain('12 − 2 − 7 = 3 min');
+    expect(decision.textContent).toContain('REQ-218 · Held');
+    expect(screen.getByText(/held orders like REQ-218/)).toBeTruthy();
+  });
 
-    change('Choose your role', 'field');
-    expect((screen.getByLabelText('Proposed disposition') as HTMLSelectElement).value).toBe('Seek current authorization and recheck the quote');
-    change('Fictional purchasing update', 'inbound');
-    expect(screen.getByText('Materials planner')).toBeTruthy();
+  it('recalculates the value chart and carries the active assumption into the pilot assessment', () => {
+    render(<ShortStudy/>);
+    choose('Run a shadow pilot');
+    expect(screen.getByText(/Your time assumption gives \$0/)).toBeTruthy();
+    choose('3 minutes saved');
+    expect(screen.getByText(/Your time assumption gives −\$2,400/)).toBeTruthy();
+    expect(screen.getByText(/frees 10 buyer hours/)).toBeTruthy();
+    choose('6 minutes saved');
+    expect(screen.getByText(/Your time assumption gives \+\$2,400/)).toBeTruthy();
+    expect(screen.getByText(/frees 20 buyer hours/)).toBeTruthy();
+    choose('4.5 minutes saved');
+    expect(screen.getByText(/frees 15 buyer hours/)).toBeTruthy();
+  });
 
-    click('Back to comparison');
-    click('60 seconds');
-    click('59 seconds');
-    click('Choose your decision');
-    expect(screen.getByText(/Decision basis · 59 logical seconds · B released, C released/)).toBeTruthy();
-    expect(screen.getByText(/This exercise starts from a run where C held the order/)).toBeTruthy();
-    expect(screen.queryByLabelText('Fictional purchasing update')).toBeNull();
-    expect(screen.queryByLabelText('Proposed disposition')).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Record decision' })).toBeNull();
-    expect(screen.queryByRole('heading', { name: 'Decision recorded for discussion' })).toBeNull();
-
-    click('Return to the 60-second hold');
-    expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Make one decision' }));
-    expect(screen.getByText(/Decision basis · 60 logical seconds · B released, C held/)).toBeTruthy();
-    expect(screen.queryByText('Materials planner')).toBeNull();
-    expect(screen.getByLabelText('Proposed disposition')).toBeTruthy();
-
-    click('Back to comparison');
-    click('59 seconds');
-    click('Choose your decision');
-    click('Return to the 61-second hold');
-    expect(screen.getByText(/Decision basis · 61 logical seconds · B released, C held/)).toBeTruthy();
-    expect(screen.getByText('Materials planner')).toBeTruthy();
-    change('Choose your role', 'pilot');
-    expect(screen.getByText('Controls lead pauses if an expired release is recommended.')).toBeTruthy();
-
-    navigate('/index.html#/overview');
-    expect(document.querySelectorAll('h1')).toHaveLength(1);
-    expect(screen.queryByText('Can this purchase go ahead?')).toBeNull();
-    expect(screen.queryByRole('heading', { name: 'Make one decision' })).toBeNull();
-    navigate('/index.html#/study');
-    expect(screen.getByText('Controls lead pauses if an expired release is recommended.')).toBeTruthy();
+  it('provides a distinct next step for each reversible decision', () => {
+    render(<ShortStudy/>);
+    choose('Add the approval check');
+    expect(screen.getByText(/route each hold to a named buyer/)).toBeTruthy();
+    choose('Keep buyer-led purchasing');
+    expect(screen.getByText(/Ask a buyer to check authority/)).toBeTruthy();
+    expect(screen.queryByText(/route each hold to a named buyer/)).toBeNull();
+    choose('Run a shadow pilot');
+    expect(screen.getByText(/buyers keep authority/)).toBeTruthy();
   });
 });

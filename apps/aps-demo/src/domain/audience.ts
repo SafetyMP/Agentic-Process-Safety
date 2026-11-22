@@ -4,6 +4,16 @@ import type { ComparisonRun } from './comparison.ts';
 declare const __APS_BUILD__: string;
 export const buildLabel = typeof __APS_BUILD__ === 'string' ? __APS_BUILD__ : 'unversioned development build';
 
+export const bearingsOrder = {
+  id: 'REQ-218', quantity: 24, quote: 'Q-82', quoteCutoff: 'Tuesday 14:00', needBy: 'Thursday 08:00',
+} as const;
+// Illustrative release attempts on either side of the supplier's plant-local cutoff.
+export const quoteAttempts = [
+  { time: 'Tuesday 13:55', clock: '13:55', current: true },
+  { time: 'Tuesday 14:05', clock: '14:05', current: false },
+] as const;
+export type QuoteAttempt = typeof quoteAttempts[number];
+
 export const fieldUpdates = {
   inbound: {
     title: 'Wednesday inbound confirmed',
@@ -11,7 +21,7 @@ export const fieldUpdates = {
   },
   shortage: {
     title: 'Thursday requirement uncovered',
-    record: 'Material plan MP-31 • planner, Tuesday 10:00. No inbound supply covers the 24 bearings. Quote Q-82 • buyer, Tuesday 10:05. Supplier confirms delivery by Wednesday if the order is placed by Tuesday 14:00. Quote valid until that cutoff.',
+    record: `Material plan MP-31 • planner, Tuesday 10:00. No inbound supply covers the ${bearingsOrder.quantity} bearings. Quote ${bearingsOrder.quote} • buyer, Tuesday 10:05. Supplier confirms delivery by Wednesday if the order is placed by ${bearingsOrder.quoteCutoff}. Quote valid until that cutoff.`,
   },
   replay: {
     title: 'Purchase acknowledgment missing',
@@ -19,7 +29,7 @@ export const fieldUpdates = {
   },
 };
 export type UpdateId = keyof typeof fieldUpdates;
-export const requisition = 'REQ-218 · North assembly · 24 bearings needed Thursday at 08:00 · 0 available on hand. Source: material plan MP-31, Tuesday 09:30. All times are plant local.';
+export const requisition = `${bearingsOrder.id} · North assembly · ${bearingsOrder.quantity} bearings needed Thursday at 08:00 · 0 available on hand. Source: material plan MP-31, Tuesday 09:30. All times are plant local.`;
 export const handoffFields = {
   disposition: 'Proposed disposition', owner: 'Action owner', due: 'Due by', evidence: 'Evidence supporting the decision',
   checkpoint: 'Next checkpoint', escalate: 'Escalate if', rationale: 'Reason or dissent',
@@ -77,6 +87,12 @@ export function handoffBrief(run: ComparisonRun, id: UpdateId, values: Handoff) 
     fieldUpdates[id].title, fieldUpdates[id].record, '## Next shift · proposed action', ...linesFor(handoffFields, values),
     'Discussion only. This handoff grants no purchasing authority.'].join('\n\n');
 }
+export const sponsorDecisions = new Map([
+  ['Evaluate in shadow mode', 'Compare shadow agent recommendations with buyer decisions on matched requisitions. Use the same policy and records, and keep release authority with buyers.'],
+  ['Test the ERP rule first', 'Test the existing purchasing system with a rule that rechecks approval at release. Compare held orders, buyer effort and material coverage with the current buyer-led process.'],
+  ['Defer pending evidence', 'Identify the missing evidence, who will collect it and when the sponsor will reconsider the decision.'],
+  ['Retain the current workflow', 'Document the reason to keep buyer-led purchasing and the conditions that would justify reconsideration.'],
+]);
 export const pilotMeasures = [
   ['Expired releases / attempted releases', 'PO release and approval histories', 'Procurement controls'],
   ['Buyer minutes / requisition', 'Time observation, including follow-up', 'Purchasing lead'],
@@ -102,7 +118,7 @@ export function pilotBrief(run: ComparisonRun, values: Pilot) {
     '## Decision basis', runTitle(run) + ' · ' + run.request.amount + ' simulated spend units · approval age ' + run.request.approvalAge + ' logical seconds.',
     runReference(run), ...(run.parent ? ['Hypothetical recovery from ' + run.parent.runId + ', lane ' + run.parent.lane + ', starting with its no-order state.'] : []),
     outcome('B'), outcome('C'), '## Proposed evaluation',
-    'Compare buyer-led ERP with shadow agent recommendations for matched requisitions under the same policy and records. People retain release authority.',
+    sponsorDecisions.get(values.decision) ?? 'Use the site baseline and review criteria below to assess the options.',
     '- Trade-off and evidence that would change the decision: ' + show('tradeoff'),
     '- Policy and renewal authority: ' + show('authority') + '. Material availability owner: ' + show('serviceOwner'),
     '- Stop condition and who can pause: ' + show('stop'),

@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
     <title>Agentic Process Safety | Investigate AI Agent Workflow Risk</title>
-    <meta name="description" content="Investigate AI agent workflow risk: compare controls, follow causal paths, and connect human recommendations to evidence. An open-source HAZOP research sandbox.">
+    <meta name="description" content="Follow a late purchasing order from an expired approval to Thursday’s assembly line. Explore the supply chain decisions in the APS research sandbox.">
     <link rel="canonical" href="https://safetymp.github.io/Agentic-Process-Safety/">
     <link rel="sitemap" type="application/xml" href="./sitemap.xml">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Agentic Process Safety">
     <meta property="og:title" content="Agentic Process Safety | Investigate AI Agent Workflow Risk">
-    <meta property="og:description" content="Investigate AI agent workflow risk: compare controls, follow causal paths, and connect human recommendations to evidence. An open-source HAZOP research sandbox.">
+    <meta property="og:description" content="Follow a late purchasing order from an expired approval to Thursday’s assembly line. Explore the supply chain decisions in the APS research sandbox.">
     <meta property="og:url" content="https://safetymp.github.io/Agentic-Process-Safety/">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="image_src" href="./social-preview.jpg">
@@ -22,13 +22,13 @@
     <meta name="twitter:image" content="https://safetymp.github.io/Agentic-Process-Safety/social-preview.jpg">
     <meta name="twitter:image:alt" content="APS comparison: an expired-approval request executes under B and is stopped under C. Illustrative model only.">
     <meta name="twitter:title" content="Agentic Process Safety | Investigate AI Agent Workflow Risk">
-    <meta name="twitter:description" content="Investigate AI agent workflow risk: compare controls, follow causal paths, and connect human recommendations to evidence. An open-source HAZOP research sandbox.">
+    <meta name="twitter:description" content="Follow a late purchasing order from an expired approval to Thursday’s assembly line. Explore the supply chain decisions in the APS research sandbox.">
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareSourceCode",
   "name": "Agentic Process Safety (APS)",
-  "description": "Investigate AI agent workflow risk: compare controls, follow causal paths, and connect human recommendations to evidence. An open-source HAZOP research sandbox.",
+  "description": "Follow a late purchasing order from an expired approval to Thursday’s assembly line. Explore the supply chain decisions in the APS research sandbox.",
   "url": "https://safetymp.github.io/Agentic-Process-Safety/",
   "codeRepository": "https://github.com/SafetyMP/Agentic-Process-Safety",
   "programmingLanguage": [
@@ -49,16 +49,17 @@
     <div id="root">
       <main>
         <h1>Agentic Process Safety: investigate AI agent workflow risk</h1>
-        <p>A buyer using purchasing software could already route a requisition for approval and release an order. What changes when a purchasing agent can act on a finance agent’s decision, and the approval expires between those steps?</p>
-        <p>APS is an open-source research sandbox for hazard and operability (HAZOP) analysis of coordinated AI agents. Compare the same request under different control bundles, follow the causal path, and form a human recommendation grounded in evidence.</p>
-        <h2>Start with one purchase request</h2>
-        <p>Finance approved a purchase, but the request arrives 61 logical seconds later. The model requires approval age below 60. Tool permission and spend checks permit it; an added freshness check stops it. Try 59 seconds, retain both results, and investigate what still needs to be known.</p>
-        <h2>Compare, investigate, form a position</h2>
-        <p>The Case Lab connects nine illustrative cases to a hazard study, proposed controls and frozen recorded evidence. Recommendations lead to case-specific evidence questions, policy-review questions, or an explicitly hypothetical recovery. Your notes do not issue approval or change the controls.</p>
-        <p><a href="./guide.html">Read the project and evidence guide</a> for a complete introduction without JavaScript, or use the interactive app when it loads. A <a href="./llms.txt">plain-text source index</a> is also available.</p>
-        <h2>Research scope</h2>
-        <p>Hazards remain unverified and controls proposed. The illustrative browser model, frozen experiment records and separate Python/OPA research implementation have different evidence boundaries. No real purchase, payment, safety certification or production protection is provided.</p>
-        <p>The interactive app runs entirely in your browser, without an account, API key, backend or telemetry. No live model inference occurs. Human learning and the value of the analysis method have not been established by these software checks.</p>
+        <h2>The bearings are due Thursday.</h2>
+        <p>A site needs 24 bearings for assembly. Planning sets the need date, a buyer checks stock and open orders, and sourcing confirms supplier terms. Finance authorizes a particular purchase. The release sends the order to the supplier. Receiving later records whether the bearings arrive.</p>
+        <h2>What changes while the request waits?</h2>
+        <p>A purchasing agent receives the earlier approval for 300 simulated spend units. It can still use the purchasing tool when that approval expires. Releasing the order could commit funds outside the authorization. Holding it leaves the next shift to find out whether the bearings are already on hand or on the way.</p>
+        <p>Before estimating savings, a site would count requests that waited beyond approval, measure handling time and match each need date to stock or receipts. The example gives no observed stockout or savings figure.</p>
+        <h2>One second changes the order</h2>
+        <p>A hazard and operability study (HAZOP) calls this deviation LATE. Two rules see the same request. At 59 seconds both release it. At 60 seconds the approval expires. A rule that checks permission and spend still releases the order, while a rule that also checks approval age holds it.</p>
+        <p>Who will cover Thursday’s run? A buyer checks incoming stock, confirms the quote and obtains current approval if the shortage persists.</p>
+        <h2>What would you do?</h2>
+        <p>Keep buyer-led purchasing, add the approval rule, or try a four-week shadow pilot with buyers retaining release authority. In the illustrative first-year investment case, three buyer minutes freed per request yield a $2,400 shortfall. At 4.5 minutes the proposal breaks even. Six minutes yield $2,400 of net capacity value. A site would have to verify the time freed and whether materials arrive on time.</p>
+        <p><a href="./guide.html">Read the complete case without JavaScript</a> or open the <a href="./index.html#/overview">IT implementation workspace</a> to inspect policy inputs, the recorded purchase calls and the expiry tests. A <a href="./llms.txt">plain-text source index</a> is also available.</p>
       </main>
     </div>
     <script type="module" src="/src/main.tsx"></script>

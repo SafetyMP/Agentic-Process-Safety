@@ -1,33 +1,26 @@
 # Agentic Process Safety (APS)
 
-**You need 24 bearings by Thursday. Can purchasing place one currently authorized order?** Start with a short, interactive hazard and operability (HAZOP) study of a request for 300 simulated spend units. Predict what might happen if the order goes out late, check the model, then record one proposed decision for your role.
+**The bearings are due Thursday.** Assembly needs 24 bearings. Planning knows when the line needs them, purchasing knows what the supplier offered, and finance approved a specific purchase. By the time the request is ready to go to the supplier, that approval has expired. What happened between the planner’s request and the buyer’s release?
 
-[Open APS at the site root](https://safetymp.github.io/Agentic-Process-Safety/) · [Short study (`#/study`)](https://safetymp.github.io/Agentic-Process-Safety/#/study) · [Full workspace (`#/overview`)](https://safetymp.github.io/Agentic-Process-Safety/#/overview) · [User guide](docs/USER_GUIDE.md) · [Project vision](docs/VISION.md) · [Documentation](docs/README.md)
+In today’s buyer-led process, the buyer can look up stock and open orders, check the supplier’s terms and confirm authority for the spend. Procurement records the order in the purchasing system. Receiving records what arrives. Those are different events. An approval does not put bearings on the shelf.
+
+A purchasing agent inherits the request and approval from earlier steps. If it buys on expired authority, it can commit site funds to an order finance no longer authorizes. If it waits, someone must still find out whether stock or an inbound shipment will cover the assembly run. The case gives the requirement and the approval timing. Whether the line would run short, and how often buyers face this conflict today, are questions for site records.
+
+[Explore the bearings case](https://safetymp.github.io/Agentic-Process-Safety/#/study) · [IT implementation workspace](https://safetymp.github.io/Agentic-Process-Safety/#/overview)
 
 [![Repository checks](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/repository-checks.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/repository-checks.yml)
 [![Pages deployment](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/deploy-pages.yml)
 [![License: Apache-2.0](https://img.shields.io/github/license/SafetyMP/Agentic-Process-Safety)](LICENSE)
 
-## Follow one purchase from handoff to decision
+## What would you do?
 
-1. **Compare the handoffs.** Buyer-led ERP purchasing and delegated agent workflows can both automate steps and carry stale facts. Delegation lets a later worker act on evidence inherited from planning, sourcing or finance.
-2. **Apply LATE at purchase.** Predict what could go stale before revealing the result. REF-008 is an unverified scenario in which using an expired supplier quotation could commit the buyer above the authorized price. The browser illustrates a related finance approval check with B and C evaluating the same agent request at selectable ages of 59, 60 and 61 logical seconds. Quote validity, stock and demand require their own evidence.
-3. **Record one decision.** An executive decides whether to sponsor a shadow pilot and names a stop condition. For a comparison where C holds the order, a field manager chooses one fictional purchasing update and proposes a disposition with evidence, an owner and a deadline. A professor or researcher interprets the timing boundary and names a limit or field observation. Review the summary and revise the decision as needed.
+A hazard and operability study (HAZOP) uses the guide word **LATE** to ask what could expire while the order waits. Try the same release at 59 and 60 seconds. The rule that rechecks finance approval holds the second order. The buyer still has to find out whether incoming stock will cover Thursday and, if necessary, seek fresh approval.
 
-Open the full workspace for all nine cases and richer audience exercises and exports. Use the linked hazard, controls and evidence to inspect the source scenario and the separate frozen trial pair. [Case Lab](https://safetymp.github.io/Agentic-Process-Safety/#/simulator) · [Hazard study](https://safetymp.github.io/Agentic-Process-Safety/#/hazop?hazard=APS-f47191931b96a999a61c) · [Controls](https://safetymp.github.io/Agentic-Process-Safety/#/governance?control=CTL-EXPIRY) · [Evidence](https://safetymp.github.io/Agentic-Process-Safety/#/assurance?story=stale) · [Audience task cards](docs/AUDIENCE_WALKTHROUGHS.md)
+Would you keep buyer-led purchasing, add the check to the existing system, or run an agent alongside buyers for four weeks? The check could address the expired approval with a smaller change. An agent would need to justify its additional cost. Under the case assumptions, saving three buyer minutes per request yields **−$2,400** of first-year net capacity value. Saving six yields **+$2,400**. The investment turns on whether the site can free and use those hours while keeping material available on time. [Case assumptions and sources](docs/BUSINESS_CASE.md) · [Discussion prompts](docs/AUDIENCE_WALKTHROUGHS.md)
 
-The earlier full-workspace experience was deployed on **2026-11-14** through [PR #32](https://github.com/SafetyMP/Agentic-Process-Safety/pull/32), at commit [`3ddc4ae`](https://github.com/SafetyMP/Agentic-Process-Safety/commit/3ddc4ae9a0dc42c5af98fa7818121cf18a1b364f). Its [deployment workflow](https://github.com/SafetyMP/Agentic-Process-Safety/actions/runs/43645203614) and 233-check browser run passed. This is a dated implementation result; badges and later runs describe subsequent revisions.
+## Implementing the check
 
-## What the evidence means
-
-| Material | What it supports | What it does not establish |
-| --- | --- | --- |
-| Illustrative browser comparison | How the fixed model's checks respond to the selected request | A live gateway decision, real purchase or complete business outcome |
-| Frozen recorded experiments and replay | The retained synthetic trial's actual recorded calls and outcomes | That an edited browser request was executed in that trial |
-| HAZOP findings and proposed controls | Questions, possible deviations and control mappings to investigate | Verified hazards, approved requirements or validated risk ratings |
-| Human discussion | A recommendation, rationale, sources, uncertainty and dissent | Operational authorization or independent verification of the cited evidence |
-
-All hazards remain unverified, requirements proposed and risk ratings unset in the published fixtures. No real purchase or payment is made. The app does not establish production safety, safety certification, or that HAZOP outperforms another review method. Conventional systems can implement the same lifecycle checks. See the [vision and research questions](docs/VISION.md), [methodology](docs/METHODOLOGY.md) and [threat model](docs/THREAT_MODEL.md).
+The IT workspace carries the selected REQ-218 attempt through the request, approval check and illustrative receipt. Compare its decision and adapter effect side by side with frozen trials 14 and 15. Open “Trace the HAZOP finding to the control” to follow the quotation-expiry finding from REF-008 to its proposed requirement and mapped control. [IT implementation workspace](https://safetymp.github.io/Agentic-Process-Safety/#/overview) · [User guide](docs/USER_GUIDE.md) · [Gateway architecture](docs/GOVERNANCE_ARCHITECTURE.md)
 
 ## Run locally
 
@@ -66,14 +59,14 @@ flowchart LR
   G[Python and OPA research gateway] --> E[Recorded synthetic experiments]
   F --> S[Frozen public snapshots]
   E --> S
-  S --> U[Guided browser investigation]
-  M[Separate TypeScript illustration] --> U
+  S --> R[Research evidence]
+  M[Separate TypeScript illustration] --> U[Interactive purchasing case]
   U --> D[Human discussion and open questions]
 ```
 
 | Location | Responsibility |
 | --- | --- |
-| [`apps/aps-demo/`](apps/aps-demo/) | React/TypeScript guided workspace; [browser model](apps/aps-demo/src/domain/README.md) and [fixture provenance](apps/aps-demo/src/fixtures/README.md) |
+| [`apps/aps-demo/`](apps/aps-demo/) | React/TypeScript case and IT guide; [browser model](apps/aps-demo/src/domain/README.md) and [fixture provenance](apps/aps-demo/src/fixtures/README.md) |
 | [`packages/engine/`](packages/engine/) · [`schemas/`](schemas/) · [`examples/`](examples/) | Deterministic HAZOP screening, review contracts and authored examples |
 | [`packages/simulator/`](packages/simulator/) | Procurement orchestrator and simulated workers |
 | [`packages/governance/`](packages/governance/) · [`policies/v1/`](policies/v1/) | Research gateway, OPA/Rego controls, experiments and assurance tooling |
