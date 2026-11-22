@@ -27,3 +27,6 @@ artifacts/*
 /aps-policy-*/
 /aps-pilot-*/
 /tmp*/
+
+# Recreated from the committed OpenTelemetry hash lock.
+/dependencies/otel-wheels/*.whl

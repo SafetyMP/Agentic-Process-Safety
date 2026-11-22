@@ -178,7 +178,7 @@ Outputs include 96 initially unverified findings, cascade paths, 16 curated refe
 
 ## Phase 3 verification
 
-After setup, install the pinned SDK offline and run from the repository root:
+After setup, [prepare the six pinned wheels](../dependencies/otel-wheels/README.md) before running the following commands from the repository root. The wheelhouse guide also gives a standalone SDK check for a fresh checkout.
 
 ```sh
 .venv/bin/python -m pip install --no-index --find-links dependencies/otel-wheels --require-hashes -r dependencies/otel-wheels/requirements.lock

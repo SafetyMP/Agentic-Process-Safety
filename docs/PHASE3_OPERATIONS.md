@@ -6,26 +6,19 @@ and checks their evidence. All finite workload adapters are implemented. Older
 checkpoint documents retain accurate historical partial states, not current gaps.
 No real purchase, payment or production action is authorized by these workflows.
 
+## Inspect the recorded public evidence
+
+From the repository root with Node 22.18+, run `npm run demo:fixtures:check`. This verifies the committed snapshot hashes and relationships without installing project packages. Open `apps/aps-demo/src/fixtures/experiment.json` for the finite trials and `manifest.json` alongside it for the original source identifiers. This path checks the published selection. Generating a new run uses the research runtime below.
+
 ## Prerequisites and offline SDK
 
-Use Python 3.11+, Node 22.18+, OPA 1.x on PATH, the project `.venv`, installed
-`requirements.lock` dependencies and `npm ci` dependencies. README covers initial
-setup; the following commands assume these already exist. Regression tests need
-local loopback binding. The wheelhouse verifier uses disposable system temporary
-storage under `/private/tmp/aps-otel-verification-*`, removes that environment and
-retains evidence in the workspace. Restricted workers must report permission
-failures without seeking escalation or moving the verifier environment.
+For the standalone SDK check, follow the [wheelhouse instructions](../dependencies/otel-wheels/README.md) to fetch the six hash-pinned wheels or transfer a verified copy. The verifier creates a disposable environment under `/private/tmp` on macOS and writes evidence under `artifacts/phase3`.
 
-Install the supplied SDK and its dependencies without network or source builds:
+For a full experiment, complete the [research setup](DEVELOPMENT_REFERENCE.md#setup-and-verification) with Python 3.11+, Node 22.18+, OPA 1.x on PATH, the project `.venv`, the root `requirements.lock` and `npm ci`. Regression tests need local loopback binding. Install the SDK into the project environment using the prepared wheel directory:
 
 ```sh
 .venv/bin/python -m pip install --no-index --find-links dependencies/otel-wheels --require-hashes -r dependencies/otel-wheels/requirements.lock
 ```
-
-The wheel manifest and lock pin SDK/API 1.38.0, semantic conventions 0.59b0 and
-runtime dependencies. These are selected releases, not a latest-version claim.
-See [wheelhouse details](../dependencies/otel-wheels/README.md). Offline SDK
-installation does not supply unrelated base Python, Node or OPA prerequisites.
 
 ## Three verification commands
 

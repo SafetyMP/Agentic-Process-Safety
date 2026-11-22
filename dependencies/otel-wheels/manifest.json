@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "provenance": "Wheel hashes independently compared to PyPI release metadata; downloaded using pip --index-url https://pypi.org/simple --only-binary=:all:.",
+  "packages": [
+    {
+      "name": "importlib_metadata",
+      "version": "8.7.1",
+      "filename": "importlib_metadata-8.7.1-py3-none-any.whl",
+      "sha256": "5a1f80bf1daa489495071efbb095d75a634cf28a8bc299581244063b53176151",
+      "url": "https://files.pythonhosted.org/packages/fa/5e/f8e9a1d23b9c20a551a8a02ea3637b4642e22c2626e3a13a9a29cdea99eb/importlib_metadata-8.7.1-py3-none-any.whl",
+      "metadata_url": "https://pypi.org/pypi/importlib_metadata/8.7.1/json",
+      "requires_python": ">=3.9"
+    },
+    {
+      "name": "opentelemetry-api",
+      "version": "1.38.0",
+      "filename": "opentelemetry_api-1.38.0-py3-none-any.whl",
+      "sha256": "2891b0197f47124454ab9f0cf58f3be33faca394457ac3e09daba13ff50aa582",
+      "url": "https://files.pythonhosted.org/packages/ae/a2/d86e01c28300bd41bab8f18afd613676e2bd63515417b77636fc1add426f/opentelemetry_api-1.38.0-py3-none-any.whl",
+      "metadata_url": "https://pypi.org/pypi/opentelemetry-api/1.38.0/json",
+      "requires_python": ">=3.9"
+    },
+    {
+      "name": "opentelemetry-sdk",
+      "version": "1.38.0",
+      "filename": "opentelemetry_sdk-1.38.0-py3-none-any.whl",
+      "sha256": "1c66af6564ecc1553d72d811a01df063ff097cdc82ce188da9951f93b8d10f6b",
+      "url": "https://files.pythonhosted.org/packages/2f/2e/e93777a95d7d9c40d270a371392b6d6f1ff170c2a3cb32d6176741b5b723/opentelemetry_sdk-1.38.0-py3-none-any.whl",
+      "metadata_url": "https://pypi.org/pypi/opentelemetry-sdk/1.38.0/json",
+      "requires_python": ">=3.9"
+    },
+    {
+      "name": "opentelemetry-semantic-conventions",
+      "version": "0.59b0",
+      "filename": "opentelemetry_semantic_conventions-0.59b0-py3-none-any.whl",
+      "sha256": "35d3b8833ef97d614136e253c1da9342b4c3c083bbaf29ce31d572a1c3825eed",
+      "url": "https://files.pythonhosted.org/packages/24/7d/c88d7b15ba8fe5c6b8f93be50fc11795e9fc05386c44afaf6b76fe191f9b/opentelemetry_semantic_conventions-0.59b0-py3-none-any.whl",
+      "metadata_url": "https://pypi.org/pypi/opentelemetry-semantic-conventions/0.59b0/json",
+      "requires_python": ">=3.9"
+    },
+    {
+      "name": "typing_extensions",
+      "version": "4.16.0",
+      "filename": "typing_extensions-4.16.0-py3-none-any.whl",
+      "sha256": "481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8",
+      "url": "https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl",
+      "metadata_url": "https://pypi.org/pypi/typing_extensions/4.16.0/json",
+      "requires_python": ">=3.9"
+    },
+    {
+      "name": "zipp",
+      "version": "4.1.1",
+      "filename": "zipp-4.1.1-py3-none-any.whl",
+      "sha256": "8979f52d874162f485ff2981e3891f3a3317b7a3dd43ff1e1775b9304f307a9c",
+      "url": "https://files.pythonhosted.org/packages/b5/98/df615823cd9419131ce19fba00de53a663794369e198aade064a244b385d/zipp-4.1.1-py3-none-any.whl",
+      "metadata_url": "https://pypi.org/pypi/zipp/4.1.1/json",
+      "requires_python": ">=3.10"
+    }
+  ]
+}
