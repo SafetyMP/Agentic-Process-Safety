@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { canonical, guideSources, verifySeo, withoutCanonical, withoutPublicNavigation } from './seo.mjs';
+import { canonical, guideSources, navigationAssets, verifySeo, withoutCanonical, withoutPublicNavigation } from './seo.mjs';
 
 const read = path => readFileSync(new URL(path, import.meta.url), 'utf8');
 const index = read('../index.html');
@@ -14,6 +14,14 @@ function passesStaticRemoteMarkupCheck(html) {
 }
 
 describe('public discovery contract', () => {
+  it('verifies the document behind a local app link and preserves asset suffixes on other tags', () => {
+    const href = './index.html#/simulator?story=stale&amp;age=61&amp;task=field';
+    expect(navigationAssets('<a href="' + href + '">')).toBe('<a href="./index.html">');
+    for (const tag of ['script', 'link', 'img']) {
+      const markup = '<' + tag + ' href="' + href + '">';
+      expect(navigationAssets(markup)).toBe(markup);
+    }
+  });
   it('validates useful HTML documents and the optional source index', () => {
     expect(() => verifySeo(index, sitemap, guide, llms)).not.toThrow();
     expect(passesStaticRemoteMarkupCheck(withoutPublicNavigation(index))).toBe(true);

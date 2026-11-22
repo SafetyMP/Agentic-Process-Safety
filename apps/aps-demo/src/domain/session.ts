@@ -1,3 +1,4 @@
+import { handoffBrief, pilotBrief, readFieldWork, readFields, pilotFields, type Pilot, type FieldWork, type UpdateId } from './audience.ts';
 import { getCase, isCaseId, presetDraft, validateDraft, type ScenarioDraft } from './cases.ts';
 import { createComparison, MODEL_VERSION, type ComparisonRun, type Prediction } from './comparison.ts';
 import type { StoryId } from './scenarios.ts';
@@ -6,6 +7,7 @@ import { runTitle } from './presentation.ts';
 export interface DiscussionDraft {
   recommendation: string; rationale: string; evidence: string; assumptions: string;
   question: string; dissent: string; ready: boolean;
+  fieldWork?: FieldWork; pilot?: Pilot;
 }
 export function emptyDiscussion(): DiscussionDraft {
   return { recommendation: '', rationale: '', evidence: '', assumptions: '', question: '', dissent: '', ready: false };
@@ -124,18 +126,21 @@ export function parseSession(serialized: string): Session {
       parent = runs.find(run => run.id === (item.parent as Record<string, unknown>).runId);
       if (!parent || draft.approvalAge !== '0' || draft.caseId !== 'stale') throw new Error('Saved recovery lineage is invalid.');
     }
-    const rebuilt = createComparison(id, draft, predictionFrom(item.prediction), parent);
+    const rebuilt = createComparison(id, draft, predictionFrom(item.prediction), parent, item.build === undefined ? null : text(item.build));
     // Tampering with derived effects or assumptions must not silently change a discussion's meaning.
     if (JSON.stringify(rebuilt) !== JSON.stringify(item)) throw new Error('Saved comparison no longer matches this browser model.');
     runs.push(rebuilt);
   }
   const discussions: Record<string, DiscussionDraft> = {};
   for (const [id, value] of Object.entries(raw.discussions)) {
-    if (!runs.some(run => run.id === id) || !record(value) || typeof value.ready !== 'boolean') throw new Error('Saved discussion reference is invalid.');
+    const run = runs.find(run => run.id === id);
+    if (!run || !record(value) || typeof value.ready !== 'boolean') throw new Error('Saved discussion reference is invalid.');
     const discussion: DiscussionDraft = {
       recommendation: text(value.recommendation), rationale: text(value.rationale), evidence: text(value.evidence),
       assumptions: text(value.assumptions), question: text(value.question), dissent: text(value.dissent), ready: value.ready,
     };
+    if (value.fieldWork !== undefined) discussion.fieldWork = readFieldWork(value.fieldWork, run);
+    if (value.pilot !== undefined) discussion.pilot = readFields(value.pilot, pilotFields);
     if (discussion.ready && !discussion.rationale.trim()) throw new Error('Saved discussion has no rationale.');
     discussions[id] = discussion;
   }
@@ -149,7 +154,7 @@ export function discussionMarkdown(session: Session): string {
   const lines = ['# APS discussion brief', '', 'Illustrative browser comparisons and local reasoning. No operational authorization or hazard approval.', '', `Model: ${MODEL_VERSION}`, ''];
   for (const run of session.runs) {
     const definition = getCase(run.caseId);
-    lines.push(`## ${run.id}: ${runTitle(run)}`, '', `Request identity: ${run.requestIdentity}`, `Actor: ${run.request.actor}; amount: ${run.request.amount} sandbox units; approval age: ${run.request.approvalAge} logical seconds.`, `Prediction: ${run.prediction.choice || 'Not supplied'}`, `Prediction rationale: ${run.prediction.rationale || 'Not supplied'}`, '');
+    lines.push(`## ${run.id}: ${runTitle(run)}`, '', `Request identity: ${run.requestIdentity}`, `Run build: ${run.build ?? 'Unrecorded (older session)'}`, `Actor: ${run.request.actor}; amount: ${run.request.amount} sandbox units; approval age: ${run.request.approvalAge} logical seconds.`, `Prediction: ${run.prediction.choice || 'Not supplied'}`, `Prediction rationale: ${run.prediction.rationale || 'Not supplied'}`, '');
     if (run.parent) lines.push(`Parent: ${run.parent.runId}, lane ${run.parent.lane}.`, '');
     for (const mode of ['B', 'C', 'A'] as const) {
       const lane = run.results[mode];
@@ -159,6 +164,12 @@ export function discussionMarkdown(session: Session): string {
     lines.push('', `Evidence relationship: ${definition.evidenceNote}`, `Remaining limit: ${definition.limitation}`, ...run.assumptions.map(assumption => `Assumption: ${assumption}`), '');
     const discussion = session.discussions[run.id];
     if (discussion) {
+      if (discussion.fieldWork) {
+        for (const key of Object.keys(discussion.fieldWork.drafts) as UpdateId[]) {
+          lines.push(handoffBrief(run, key, discussion.fieldWork.drafts[key]!), '');
+        }
+      }
+      if (discussion.pilot) lines.push(pilotBrief(run, discussion.pilot), '');
       lines.push(`Discussion status: ${discussion.ready ? 'Ready for discussion' : 'Draft'}`, '');
       for (const key of ['recommendation', 'rationale', 'evidence', 'assumptions', 'question', 'dissent'] as const) lines.push(`${key.charAt(0).toUpperCase() + key.slice(1)}: ${discussion[key] || 'Not supplied'}`, '');
     }

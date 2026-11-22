@@ -37,6 +37,14 @@ PLAYWRIGHT_BROWSERS_PATH=.harness/playwright TMPDIR="$PWD/.harness/tmp" npx play
 APS_BROWSER=chromium PLAYWRIGHT_BROWSERS_PATH=.harness/playwright npm run demo:e2e
 ```
 
+After building, run the audience checks with the installed Chromium shell from the repository root:
+
+```sh
+PLAYWRIGHT_BROWSERS_PATH=.harness/playwright node apps/aps-demo/scripts/audience-e2e.mjs
+```
+
+This supplemental walkthrough checks the two purchasing updates, isolated handoffs, pilot brief, research exports and learner materials in the built app. It writes fictional test captures under `.harness/audience-qa/`. The standard browser and release-evidence commands still exercise the published investigation journey.
+
 The runner also supports Firefox and defaults to Firefox on macOS when `APS_BROWSER` is absent; it defaults to Chromium on Linux. Browser installation and launch may need host permissions. A local browser result is distinct from the hosted Linux deployment evidence. Run `npm run demo:preview` to inspect a production build locally at the printed origin.
 
 ## Research commands
@@ -178,7 +186,7 @@ Outputs include 96 initially unverified findings, cascade paths, 16 curated refe
 
 ## Phase 3 verification
 
-After setup, install the pinned SDK offline and run from the repository root:
+After setup, [prepare the six pinned wheels](../dependencies/otel-wheels/README.md) before running the following commands from the repository root. The wheelhouse guide also gives a standalone SDK check for a fresh checkout.
 
 ```sh
 .venv/bin/python -m pip install --no-index --find-links dependencies/otel-wheels --require-hashes -r dependencies/otel-wheels/requirements.lock

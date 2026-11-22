@@ -32,6 +32,12 @@ export function withoutPublicNavigation(html, page = 'index.html') {
   return text;
 }
 
+// Hash navigation is handled after the browser loads the app document. Keep
+// verifying its local HTML asset; scripts, styles and other references stay exact.
+export function navigationAssets(html) {
+  return html.replace(/<a href="\.\/index\.html#\/[a-z0-9?=&;_-]+">/gi, '<a href="./index.html">');
+}
+
 function verifyPage(html, page) {
   withoutCanonical(html, page);
   const title = titles[page];

@@ -2,6 +2,8 @@
 
 This page separates the **current observed repository state** from the retained 2026-10-24 readiness audit. The [vision](VISION.md), [user guide](USER_GUIDE.md), [documentation map](README.md) and [contribution guide](../CONTRIBUTING.md) describe the current APS project. A public repository and successful deployment do not establish license authority over every imported item, operational safety or a staffed support service.
 
+For this checkout, the [wheelhouse guide](../dependencies/otel-wheels/README.md) describes how to fetch the six wheels named in the historical audit. Git tracks their manifest and hash lock. Each fetched distribution carries its upstream notices.
+
 ## Current observed state — 2026-11-14
 
 Authenticated GitHub inspection for `SafetyMP/Agentic-Process-Safety` found the following. These observations are dated; settings may change and should be checked again before a release decision.

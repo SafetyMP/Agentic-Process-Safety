@@ -12,6 +12,7 @@ APS now centers on a guided investigation: compare the same request, inspect or 
 | --- | --- | --- |
 | Understand the project and run it locally | [Project README](../README.md) | Current guide |
 | Explore the app and its nine cases | [User guide](USER_GUIDE.md) | Current guide |
+| Test executive decisions, shift handoffs, replication and teaching on one build | [Walkthroughs and observation sheet](AUDIENCE_WALKTHROUGHS.md) | Moderator guide |
 | Understand the problem, scope and unanswered research questions | [Vision](VISION.md) | Current guide |
 | Navigate all documentation | [Documentation map](README.md) | Current guide |
 | Develop or verify a change | [Development reference](DEVELOPMENT_REFERENCE.md) | Current workflow with separately retained historical notes |

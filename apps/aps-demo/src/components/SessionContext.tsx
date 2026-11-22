@@ -40,6 +40,10 @@ function useSessionState() {
     configError,
     setPrediction: (patch: Partial<Prediction>) => dispatch({ type: 'prediction', patch }),
     setCase: (caseId: StoryId) => { setConfigError(''); dispatch({ type: 'case', caseId }); },
+    prepareExpiry: () => {
+      setConfigError('');
+      dispatch({ type: 'configure', draft: { caseId: 'stale', approvalAge: '61' } });
+    },
     setApprovalAge: (value: string) => { setConfigError(''); dispatch({ type: 'age', value }); },
     runComparison: () => { if (!configError) dispatch({ type: 'run' }); },
     selectRun: (id: string) => dispatch({ type: 'select', id }),

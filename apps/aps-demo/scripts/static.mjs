@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import ts from 'typescript';
-import { withoutPublicNavigation, verifySeo } from './seo.mjs';
+import { navigationAssets, withoutPublicNavigation, verifySeo } from './seo.mjs';
 
 const dist = resolve(process.argv[2] || fileURLToPath(new URL('../dist/', import.meta.url)));
 const inventory = new Map();
@@ -55,7 +55,7 @@ for (const prefix of ['/Agentic-Process-Safety/', '/agentic-process-safety/']) {
     const text = file.data.toString('utf8');
     let references = [];
     if (name.endsWith('.html')) {
-      references = [...withoutPublicNavigation(text, name).matchAll(/(?:src|href)=["']([^"']+)["']/g)].map(m => m[1]);
+      references = [...navigationAssets(withoutPublicNavigation(text, name)).matchAll(/(?:src|href)=["']([^"']+)["']/g)].map(m => m[1]);
     } else if (name.endsWith('.js')) {
       // Parse syntax so documentation strings containing import examples cannot
       // masquerade as executable module edges.
