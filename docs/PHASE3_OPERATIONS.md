@@ -12,7 +12,7 @@ From the repository root with Node 22.18+, run `npm run demo:fixtures:check`. Th
 
 ## Prerequisites and offline SDK
 
-For the standalone SDK check, follow the [wheelhouse instructions](../dependencies/otel-wheels/README.md) to fetch the six hash-pinned wheels or transfer a verified copy. The verifier creates a disposable environment under `/private/tmp` on macOS and writes evidence under `artifacts/phase3`.
+For the standalone SDK check, follow the [wheelhouse instructions](../dependencies/otel-wheels/README.md) to fetch the six hash-pinned wheels or transfer a verified copy. The verifier creates a disposable environment under `/private/tmp` on macOS and writes evidence under `artifacts/phase3`. Restricted workers must report permission failures without seeking escalation or moving the verifier environment.
 
 For a full experiment, complete the [research setup](DEVELOPMENT_REFERENCE.md#setup-and-verification) with Python 3.11+, Node 22.18+, OPA 1.x on PATH, the project `.venv`, the root `requirements.lock` and `npm ci`. Regression tests need local loopback binding. Install the SDK into the project environment using the prepared wheel directory:
 
