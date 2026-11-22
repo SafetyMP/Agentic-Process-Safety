@@ -321,3 +321,48 @@ footer nav { display:flex; flex-wrap:wrap; gap:12px; margin-top:8px; font-size:1
 .audience-tasks .discussion-fields { margin:18px 0; }
 .buying-outcome { margin-bottom:5px; }
 @media(max-width:600px) { .audience-facts { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+/* Short purchasing study */
+.short-study { max-width: 820px; margin-inline: auto; }
+.study-intro { max-width: 650px; }
+.study-intro > p:last-child { color: var(--muted); font-size: 16px; }
+.study-stops {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  list-style: none;
+  padding: 0;
+  margin: 22px 0 16px;
+}
+.study-stops li { margin: 0; color: var(--muted); font-size: 13px; }
+.study-stops [aria-current="step"] { color: var(--teal); font-weight: 700; }
+.study-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.study-grid > div, .study-update { background: var(--bg); border-radius: 7px; padding: 14px; }
+.study-grid h3, .study-result h3 { margin-top: 0; }
+.study-grid p:last-child, .study-result p:last-child, .study-update p:last-child { margin-bottom: 0; }
+.study-panel label { color: var(--text); font-size: 14px; }
+.study-panel input, .study-panel select, .study-panel textarea { font-size: 16px; }
+.study-panel .button-row:last-child { margin-bottom: 0; }
+.study-result { border-inline-start: 3px solid var(--teal); background: var(--soft); border-radius: 6px; padding: 16px; }
+.study-result dt { font-weight: 650; }
+.study-result dd { margin: 0 0 10px; }
+.study-response { white-space: pre-wrap; overflow-wrap: anywhere; }
+.study-decision, .study-form { display: grid; gap: 12px; }
+.study-decision > p, .study-update > label { margin-bottom: 8px; }
+.study-decision > label { max-width: 350px; }
+.study-basis { color: var(--muted); }
+.study-form button { justify-self: start; }
+.study-references { padding-inline: 4px; }
+.study-references summary { font-size: 14px; }
+.study-references a { text-decoration: underline; }
+.study-references table { margin-top: 8px; }
+.study-references ul { list-style: disc; }
+@media (max-width: 540px) {
+  .study-grid { grid-template-columns: 1fr; }
+  .study-stops { gap: 6px 12px; }
+}
