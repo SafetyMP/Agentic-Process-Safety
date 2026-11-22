@@ -11,9 +11,7 @@ npm ci
 npm run demo:dev
 ```
 
-Open the Vite URL printed by the command at `/`. The current browser experience follows **Compare → Change/Inspect → Form a position**. It evaluates an explicit request under fixed control bundles, retains prior comparisons, shows case-specific causal stages and attaches local human reasoning. It does not use the historical Start/Pause/Step flow described in the archived notes below.
-
-The frontend is in `apps/aps-demo/`; [the browser domain guide](../apps/aps-demo/src/domain/README.md) identifies the case, comparison, session and presentation contracts. React routes share one session through `SessionContext.tsx`. The browser never calls the Python gateway, OPA or a live procurement service.
+Open the Vite URL at `/` or `#/study` for the interactive bearings case. The compact implementation workspace at `#/overview` links to the research gateway, policy and verification sources. The browser app runs locally and makes no calls to the research gateway, OPA or a procurement service. [Browser model](../apps/aps-demo/src/domain/README.md)
 
 Run the checks appropriate to frontend changes:
 
@@ -37,15 +35,7 @@ PLAYWRIGHT_BROWSERS_PATH=.harness/playwright TMPDIR="$PWD/.harness/tmp" npx play
 APS_BROWSER=chromium PLAYWRIGHT_BROWSERS_PATH=.harness/playwright npm run demo:e2e
 ```
 
-After building, run the audience checks with the installed Chromium shell from the repository root:
-
-```sh
-PLAYWRIGHT_BROWSERS_PATH=.harness/playwright node apps/aps-demo/scripts/audience-e2e.mjs
-```
-
-This supplemental walkthrough checks the two purchasing updates, isolated handoffs, pilot brief, research exports and learner materials in the built app. It writes fictional test captures under `.harness/audience-qa/`. The standard browser and release-evidence commands still exercise the published investigation journey.
-
-The runner also supports Firefox and defaults to Firefox on macOS when `APS_BROWSER` is absent; it defaults to Chromium on Linux. Browser installation and launch may need host permissions. A local browser result is distinct from the hosted Linux deployment evidence. Run `npm run demo:preview` to inspect a production build locally at the printed origin.
+The browser checks exercise approval age, financial assumptions, recommendation choices and the IT workspace. Inspect results on desktop and mobile and test the controls by keyboard. Browser installation and launch may need host permissions. Run `npm run demo:preview` to inspect a production build at the printed local address.
 
 ## Research commands
 

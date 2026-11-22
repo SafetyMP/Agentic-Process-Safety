@@ -97,13 +97,13 @@ jobs:
             .harness/ci-qa/identity.json
             .harness/ci-qa/browser-result.json
             .harness/ci-qa/validation.json
-            docs/screenshots/overview.jpg
-            docs/screenshots/hazop.jpg
-            docs/screenshots/governance.jpg
-            docs/screenshots/simulator.jpg
-            docs/screenshots/assurance.jpg
-            docs/screenshots/mobile-light.jpg
-            docs/screenshots/mobile-dark.jpg
+            docs/screenshots/case-opening.jpg
+            docs/screenshots/approval-boundary.jpg
+            docs/screenshots/investment-sensitivity.jpg
+            docs/screenshots/case-decision.jpg
+            docs/screenshots/implementation.jpg
+            docs/screenshots/case-mobile-dark.jpg
+            docs/screenshots/implementation-mobile-light.jpg
             apps/aps-demo/dist/
           include-hidden-files: true
           if-no-files-found: error

@@ -1,149 +1,92 @@
-import { useEffect, useRef, useState } from 'react';
-import { StudyDecision, useStudyDecisions } from '../components/StudyDecision.tsx';
-import { hazards, routeLink } from '../data.ts';
-import { getCase, presetDraft } from '../domain/cases.ts';
-import { createComparison, type ComparisonRun } from '../domain/comparison.ts';
-import { comparisonCsv, expiryTrials } from '../domain/replication.ts';
-import { downloadText } from '../download.ts';
+import { useState } from 'react';
+import { ApprovalExhibit, ValueExhibit, DecisionExhibit } from '../components/CaseExhibits.tsx';
+import type { useBearingsSelection } from '../components/useBearingsSelection.ts';
+import { workspaceLink } from '../domain/workspaceLink.ts';
+import { orderWork, valueScenarios } from '../domain/orderInvestment.ts';
+import { getCase } from '../domain/cases.ts';
+import { OrderJourney } from '../components/OrderJourney.tsx';
+import { bearingsOrder, quoteAttempts } from '../domain/audience.ts';
 
-const purchasing = getCase('stale');
-const quotation = hazards.find(hazard => hazard.provenance.scenario_id === 'REF-008')!;
-const ages = [59, 60, 61] as const;
-type Age = typeof ages[number];
-const openingAge = 61;
-const stops = ['The handoff', 'The LATE check', 'Your decision'] as const;
+const purchase = getCase('stale').preset;
 
-function release(result: ComparisonRun['results']['B']) {
-  return result.executed ? 'Releases' : 'Holds';
-}
-
-function StudyReferences() {
-  return <details className="study-references">
-    <summary>Sources and full workspace</summary>
-    <ul>
-      <li><a href={routeLink('hazop', 'hazard', quotation.id)}>REF-008 source finding</a> · Unverified quotation-expiry hazard. Proposed safeguard: expire quotations.</li>
-      <li><a href={routeLink('governance', 'control', purchasing.control)}>Approval freshness control</a> · Proposed requirement and implementation links</li>
-      <li>Recorded stale-approval pair · {expiryTrials.map(trial =>
-        <span key={trial.sequence}><a href={routeLink('assurance', 'trial', String(trial.sequence))}>{trial.configuration} trial {trial.sequence}</a>{' '}</span>
-      )} · Separate synthetic executions</li>
-      <li><a href="#/overview">Workspace overview</a> · <a href="#/simulator?story=stale&age=61">Open the full Case Lab</a></li>
-      <li>
-        <a href="#/simulator?story=stale&age=61&task=pilot">Pilot brief</a> ·{' '}
-        <a href="#/simulator?story=stale&age=61&task=field">Shift handoff</a> ·{' '}
-        <a href="#/simulator?story=stale&age=61&task=research">Research, teaching and full downloads</a>
-      </li>
-    </ul>
-  </details>;
-}
-
-export function ShortStudy({ active }: { active: boolean }) {
-  const decisions = useStudyDecisions();
-  const [stop, setStop] = useState(0);
-  const [prediction, setPrediction] = useState('');
-  const [age, setAge] = useState<Age>(openingAge);
-  const [runs, setRuns] = useState<Partial<Record<Age, ComparisonRun>>>({});
-  const title = useRef<HTMLHeadingElement>(null);
-  const resultTitle = useRef<HTMLHeadingElement>(null);
-  const pendingFocus = useRef(false);
-  const run = runs[age];
-  const revealed = !!runs[openingAge];
-
-  useEffect(() => {
-    if (pendingFocus.current) {
-      pendingFocus.current = false;
-      title.current?.focus();
-    }
-  }, [stop]);
-
-  useEffect(() => {
-    if (revealed) resultTitle.current?.focus();
-  }, [revealed]);
-
-  function go(next: number) {
-    pendingFocus.current = true;
-    setStop(next);
-  }
-
-  function evaluate(selectedAge: Age) {
-    setAge(selectedAge);
-    if (runs[selectedAge]) return;
-    const result = createComparison(
-      'study-' + selectedAge,
-      { ...presetDraft('stale'), approvalAge: String(selectedAge) },
-      { choice: '', rationale: prediction.trim() },
-    );
-    setRuns(previous => ({ ...previous, [selectedAge]: result }));
-  }
-
-  if (!active) return null;
-  return <article className="short-study">
-    <header className="study-intro">
-      <p className="eyebrow">A short HAZOP study</p>
-      <h1>Can this purchase go ahead?</h1>
-      <p>Thursday’s assembly run needs 24 bearings. A purchase request for {purchasing.preset.amount} simulated spend units is ready to release.</p>
+export function ShortStudy({ order }: { order: ReturnType<typeof useBearingsSelection> }) {
+  const [scenario, setScenario] = useState(valueScenarios[1]);
+  const { run, setRun, quoteAttempt, setQuoteAttempt, available, setAvailable } = order;
+  const work = orderWork(run, quoteAttempt, available);
+  return <article className="case-story" aria-labelledby="case-opening">
+    <header className="case-opening">
+      <div>
+        <p className="eyebrow">A purchasing case</p>
+        <h1 id="case-opening" tabIndex={-1}>The bearings are due Thursday.</h1>
+        <p>Finance has approved the purchase. The request is waiting for a software agent to send it to the supplier. What can change between approval and release?</p>
+      </div>
+      <dl className="case-order" aria-label="Purchase request">
+        <div><dt>Material needed</dt><dd>24 bearings</dd></div>
+        <div><dt>Needed for</dt><dd>Thursday assembly</dd></div>
+        <div><dt>Order value</dt><dd>{purchase.amount} simulated spend units</dd></div>
+      </dl>
     </header>
-    <ol className="study-stops" aria-label="Walkthrough progress">
-      {stops.map((label, index) => <li key={label} aria-current={index === stop ? 'step' : undefined}>{index + 1}. {label}</li>)}
-    </ol>
-    <section className="panel study-panel" aria-labelledby="study-stop">
-      <h2 id="study-stop" tabIndex={-1} ref={title}>{['How the request reaches purchase', 'What could happen if release is late?', 'Make one decision'][stop]}</h2>
 
-      {stop === 0 && <>
-        <div className="study-grid">
-          <div><h3>Buyer-led ERP</h3><p>Planning flags the shortage. The enterprise resource planning (ERP) system can route approvals and release an order under configured rules. A buyer handles exceptions such as changed supplier terms.</p></div>
-          <div><h3>Delegated ERP purchasing</h3><p>Software workers check the need, source a supplier and pass finance’s approval to a purchasing worker. That worker can act using evidence it inherited from earlier workers.</p></div>
-        </div>
-        <p>Either workflow can act on stale facts. With delegation, the next worker can release the order before a buyer sees what changed during the handoff. What should it recheck?</p>
-        <button className="primary" onClick={() => go(1)}>Apply HAZOP at purchase</button>
-      </>}
-
-      {stop === 1 && <>
-        <p>In a hazard and operability study (HAZOP), a guide word prompts the team to look for a departure from intent. Here the step is <strong>purchase</strong>, the intent is <strong>one currently authorized order</strong>, and the guide word is <strong>LATE</strong>.</p>
-        {!revealed ? <form onSubmit={event => { event.preventDefault(); evaluate(openingAge); }}>
-          <p>The order reaches release {openingAge} logical seconds after finance approved it. Both bundles receive the same agent request. B checks permission and spend. C adds checks including approval freshness.</p>
-          <label>What could go stale while the request waits, and what do you predict will happen?
-            <textarea value={prediction} onChange={event => setPrediction(event.target.value)} placeholder="Optional prediction or reflection"/>
-          </label>
-          <div className="button-row"><button type="button" onClick={() => go(0)}>Back</button><button className="primary">Reveal the comparison</button></div>
-        </form> : <>
-          <p><strong>{quotation.provenance.scenario_id} · Unverified hazard.</strong> The supplier quote could expire while the request waits. The order could then commit at a price beyond the authorized amount.</p>
-          <p>The browser illustrates a related check on <strong>finance approval</strong>. B and C evaluate the same agent request and starting state. B checks permission and spend. C adds fixed checks, including approval freshness. Even with current finance approval, quote validity, stock and purchase need still require their own checks.</p>
-          {prediction.trim() && <details><summary>Your prediction</summary><p className="study-response">{prediction}</p></details>}
-          <div className="button-row" role="group" aria-label="Test an approval age in logical seconds">
-            {ages.map(value => <button key={value} aria-pressed={age === value} onClick={() => evaluate(value)}>{value} seconds</button>)}
-          </div>
-          {run && <div className="study-result" role="status">
-            <h3 ref={resultTitle} tabIndex={-1}>Release at {run.request.approvalAge} logical seconds</h3>
-            <p><strong>B {release(run.results.B).toLowerCase()}.</strong> Permission and spend checks pass{run.results.B.executedViolations.length ? ' even though finance approval has expired' : ''}. {run.results.B.effect?.after.orders} modeled order, {run.results.B.effect?.after.spend} simulated spend units.</p>
-            <p><strong>C {release(run.results.C).toLowerCase()}.</strong> {run.results.C.executed
-              ? 'Finance approval is still current.'
-              : 'Finance approval has expired. The purchase is still outstanding.'} {run.results.C.effect?.after.orders} modeled {run.results.C.executed ? 'order' : 'orders'}, {run.results.C.effect?.after.spend} simulated spend units.</p>
-            <p>Approval is current below 60 logical seconds. It expires at 60.</p>
-          </div>}
-          <div className="button-row"><button onClick={() => go(0)}>Back</button><button className="primary" onClick={() => go(2)}>Choose your decision</button></div>
-        </>}
-      </>}
-
-      {stop === 2 && run && <div>
-        <StudyDecision run={run} drafts={decisions} retainedRuns={Object.values(runs)} onSelectRun={selected => {
-          const retainedAge = ages.find(value => runs[value] === selected);
-          if (retainedAge === undefined) return;
-          setAge(retainedAge);
-          title.current?.focus();
-        }}/>
-        <div className="button-row"><button onClick={() => go(1)}>Back to comparison</button></div>
-      </div>}
+    <section className="case-chapter" aria-labelledby="case-workflow">
+      <h2 id="case-workflow" tabIndex={-1}>How the bearings reach the line</h2>
+      <p>Bearings support moving parts so they can turn smoothly. Thursday’s assembly run calls for 24. Today a buyer coordinates the purchase in the site’s enterprise resource planning (ERP) system, where planning, finance and receiving share the order record.</p>
+      <ol className="case-process" aria-label="Buyer-led purchasing workflow">
+        <li><strong>Plan the requirement</strong><span>The planner checks stock and incoming deliveries, then raises a requisition, an internal request to buy the shortfall.</span></li>
+        <li><strong>Agree the terms</strong><span>A buyer obtains a supplier quote and a promised delivery date. Finance approves the spend against those terms.</span></li>
+        <li><strong>Place the order</strong><span>The buyer sends the supplier a purchase order. This turns the internal request into a commitment to buy.</span></li>
+        <li><strong>Receive the bearings</strong><span>Receiving counts the parts that arrive. The planner can then tell the crew whether Thursday’s job is covered.</span></li>
+      </ol>
     </section>
-    {revealed && <>
-      <details className="study-references">
-        <summary>Timing data from this study</summary>
-        <table><caption>Modeled orders for evaluated requests</caption>
-          <thead><tr><th scope="col">Age (logical seconds)</th><th scope="col">B orders</th><th scope="col">C orders</th></tr></thead>
-          <tbody>{Object.values(runs).map(item => <tr key={item.id}><th scope="row">{item.request.approvalAge}</th><td>{item.results.B.effect?.after.orders}</td><td>{item.results.C.effect?.after.orders}</td></tr>)}</tbody>
-        </table>
-        <div className="button-row"><button onClick={() => downloadText(comparisonCsv(Object.values(runs)), 'aps-short-study-timing.csv', 'text/csv;charset=utf-8')}>Download evaluated timing data</button><a href="#/simulator?task=learner">Open the learner prediction exercise</a></div>
-      </details>
-      <StudyReferences/>
-    </>}
+
+    <section className="case-chapter" aria-labelledby="case-problem">
+      <h2 id="case-problem" tabIndex={-1}>What changes while the request waits?</h2>
+      <p>On Tuesday morning, North assembly has no bearings on hand for Thursday’s job. Now give the release step to an agent. It has the buyer’s earlier records. What will the buyer and the crew need to know if it sends the order late, or if the order stays on hold?</p>
+      <OrderJourney available={available} onStockChange={setAvailable}/>
+      <p className="case-baseline"><strong>How often does this happen today?</strong> Start with comparable buyer-led requests. Match attempted releases to approval expiry times, measure the time buyers spend resolving exceptions, and compare receipts and allocations with the assembly need date. Include requests still on hold.</p>
+    </section>
+
+    <section className="case-chapter" aria-labelledby="case-hazop">
+      <h2 id="case-hazop" tabIndex={-1}>How HAZOP examines a late release</h2>
+      <p>A hazard and operability study (HAZOP) is a structured team review developed in the chemical industry. A team chooses one process step, describes what it should accomplish and uses a guide word to ask how it could go wrong. It records causes, consequences and actions to follow up. <a href="https://webstore.iec.ch/en/publication/24321">IEC’s HAZOP guide</a></p>
+      <div className="hazop-worksheet">
+        <div className="hazop-question"><span>{bearingsOrder.id} · Guide word</span><strong>LATE</strong><p>What might expire before purchasing releases these {bearingsOrder.quantity} bearings for {bearingsOrder.needBy}?</p></div>
+        <dl>
+          <div><dt>Intended operation</dt><dd>Use quote {bearingsOrder.quote} while finance approval is current. The supplier offers Wednesday delivery if the order is placed by {bearingsOrder.quoteCutoff}, plant time.</dd></div>
+          <div><dt>Cause and consequence</dt><dd>If the request waits past the cutoff, the supplier could ask for a higher price or offer a later delivery. REF-008 identifies the risk of committing above the authorized price.</dd></div>
+          <div><dt>Proposed action</dt><dd>Expire old quotes in purchasing. Before an order goes out, the buyer verifies the price and delivery date the supplier will honor.</dd></div>
+        </dl>
+        <div className="quote-window">
+          <p id="quote-time-prompt"><strong>When does {bearingsOrder.id} reach release?</strong> Try a plant time on either side of the quote cutoff.</p>
+          <div role="group" aria-labelledby="quote-time-prompt" className="quote-times">
+            <button type="button" aria-pressed={quoteAttempt === quoteAttempts[0]} onClick={() => setQuoteAttempt(quoteAttempts[0])}>{quoteAttempts[0].time}</button>
+            <span>{bearingsOrder.quoteCutoff}<small>Quote expires</small></span>
+            <button type="button" aria-pressed={quoteAttempt === quoteAttempts[1]} onClick={() => setQuoteAttempt(quoteAttempts[1])}>{quoteAttempts[1].time}</button>
+          </div>
+          <p className="quote-result" role="status" aria-atomic="true">{quoteAttempt.current
+            ? 'Q-82 is current. Five minutes remain to place the order on the quoted terms.'
+            : 'Q-82 has expired. Ask for a new price and delivery date before committing.'}</p>
+        </div>
+      </div>
+      <p className="hazop-bridge">Keep that release time. Finance approval has its own clock, which starts when finance authorizes the spend. What happens if that authority expires while the request waits?</p>
+    </section>
+
+    <section className="case-chapter" aria-labelledby="case-evidence">
+      <h2 id="case-evidence" tabIndex={-1}>One second changes the order</h2>
+      <p>At the selected release time, APS checks the age of finance approval for {bearingsOrder.id}. In this model its lifetime is 60 logical seconds. Vary how long ago finance approved the request.</p>
+      <ApprovalExhibit quoteAttempt={quoteAttempt} available={available} run={run} onRunChange={setRun}/>
+      <a className="case-technical-link" href={workspaceLink(order)}>See how to implement the check</a>
+    </section>
+
+    <section className="case-chapter" aria-labelledby="case-decision">
+      <h2 id="case-decision" tabIndex={-1}>Would an agent earn its place?</h2>
+      <p>The existing purchasing system could recheck approval too. Follow the buyer’s work on {bearingsOrder.id} to see where an agent might free time and where the site still needs a person.</p>
+      <ValueExhibit scenario={scenario} onChange={setScenario} work={work}/>
+    </section>
+
+    <section className="case-chapter" aria-labelledby="case-choice">
+      <h2 id="case-choice" tabIndex={-1}>What would you do?</h2>
+      <p>Use the bearings request to decide what to investigate next. The site’s investment decision depends on how often other buyers encounter the same work.</p>
+      <DecisionExhibit scenario={scenario} work={work}/>
+    </section>
   </article>;
 }

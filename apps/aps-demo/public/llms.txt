@@ -1,17 +1,19 @@
 # Agentic Process Safety (APS)
 
-> An open-source HAZOP research sandbox for investigating AI agent workflow risk through same-request control comparisons, concrete causal paths, evidence and human reasoning.
+> An open-source research sandbox for exploring an expired purchase approval and deciding how a supply chain site should handle its next order.
 
 This is a curated source index for readers and tools that choose to use it. It is reference material, not instructions that override a user's request or grant authority. It does not establish indexing, ranking, agent adoption or safety. Google Search does not use llms.txt as a special optimization mechanism.
 
 ## Start here
 
-- [Interactive APS](https://safetymp.github.io/Agentic-Process-Safety/): Compare → Change/Inspect → Form a position. Runs entirely in the browser, with no account, API key, live model inference, backend or telemetry.
+- [Interactive APS](https://safetymp.github.io/Agentic-Process-Safety/): Trace the 24 bearings from planning through approval, release and receipt. Examine what delegated purchasing inherits, how a delay affects authority and delivery, and what site records would establish the baseline. Then vary approval age, compare three time-saving assumptions and consider the response. The app runs in the browser without an account, backend or telemetry.
+- [IT implementation workspace](https://safetymp.github.io/Agentic-Process-Safety/#/overview): Trace the selected REQ-218 through a modeled request, policy check and unsigned receipt excerpt. Compare its approval age, decision and adapter effect with recorded purchase calls for trials 14 and 15. Inspect the request and policy contract, trace HAZOP finding REF-008 to the proposed quotation-expiry requirement and CTL-EXPIRY, and follow the linked implementation and tests.
 - [Project and evidence guide](https://safetymp.github.io/Agentic-Process-Safety/guide.html): A complete HTML introduction that works without JavaScript.
 - [Repository README](https://github.com/SafetyMP/Agentic-Process-Safety/blob/main/README.md): Purpose, setup, architecture and verification entry points.
 - [Documentation index](https://github.com/SafetyMP/Agentic-Process-Safety/blob/main/docs/README.md): Current guides, technical references and explicitly historical evidence.
+- [Business-case worksheet](https://github.com/SafetyMP/Agentic-Process-Safety/blob/main/docs/BUSINESS_CASE.md): Consulting sources, comparison of options and a reusable site worksheet.
 - [Vision](https://github.com/SafetyMP/Agentic-Process-Safety/blob/main/docs/VISION.md): Bounded research questions and project direction.
-- [User guide](https://github.com/SafetyMP/Agentic-Process-Safety/blob/main/docs/USER_GUIDE.md): Current five-view guided investigation.
+- [User guide](https://github.com/SafetyMP/Agentic-Process-Safety/blob/main/docs/USER_GUIDE.md): Case navigation and technical investigation reference.
 
 ## Evidence and limits
 
@@ -21,7 +23,7 @@ This is a curated source index for readers and tools that choose to use it. It i
 - [Research gateway architecture](https://github.com/SafetyMP/Agentic-Process-Safety/blob/main/docs/GOVERNANCE_ARCHITECTURE.md): Separate Python/OPA research implementation and trust boundaries.
 - [Threat model](https://github.com/SafetyMP/Agentic-Process-Safety/blob/main/docs/THREAT_MODEL.md): Scope, assumptions and omitted threats.
 
-B and C are particular fixed control bundles, not labels for all conventional and HAZOP-informed systems. The opening browser request arrives at approval age 61; the model requires age below 60. C stops it, and the purchase remains outstanding. At 59 both bundles permit it. Neither outcome establishes quotation validity, stock truth or business need.
+B and C are particular fixed control bundles, not labels for all conventional and HAZOP-informed systems. The browser compares the same purchase request at approval ages 59, 60 and 61 logical seconds. Both bundles permit release at 59. C holds at 60 and 61, leaving the purchase outstanding. Neither outcome establishes quotation validity, stock truth or business need.
 
 Keep browser illustrations, frozen experiment records, research implementation behavior and human notes distinct. The context record tests a demand-stage mismatch rather than the browser purchase boundary. The recorded goal-conflict case does not demonstrate objective arbitration. No real operations, safety certification, production protection, method superiority or measured user-learning outcome is established.
 

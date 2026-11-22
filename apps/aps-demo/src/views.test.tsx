@@ -4,6 +4,7 @@ import { act, cleanup, fireEvent, render, screen, within, waitFor } from '@testi
 import type { ReactNode } from 'react';
 import { App } from './App.tsx';
 import { Simulator } from './routes/Simulator.tsx';
+import { Hazop } from './routes/Hazop.tsx';
 import { Assurance } from './routes/Assurance.tsx';
 import { SessionProvider, useSession } from './components/SessionContext.tsx';
 import { TestEvidence } from './components/TestEvidence.tsx';
@@ -216,70 +217,36 @@ describe('paired case investigation', () => {
   });
 });
 
-describe('full-app context and evidence', () => {
-  it('offers a static project guide, agent reading map and repository from every app view', async () => {
+describe('public routes and retained evidence components', () => {
+  it('redirects retired exercise and research links to implementation guidance', async () => {
     render(<App/>);
-    for (const route of ['overview', 'hazop', 'governance', 'simulator', 'assurance']) {
-      await navigate(`#/${route}`);
-      const resources = screen.getByRole('navigation', { name: 'Project resources' });
-      for (const link of within(resources).getAllByRole('link')) {
-        expect(link.getAttribute('target')).toBe('_blank');
-        expect(link.getAttribute('rel')).toMatch(/(?:^|\s)noopener(?:$|\s)/);
-      }
-      expect(within(resources).getByRole('link', { name: 'Project guide (opens in a new tab)' }).getAttribute('href')).toBe('./guide.html');
-      expect(within(resources).getByRole('link', { name: 'Agent reading map (opens in a new tab)' }).getAttribute('href')).toBe('./llms.txt');
-      expect(within(resources).getByRole('link', { name: 'Source repository (opens in a new tab)' }).getAttribute('href')).toBe('https://github.com/SafetyMP/Agentic-Process-Safety');
+    for (const route of ['technical-study', 'hazop?hazard=unknown', 'governance', 'simulator?story=stale&age=61', 'assurance?trial=15']) {
+      await navigate('#/' + route);
+      expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Implement the purchase check');
+      expect(window.location.hash).toBe('#/overview?age=60&quote=13%3A55&stock=unknown&trial=15');
+      expect(screen.queryByRole('button', { name: 'Run comparison' })).toBeNull();
+      expect(screen.getByRole('link', { name: 'Return to case' })).toBeTruthy();
     }
-  });
-  it('preserves comparison and exact labels for populated reasoning across supporting views', async () => {
-    window.location.hash = '#/simulator'; render(<App/>);
-    const prediction = 'Only the lifecycle checks inspect approval freshness.';
-    fireEvent.change(exactLabels(document, 'Why do you expect that?')[0], { target: { value: prediction } });
-    runComparison();
-    fireEvent.click(screen.getByText('Inspect supporting evidence', { exact: true }));
-    fireEvent.click(screen.getByText('Record assumptions or disagreement', { exact: true }));
-    const reasoning = {
-      'Reason for this recommendation': 'Keep the denied attempt for discussion.',
-      'Supporting evidence': 'Recorded stale approval comparison.',
-      'Assumptions': 'The request matches the prior approval.',
-      'What remains unknown?': 'Whether the quotation is still accurate.',
-      'Dissent or another interpretation': 'Timely delivery also matters.',
-    };
-    for (const [label, value] of Object.entries(reasoning)) {
-      expect(exactLabels(document, label), label).toHaveLength(1);
-      fireEvent.change(exactLabels(document, label)[0], { target: { value } });
-    }
-    for (const route of ['hazop', 'governance', 'assurance', 'overview']) {
-      await navigate(`#/${route}`); expect(screen.getByRole('heading', { level: 1 })).toBeTruthy();
-    }
-    await navigate('#/simulator');
-    for (const [label, value] of Object.entries({ 'Why do you expect that?': prediction, ...reasoning })) {
-      expect(exactLabels(document, label), label).toHaveLength(1);
-      expect(exactLabels(document, label)[0].value).toBe(value);
-    }
-    expect(document.querySelector('.comparison-view')?.textContent).toContain('61');
   });
   it('keeps exact browser labels usable for malformed hazard links and filters', () => {
-    window.location.hash = '#/hazop?hazard=unknown&node=invalid';
-    const initial = render(<App/>); initial.unmount(); render(<App/>);
+    renderSession(<Hazop params={new URLSearchParams('hazard=unknown&node=invalid')}/>);
     const nodes = exactLabels(document, 'Agent node');
     expect(nodes).toHaveLength(1); expect(nodes[0].value).toBe('all');
     fireEvent.change(nodes[0], { target: { value: 'supplier' } });
     expect(screen.getByText('16 / 96 findings')).toBeTruthy();
-    for (const label of ['Guideword / deviation', 'Sort findings', 'Theme']) expect(exactLabels(document, label)).toHaveLength(1);
+    for (const label of ['Guideword / deviation', 'Sort findings']) expect(exactLabels(document, label)).toHaveLength(1);
     fireEvent.change(screen.getByLabelText('Search findings'), { target: { value: 'no-such-hazard' } });
     expect(screen.getByText(/No findings match/)).toBeTruthy();
   });
   it('does not route an unmapped finding to an unrelated interactive case', () => {
     const unmapped = hazards.find(h => h.node === 'orchestrator' && h.deviation === 'REVERSE')!;
-    window.location.hash = `#/hazop?hazard=${unmapped.id}`; render(<App/>);
+    const { container } = renderSession(<Hazop params={new URLSearchParams({ hazard: unmapped.id })}/>);
     expect(screen.getByText(/No interactive case/)).toBeTruthy();
-    const detail = document.querySelector(`[aria-label="${unmapped.id}"]`) ?? document.querySelector('main')!;
-    expect(detail.querySelector('a[href="#/governance?story=unauthorized"]')).toBeNull();
+    expect(container.querySelector('a[href="#/governance?story=unauthorized"]')).toBeNull();
     expect(document.body.textContent).toContain('unknown');
   });
   it('restores persisted themes on every route with exact browser matching', () => {
-    for (const route of ['overview', 'hazop', 'governance', 'simulator', 'assurance']) {
+    for (const route of ['study', 'overview']) {
       window.location.hash = `#/${route}`; const view = render(<App/>);
       for (const theme of ['light', 'dark', 'system']) {
         expect(exactLabels(document, 'Theme')).toHaveLength(1);
@@ -323,16 +290,19 @@ describe('full-app context and evidence', () => {
     expect(container.querySelectorAll('.replay-list li')).toHaveLength(0);
     expect(snapshot().runs).toHaveLength(0); expect(JSON.stringify(experiment)).toBe(frozen);
   });
-  it('keeps an explicitly selected different trial and refuses an invalid trial substitute', async () => {
-    window.location.hash = '#/simulator'; render(<App/>); runComparison();
-    await navigate('#/assurance?trial=17');
+  it('keeps an explicitly selected different trial and refuses an invalid trial substitute', () => {
+    const view = renderSession(<Simulator/>);
+    runComparison();
+    const inspect = (trial: string) => view.rerender(
+      <SessionProvider><Assurance key={trial} params={new URLSearchParams({ trial })}/><SessionProbe/></SessionProvider>,
+    );
+    inspect('17');
     expect(screen.getByText(/differs from the active browser case/)).toBeTruthy();
     expect(screen.getByRole('heading', { name: /Recorded trial #17/ })).toBeTruthy();
-    await navigate('#/assurance?trial=unknown');
+    inspect('unknown');
     expect(screen.getByText(/No recorded trial matches/)).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Replay next recorded call' })).toBeNull();
-    await navigate('#/simulator');
-    expect(document.querySelector('.comparison-view')?.textContent).toContain('61');
+    expect(snapshot().selectedRun?.request.approvalAge).toBe(61);
   });
   it('discloses absent arbitration tests and retains finite coverage denominators', () => {
     render(<TestEvidence control="GAP-CONFLICTING_OBJECTIVES"/>);

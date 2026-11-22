@@ -1,4 +1,5 @@
 // Read-only PR acceptance gate. Does not deploy or accept postdeployment evidence.
+import { interactiveCaptures, interactiveChecks, interactiveRunnerPins, verifyInteractiveResult } from './interactive-case-evidence.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
@@ -20,6 +21,14 @@ export const PINS = Object.freeze({
   'apps/aps-demo/scripts/qa-evidence.mjs': '859c2a56553c93ad0f6a1e874ced2bfa51dbc1f7a9ec97ba15ba236783f01926',
   'apps/aps-demo/scripts/validation-evidence.mjs': 'ad2e1b879515eeecef0b90e6cc9a3b4c93400070bc9e9bc6186a61421871ee69',
   'package-lock.json': '6350fea042ab97510b73aa1969e2469731753b5f95814caafa7f8d0ecbe7d303',
+});
+export const interactivePins = Object.freeze({
+  ...interactiveRunnerPins,
+  [WORKFLOW]: '66e1836ec1f72964943935744ccd8e9b6f8a0ac688166c5f807e6371fc78063b',
+  'apps/aps-demo/scripts/validation-evidence.mjs': '29f15d06b79a65a7e0f55870677c5949e46b4237825218c7fa9c1fec5178b8ee',
+  '.github/workflows/deploy-pages.yml': PINS['.github/workflows/deploy-pages.yml'],
+  'apps/aps-demo/scripts/qa-evidence.mjs': PINS['apps/aps-demo/scripts/qa-evidence.mjs'],
+  'package-lock.json': PINS['package-lock.json'],
 });
 export const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 export const blob = bytes => createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
@@ -137,13 +146,19 @@ function successfulJob(job, runner) {
 }
 // api must supply authenticated GitHub GETs. The CLI below never accepts artifact policy overrides.
 export async function verifyPredeploy({ review, archive, api, now = Date.now() }) {
-  keys(review, reviewFields, 'Predeployment review fields'); equal(review.schema, 'aps-linux-predeploy-review-1'); scope(review);
+  const interactive = review.schema === 'aps-linux-predeploy-review-2';
+  if (!interactive) equal(review.schema, 'aps-linux-predeploy-review-1');
+  const requiredPins = interactive ? interactivePins : PINS;
+  const captures = interactive ? interactiveCaptures : CAPTURES;
+  keys(review, interactive ? reviewFields.map(key => key === 'assertions' ? 'checks' : key) : reviewFields, 'Predeployment review fields');
+  scope(review);
   for (const key of ['headSha', 'baseSha', 'checkoutSha', 'checkoutTree', 'workflowSha', 'workflowBlob']) sha(review[key]);
   for (const key of ['runId', 'runAttempt', 'artifactId', 'pullRequest']) positive(review[key]);
   for (const key of ['sourceDigest', 'distDigest']) digest(review[key]);
   for (const key of ['reviewer', 'limitations']) text(review[key]);
   assert.match(review.nodeVersion, /^v22\.[0-9]+\.[0-9]+$/); assert.match(review.browserVersion, /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/);
-  assert.ok(Number.isSafeInteger(review.assertions) && review.assertions >= 137);
+  if (interactive) equal(review.checks, interactiveChecks);
+  else equal(review.assertions, 257);
   const ref = `refs/pull/${review.pullRequest}/merge`;
   equal(review.workflowRef.toLowerCase().split('/.github/')[0], REPOSITORY);
   equal(review.workflowRef.slice(review.workflowRef.indexOf('/.github/')), `/${WORKFLOW}@${ref}`);
@@ -185,7 +200,7 @@ export async function verifyPredeploy({ review, archive, api, now = Date.now() }
     const side = observed.pullRequest[name]; keys(side, ['repository', 'repositoryId', 'ref', 'sha']); scope(side); equal(side.ref, expectedRef); equal(side.sha, expectedSha);
   }
   keys(observed.workflow, ['path', 'ref', 'sha', 'blob', 'sha256']);
-  equal(observed.workflow, { path: WORKFLOW, ref: review.workflowRef, sha: review.workflowSha, blob: review.workflowBlob, sha256: PINS[WORKFLOW] });
+  equal(observed.workflow, { path: WORKFLOW, ref: review.workflowRef, sha: review.workflowSha, blob: review.workflowBlob, sha256: requiredPins[WORKFLOW] });
   // This sole supported route uses GitHub's open-PR merge definition. Resolve that
   // merge and both parents above; do not conflate API run.head_sha with it. Any
   // different workflow-definition context needs review, never an artifact override.
@@ -193,10 +208,10 @@ export async function verifyPredeploy({ review, archive, api, now = Date.now() }
   const definitionCommit = await api(`/git/commits/${review.workflowSha}`); equal(definitionCommit.sha, review.workflowSha);
   const definition = await api(`/contents/${WORKFLOW}?ref=${review.workflowSha}`);
   equal(definition.type, 'file'); equal(definition.encoding, 'base64'); equal(definition.sha, review.workflowBlob);
-  const definitionBytes = Buffer.from(definition.content, 'base64'); equal(blob(definitionBytes), review.workflowBlob); equal(hash(definitionBytes), PINS[WORKFLOW], 'Unreviewed workflow definition');
+  const definitionBytes = Buffer.from(definition.content, 'base64'); equal(blob(definitionBytes), review.workflowBlob); equal(hash(definitionBytes), requiredPins[WORKFLOW], 'Unreviewed workflow definition');
   equal(observed.platform, 'linux'); equal(observed.architecture, 'x64'); keys(observed.versions, ['node', 'vite', 'playwright', 'browser']);
   equal(observed.versions, { node: review.nodeVersion, vite: '8.3.5', playwright: '1.64.1', browser: review.browserVersion });
-  keys(observed.pins, Object.keys(PINS)); equal(observed.pins, PINS, 'Changed independently pinned code');
+  keys(observed.pins, Object.keys(requiredPins)); equal(observed.pins, requiredPins, 'Changed independently pinned code');
   inventory(observed.source, true); inventory(observed.dist, false);
   equal(hash(JSON.stringify(observed.source)), review.sourceDigest); equal(hash(JSON.stringify(observed.dist)), review.distDigest);
   const tree = await api(`/git/trees/${review.checkoutTree}?recursive=1`); equal(tree.sha, review.checkoutTree); equal(tree.truncated, false);
@@ -208,8 +223,8 @@ export async function verifyPredeploy({ review, archive, api, now = Date.now() }
     const source = await api(`/git/blobs/${entry.sha}`); equal(source.encoding, 'base64'); equal(source.sha, entry.sha);
     const bytes = Buffer.from(source.content, 'base64'); equal(bytes.length, source.size); assert.ok(bytes.length <= BOUNDS.entry); equal(blob(bytes), row.blob); equal(hash(bytes), row.sha256);
   }
-  for (const [path, expected] of Object.entries(PINS)) equal(observed.source.find(row => row.path === path)?.sha256, expected, `Source pin: ${path}`);
-  const expectedFiles = ['.harness/ci-qa/identity.json', '.harness/ci-qa/browser-result.json', '.harness/ci-qa/validation.json', ...CAPTURES, ...observed.dist.map(row => row.path)];
+  for (const [path, expected] of Object.entries(requiredPins)) equal(observed.source.find(row => row.path === path)?.sha256, expected, `Source pin: ${path}`);
+  const expectedFiles = ['.harness/ci-qa/identity.json', '.harness/ci-qa/browser-result.json', '.harness/ci-qa/validation.json', ...captures, ...observed.dist.map(row => row.path)];
   equal([...files.keys()].sort(), expectedFiles.sort(), 'Unexpected/missing archive files');
   for (const row of observed.dist) equal(hash(files.get(row.path)), row.sha256, `Built bytes: ${row.path}`);
   const identity = json('.harness/ci-qa/identity.json');
@@ -219,13 +234,18 @@ export async function verifyPredeploy({ review, archive, api, now = Date.now() }
   const qaSource = observed.source.filter(row => row.path.startsWith('apps/aps-demo/') || ['package.json', 'package-lock.json', 'tsconfig.json', '.github/workflows/deploy-pages.yml'].includes(row.path)).map(({ path, sha256 }) => ({ path, sha256 }));
   equal(identity.source, qaSource); equal(identity.sourceDigest, hash(JSON.stringify(qaSource))); equal(identity.dist, observed.dist); equal(identity.distDigest, review.distDigest);
   equal(identity.browserResult, 'See browser-result.json only if assertions completed; absence means no browser pass.');
-  const result = json('.harness/ci-qa/browser-result.json'); keys(result, ['status', 'engine', 'version', 'platform', 'assertions', 'errors', 'violations', 'prefix', 'screenshots', 'experience']);
-  equal(result.experience, 'APS guided investigation');
-  equal(result.status, 'passed'); equal(result.platform, 'linux'); equal(result.engine, 'chromium'); equal(result.version, review.browserVersion); equal(result.assertions, review.assertions);
-  equal(result.errors, []); equal(result.violations, []); equal(result.prefix, '/agentic-process-safety/'); equal(result.screenshots, CAPTURES);
+  const result = json('.harness/ci-qa/browser-result.json');
+  equal(result.version, review.browserVersion);
+  if (interactive) verifyInteractiveResult(result, review.checks);
+  else {
+    keys(result, ['status', 'engine', 'version', 'platform', 'assertions', 'errors', 'violations', 'prefix', 'screenshots', 'experience']);
+    equal(result.experience, 'APS guided investigation');
+    equal(result.status, 'passed'); equal(result.platform, 'linux'); equal(result.engine, 'chromium'); equal(result.assertions, review.assertions);
+    equal(result.errors, []); equal(result.violations, []); equal(result.prefix, '/agentic-process-safety/'); equal(result.screenshots, captures);
+  }
   equal(observed.browserObservation, 'browser-result.json exists; independent verification required');
-  keys(review.screenshots, CAPTURES); const imageHashes = new Set();
-  for (const path of CAPTURES) {
+  keys(review.screenshots, captures); const imageHashes = new Set();
+  for (const path of captures) {
     const image = files.get(path); const reviewed = review.screenshots[path]; keys(reviewed, ['sha256', 'accepted', 'observations']);
     assert.ok(image.length > 1000 && image[0] === 0xff && image[1] === 0xd8 && image.at(-2) === 0xff && image.at(-1) === 0xd9, 'Invalid JPEG');
     equal(reviewed.sha256, hash(image)); equal(reviewed.accepted, true); text(reviewed.observations); imageHashes.add(hash(image));

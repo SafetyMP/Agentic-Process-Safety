@@ -1,41 +1,53 @@
-import { audienceTasks } from '../components/AudienceTasks.tsx';
-import { useState } from 'react';
-import { ReactFlow, Background, Controls, MarkerType } from '@xyflow/react';
-import { topology, routeLink } from '../data.ts';
-import { Badge, Heading, Stat } from '../components/shared.tsx';
-import { useSession } from '../components/SessionContext.tsx';
-import { caseDefinitions } from '../domain/cases.ts';
+import { ImplementationEvidence } from '../components/ImplementationEvidence.tsx';
+import { SelectedPurchaseTrace } from '../components/SelectedPurchaseTrace.tsx';
+import { workspaceLink, type BearingsSelection } from '../domain/workspaceLink.ts';
 
-const positions = [{ x: 0, y: 150 }, { x: 210, y: 150 }, { x: 420, y: 150 }, { x: 630, y: 150 }, { x: 840, y: 150 }, { x: 420, y: 0 }];
+const sourceRoot = 'https://github.com/SafetyMP/Agentic-Process-Safety/blob/main/';
 
-export function Overview() {
-  const { runs, setCase, resetInputs } = useSession();
-  const [selected, setSelected] = useState('orchestrator');
-  const [topologyOpen, setTopologyOpen] = useState(false);
-  const node = topology.nodes.find(n => n.id === selected);
-  const entities = [...topology.nodes.map(n => ({ id: n.id, label: n.id })), { id: 'gateway', label: 'Policy gateway' }, { id: 'assurance', label: 'Assurance' }];
-  const nodes = entities.map((n, i) => ({ id: n.id, position: positions[i] ?? { x: i === 6 ? 210 : 630, y: 320 }, data: { label: n.label.charAt(0).toUpperCase() + n.label.slice(1) }, selected: n.id === selected }));
-  const edges = topology.communications.map((e, i) => ({ id: String(i), source: e.source, target: e.target, label: e.data === 'delegation' ? '' : e.data.replace('_result', ''), markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: e.source === 'orchestrator' ? '#8296b2' : '#1d9489', strokeDasharray: e.source === 'orchestrator' ? '5 4' : undefined } }));
-  edges.push({ id: 'overlay-gateway', source: 'purchase', target: 'gateway', label: 'illustrated boundary', markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#1d9489', strokeDasharray: '3 4' } }, { id: 'overlay-assurance', source: 'gateway', target: 'assurance', label: 'inspect evidence', markerEnd: { type: MarkerType.ArrowClosed }, style: { stroke: '#1d9489', strokeDasharray: '3 4' } });
+export function Overview({ order, onTrialChange }: { order: BearingsSelection; onTrialChange: (trial: number) => void }) {
+  return <article className="implementation-guide" aria-labelledby="implementation-title">
+    <header className="implementation-intro">
+      <p className="eyebrow">Technical workspace</p>
+      <h1 id="implementation-title">Implement the purchase check</h1>
+      <p>Follow the bearings request from the purchasing agent to the order adapter. Then compare its decision with two recorded research trials.</p>
+    </header>
 
-  return <>
-    <Heading eyebrow="AGENTIC PROCESS SAFETY" title="Should purchasing release this order?">A planner identifies a shortage, a buyer checks the supplier’s terms, and finance approves the spend. Follow the same handoffs when software agents carry the requisition to order release.</Heading>
-    <section className="hero opening-case" aria-labelledby="opening-case-title">
-      <div><Badge tone="teal">ILLUSTRATIVE CASE · NO LIVE OPERATIONS</Badge><h2 id="opening-case-title">The purchase request arrived 61 seconds later.</h2><p>Finance approved a purchase. The purchase worker receives the request 61 logical seconds later. Its tool permission and budget still permit the action; the approval is valid for less than 60 seconds.</p><p><strong>What will the controls do—and what should the people responsible do next?</strong></p><div className="button-row"><a className="button primary" href={routeLink('simulator', 'story', 'stale')} onClick={() => { setCase('stale'); resetInputs(); }}>Explore the approval case →</a><button onClick={() => { const library = document.getElementById('case-library') as HTMLDetailsElement | null; if (library) { library.open = true; library.scrollIntoView?.({ block: 'start' }); library.querySelector('summary')?.focus(); } }}>Browse cases</button></div></div>
-      <div className="opening-facts" aria-label="Opening case facts"><div><span>Purchase amount</span><strong>300 simulated spend units</strong></div><div><span>Approval age</span><strong>61 seconds</strong><small>Validity rule: below 60</small></div><div><span>Your task</span><strong>Compare. Change. Explain.</strong><small>Explain the outcome, then investigate the outstanding task.</small></div></div>
+    <SelectedPurchaseTrace order={order} sourceRoot={sourceRoot}/>
+    <ImplementationEvidence sourceRoot={sourceRoot} run={order.run} trialNumber={order.trial}
+      onTrialChange={onTrialChange} permalink={workspaceLink(order)}/>
+
+    <details className="implementation-verification">
+      <summary>From request to release</summary>
+      <ol className="implementation-flow">
+        <li><h3>Receive the request</h3><p>Authenticate the caller. Resolve the task, context and current order state from trusted records.</p></li>
+        <li><h3>Match the approval</h3><p>Check that finance approved this supplier, quantity and amount for this task and policy. Require an unused approval whose expiry is later than the gateway’s admission time.</p></li>
+        <li><h3>Enforce and record</h3><p>Evaluate the policy before calling the adapter. Record the decision, reason, policy digest and execution status in a signed receipt. A denial leaves the order and spend unchanged.</p></li>
+        <li><h3>Assign the hold</h3><p>In a site rollout, send the reason, request reference and need date to the responsible buyer. The buyer checks inbound stock and the quote before requesting fresh authority.</p></li>
+      </ol>
+    </details>
+
+    <section aria-labelledby="implementation-tests">
+      <h2 id="implementation-tests">Test the release boundary</h2>
+      <p>In a local gateway test, use an otherwise eligible request and a 60-second approval. Check the receipt generated by the test and the resulting order state together.</p>
+      <table className="implementation-matrix">
+        <caption className="sr-only">Expected outcomes for a new purchase attempt</caption>
+        <thead><tr><th scope="col">At admission</th><th scope="col">Expected result</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">59 seconds</th><td>Allow one simulated order and consume the approval.</td></tr>
+          <tr><th scope="row">60 or 61 seconds</th><td>Deny the expired approval. Keep the order count and spend unchanged.</td></tr>
+          <tr><th scope="row">Supplier or amount differs from approval</th><td>Deny the mismatch even when the approval is fresh.</td></tr>
+        </tbody>
+      </table>
+      <p>The research gateway samples time when it admits the call. Applying this design to a supplier API also requires checking how long an authorized request can wait before the supplier actually accepts it.</p>
     </section>
-    <nav className="panel audience-entry" aria-label="Choose your purchasing task">{audienceTasks.map(item => <a key={item.key} href={'#/simulator?story=stale&age=61&task=' + item.key}><strong>{item.key === 'field' ? 'Field managers' : item.key === 'pilot' ? 'Executives' : 'Researchers and professors'}</strong><span>{item.title} →</span></a>)}</nav>
-    <section className="notice coordination-story" aria-labelledby="coordination-title">
-      <h2 id="coordination-title">From requisition to order, before and with agents</h2>
-      <p>Before AI agents, purchasing software could route a requisition to an approver and turn an approved request into a purchase order. A buyer handled exceptions, such as a supplier changing its quote before release.</p>
-      <p>Here, a coordinator delegates work to demand, inventory, supplier, finance and purchasing agents. Each can pass a result to the next worker. Purchasing can act on that result even after the approval expires. Fixed rules simulate these handoffs in the browser.</p>
-      <p><strong>For buying teams.</strong> If the order is held, who owns the shortage? Use the case worksheet to name the person who will check open orders, confirm the quote and seek renewed approval if the material is still needed.</p>
-      <p><strong>For supply chain researchers.</strong> Compare the same request at 59 and 61 seconds. Record whether an order was placed under each set of checks. Estimating the effect on service levels would also require demand, receipt and stockout records.</p>
-    </section>
-    <section className="panel" aria-labelledby="approach-title"><h2 id="approach-title">Follow one action all the way through.</h2><div className="learning-steps"><div><span className="step-number">01</span><h3>Compare the same request</h3><p>See what tool and spend checks permit, then inspect the additional condition that changes the outcome.</p></div><div><span className="step-number">02</span><h3>Change a meaningful condition</h3><p>Try 59, 60 and 61 seconds. Keep the original result and see exactly what changes.</p></div><div><span className="step-number">03</span><h3>Form a position</h3><p>Choose what to investigate next, connect your recommendation to evidence, and state what would change your mind.</p></div></div>{runs.length > 0 && <a href={routeLink('simulator')}>Return to your {runs.length} retained {runs.length === 1 ? 'comparison' : 'comparisons'} →</a>}</section>
-    <details className="panel" id="case-library"><summary>Browse the nine cases</summary><div aria-labelledby="case-library-title"><div className="section-title"><h2 id="case-library-title">Case library</h2><Badge>Nine illustrative cases</Badge></div><p>Start with approval expiry. Normal authorization and unauthorized tool use show where both control bundles reach the same decision. Other cases expose additional modeled conditions and explicit gaps.</p><div className="case-library-grid">{caseDefinitions.map(c => <article className={`case-card ${c.id === 'stale' ? 'featured' : ''}`} key={c.id}><Badge tone={c.id === 'stale' ? 'teal' : ''}>{c.id === 'stale' ? 'START HERE' : ['normal', 'unauthorized'].includes(c.id) ? 'GUIDED FOLLOW-UP' : 'RULE EXPLORATION'}</Badge><h3>{c.title}</h3><p>{c.operation}</p><small>{c.effectMode === 'purchase' ? 'Illustrative purchase effects' : 'Effects beyond the rule decision are not modeled'}</small><small>{c.fault ? 'Related recorded fault family' : 'No distinct recorded trial'}</small>{c.id === 'conflict' && <small>Objective arbitration remains an open gap.</small>}<a href={routeLink('simulator', 'story', c.id)}>Explore case →</a></article>)}</div></div></details>
-    <section className="notice"><strong>A method for asking better questions</strong><p>APS connects intended behavior → possible deviation → proposed control → evidence → human judgment. These comparisons explain particular checks; they do not establish that HAZOP discovers better hazards than another review method.</p><p>A fresh approval still cannot establish that a quotation, forecast or stock record is correct.</p><a href={routeLink('hazop')}>Investigate the underlying hazards →</a></section>
-    <details className="panel topology-disclosure" onToggle={event => setTopologyOpen(event.currentTarget.open)}><summary>Explore the declared procurement system</summary><p>Five specialized workers coordinate through an orchestrator. This diagram describes source relationships, not a live execution. Gateway and assurance are illustrative overlays, not extra agents.</p><div className="split"><section className="topology"><h2>Procurement topology</h2><p className="muted">Solid: worker messages. Dashed: delegated control and illustrative overlays. Select an entity or use the equivalent buttons below.</p><div className="graph" aria-label="Interactive procurement agent topology">{topologyOpen && <ReactFlow nodes={nodes} edges={edges} fitView fitViewOptions={{ padding: 0.12 }} nodesDraggable={false} nodesConnectable={false} onNodeClick={(_, n) => setSelected(n.id)} minZoom={0.2}><Background gap={24}/><Controls showInteractive={false}/></ReactFlow>}</div><div className="node-buttons" aria-label="Select topology entity">{entities.map(n => <button key={n.id} aria-pressed={selected === n.id} onClick={() => setSelected(n.id)}>{n.label}</button>)}</div></section><aside className="topology-detail" aria-label="Selected topology entity"><p className="eyebrow">{node ? 'DECLARED AGENT' : 'ILLUSTRATIVE OVERLAY'}</p><h2 className="capitalize">{node?.id ?? (selected === 'gateway' ? 'Policy gateway' : 'Assurance')}</h2>{node ? <><p>{node.objective}</p><Badge>{node.trust_boundary}</Badge><h3>Declared permissions</h3><ul>{node.permissions.map(p => <li key={p}><code>{p}</code></li>)}</ul><h3>Tools and declared state</h3><p>{node.tools.join(', ')}</p><p>{node.data.join(', ')}</p><h3>Message flows</h3><ul>{topology.communications.filter(e => e.source === node.id || e.target === node.id).map(e => <li key={e.source + e.target}>{e.source} → {e.target}<small>{e.data} · {e.trust_boundary}</small></li>)}</ul><a href={routeLink('hazop', 'node', node.id)}>Explore this agent’s hazards →</a></> : selected === 'gateway' ? <><p>The boundary between request intent and authorization. Browser checks illustrate selected rules; the separate Python/OPA gateway is not executed here.</p><a href={routeLink('governance')}>Inspect controls →</a></> : <><p>Inspect browser comparisons and the separate recorded experiment. Local discussion notes and illustrative effects are not signed receipts.</p><a href={routeLink('assurance')}>Inspect evidence →</a></>}</aside></div></details>
-    <details className="panel"><summary>Project scope and research inventory</summary><div className="stats"><Stat label="Specialized workers" value="5 + 1" note="Five workers and one orchestrator"/><Stat label="Screening entries" value="96" note="Six nodes × sixteen deviations; all unverified"/><Stat label="Authored references" value="16" note="Examples, not observed incidents"/><Stat label="Recorded trials" value="30" note="One finite synthetic experiment"/></div><p>Generated findings are hypotheses for expert review. Proposed controls and test links do not constitute risk acceptance, operational authority or safety certification.</p></details>
-  </>;
+
+    <details className="implementation-verification">
+      <summary>Verify the control in the repository</summary>
+      <p>The case illustrates the timing rule in the browser. The inspector reads the published outcomes of two recorded experiments. <a href={sourceRoot + 'apps/aps-demo/src/fixtures/experiment.json'}>Recorded trial data</a></p>
+      <p>Follow a request through the <a href={sourceRoot + 'docs/GOVERNANCE_ARCHITECTURE.md#request-to-effect-protocol'}>gateway</a> and <a href={sourceRoot + 'policies/v1/procurement.rego'}>purchase policy</a>. The <a href={sourceRoot + 'tests/test_purchase_expiry.py'}>expiry tests</a> compare state before and after the call and verify the signed receipt.</p>
+      <p><code>test_approval_at_expiry_denies</code> isolates the approval deadline in a disposable store with one item quoted at five spend units. It checks that admission samples the clock once, the receipt reason is <code>approval_invalid</code>, the adapter does not execute, and business state stays unchanged. The adjacent tests repeat the call one second before and one second after expiry with fresh fixtures.</p>
+      <p>Install the dependencies in the <a href={sourceRoot + 'docs/PHASE2_OPERATIONS.md'}>setup guide</a>. With the project’s Python environment active and OPA on your path, run the focused tests from the repository root.</p>
+      <pre><code>{'PYTHONPATH=packages/engine:packages/governance \\\n  python -m unittest discover -s tests -p test_purchase_expiry.py'}</code></pre>
+    </details>
+  </article>;
 }

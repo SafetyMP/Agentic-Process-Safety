@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { interactiveChecks, interactiveCaptures, interactiveRunnerPins, verifyInteractiveResult } from './interactive-case-evidence.mjs';
 import { evidenceEntries, gitBlobSha, verifyBrowserResult, verifyNodeVersion } from './verify-linux-ci-evidence.mjs';
 
 // Synthetic unit fixtures test parsing and rejection, never actual CI provenance.
@@ -51,4 +52,23 @@ test('postdeployment pin migration accepts only exact reviewed e2e/Pages bytes',
   assert.ok(source.includes("for (const name of ['build', 'deploy'])"));
   assert.ok(source.includes("@refs/heads/main"));
   assert.ok(!source.includes('aps-linux-predeploy-review-1'));
+});
+
+test('interactive reviews bind the named scenarios, captures and actual runner dispatch', () => {
+  const current = {
+    schema: 'aps-interactive-case-browser-1', status: 'passed', platform: 'linux', engine: 'chromium',
+    version: '156.0.8078.4', experience: 'APS interactive purchasing case', prefix: '/agentic-process-safety/',
+    checks: [...interactiveChecks], screenshots: [...interactiveCaptures], errors: [], violations: [],
+  };
+  verifyInteractiveResult(current, interactiveChecks);
+  for (const patch of [{ checks: current.checks.slice(1) }, { checks: [...current.checks].reverse() },
+    { screenshots: result().screenshots }, { errors: ['console error'] }, { schema: 'unreviewed' }]) {
+    assert.throws(() => verifyInteractiveResult({ ...current, ...patch }, interactiveChecks));
+  }
+  assert.throws(() => verifyInteractiveResult(current, current.checks.slice(1)));
+  assert.throws(() => verifyInteractiveResult(result(), interactiveChecks));
+  assert.throws(() => verifyBrowserResult(current, 257));
+  for (const [path, digest] of Object.entries(interactiveRunnerPins)) {
+    assert.equal(createHash('sha256').update(readFileSync(new URL('../' + path, import.meta.url))).digest('hex'), digest, path);
+  }
 });

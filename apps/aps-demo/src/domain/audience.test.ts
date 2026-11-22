@@ -23,6 +23,21 @@ describe('purchasing audience artifacts', () => {
     expect(discussionMarkdown(restored)).toContain('Buyer Night');
     expect(discussionMarkdown(restored)).toContain(pilot.decision);
   });
+  it('exports the ERP-first recommendation and its evaluation from the retained sponsor worksheet', () => {
+    let session = sessionReducer(initialSession(), { type: 'run' });
+    const pilot = {
+      ...blankFields(pilotFields),
+      decision: 'Test the ERP rule first',
+      scope: 'North assembly bearings',
+      tradeoff: 'Keep the rule if the site covers Thursday’s need.',
+    };
+    session = sessionReducer(session, { type: 'discussion', id: 'comparison-1', patch: { pilot } });
+    const restored = parseSession(serializeSession(session));
+    const brief = pilotBrief(restored.runs[0], restored.discussions['comparison-1'].pilot!);
+    expect(brief).toContain('**Test the ERP rule first** · North assembly bearings');
+    expect(brief).toContain('rechecks approval at release');
+    expect(brief).toContain(pilot.tradeoff);
+  });
   it('restores older sessions without assigning them a new source build', () => {
     const raw = JSON.parse(serializeSession(sessionReducer(initialSession(), { type: 'run' })));
     delete raw.session.runs[0].build;

@@ -79,7 +79,7 @@ async function collect(phase) {
   }
   rows.sort((a, b) => a.path.localeCompare(b.path)); assert.ok(rows.length > 0 && rows.length <= 1000);
   const pins = {};
-  for (const path of [workflow, '.github/workflows/deploy-pages.yml', 'apps/aps-demo/scripts/e2e.mjs', 'apps/aps-demo/scripts/qa-evidence.mjs', 'apps/aps-demo/scripts/validation-evidence.mjs', 'package-lock.json']) pins[path] = hash(await file(path));
+  for (const path of [workflow, '.github/workflows/deploy-pages.yml', 'apps/aps-demo/scripts/audience-e2e.mjs', 'package.json', 'apps/aps-demo/scripts/qa-evidence.mjs', 'apps/aps-demo/scripts/validation-evidence.mjs', 'package-lock.json']) pins[path] = hash(await file(path));
   const dist = await distInventory(); assert.ok(dist.length > 0);
   const installed = name => JSON.parse(require('node:fs').readFileSync(require.resolve(`${name}/package.json`), 'utf8')).version;
   let browser = null;

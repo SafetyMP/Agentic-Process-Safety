@@ -1,4 +1,5 @@
 // Read-only acceptance gate. A review record alone can never establish CI success.
+import { interactiveCaptures, interactiveRunnerPins, verifyInteractiveResult } from './interactive-case-evidence.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFile, readdir } from 'node:fs/promises';
@@ -69,15 +70,19 @@ async function inventory(path) {
   return rows.sort((a, b) => a.path.localeCompare(b.path));
 }
 async function verify() {
-  for (const [path, digest] of Object.entries(pins)) equal(hash(await readFile(path)), digest, `Reviewed runner/workflow changed: ${path}`);
   const review = JSON.parse(await readFile('.harness/linux-ci-review.json', 'utf8'));
-  equal(review.schema, 'aps-linux-ci-review-1', 'Review schema');
+  const interactive = review.schema === 'aps-linux-ci-review-2';
+  if (!interactive) equal(review.schema, 'aps-linux-ci-review-1', 'Review schema');
+  const requiredPins = interactive ? { ...pins, ...interactiveRunnerPins } : pins;
+  for (const [path, digest] of Object.entries(requiredPins)) equal(hash(await readFile(path)), digest, `Reviewed runner/workflow changed: ${path}`);
+  if (!interactive) equal(JSON.parse(await readFile('package.json', 'utf8')).scripts['demo:e2e'], 'node apps/aps-demo/scripts/e2e.mjs', 'Legacy runner dispatch');
+  const requiredCaptures = interactive ? interactiveCaptures : captures;
   equal(githubRepository(review.repository), repository, 'Reviewed repository');
   assert.match(review.commit, /^[a-f0-9]{40}$/, 'Reviewed commit');
   for (const key of ['runId', 'runAttempt', 'artifactId']) assert.match(String(review[key]), /^[1-9][0-9]*$/, key);
   equal(githubWorkflowRef(review.workflowRef), `${repository}/${workflow}@refs/heads/main`, 'Reviewed workflow ref');
   assert.ok(nonempty(review.reviewer) && nonempty(review.limitations), 'Actual reviewer and limitations required');
-  equal(Object.keys(review.screenshots).sort(), [...captures].sort(), 'All seven visual reviews required');
+  equal(Object.keys(review.screenshots).sort(), [...requiredCaptures].sort(), 'All seven visual reviews required');
   const repo = api(''); verifyRepositoryId(repo.id); equal(repo.visibility, 'public', 'Only reviewed public target permitted');
   const run = api(`/actions/runs/${review.runId}/attempts/${review.runAttempt}`);
   equal(run.head_sha, review.commit, 'Run commit'); equal(run.head_branch, 'main', 'Reviewed branch');
@@ -106,7 +111,7 @@ async function verify() {
   equal(`sha256:${hash(await readFile(archive))}`, artifact.digest, 'Archive must match GitHub authenticated artifact digest');
   const zip = args => execFileSync('unzip', args, { maxBuffer: 32 * 1024 * 1024, timeout: 15000, stdio: ['ignore', 'pipe', 'pipe'] });
   const entries = evidenceEntries(zip(['-Z1', archive]));
-  equal(entries.sort(), ['.harness/ci-qa/identity.json', '.harness/ci-qa/browser-result.json', ...captures].sort(), 'Missing, duplicate or unexpected evidence files');
+  equal(entries.sort(), ['.harness/ci-qa/identity.json', '.harness/ci-qa/browser-result.json', ...requiredCaptures].sort(), 'Missing, duplicate or unexpected evidence files');
   const bytes = path => zip(['-p', archive, path]);
   const identity = JSON.parse(bytes('.harness/ci-qa/identity.json'));
   const result = JSON.parse(bytes('.harness/ci-qa/browser-result.json'));
@@ -133,9 +138,10 @@ async function verify() {
     assert.ok(entry && entry.type === 'blob' && entry.mode === '100644' && entry.sha === blob, `Source differs from reviewed commit: ${row.path}`);
   }
   // Pinned runner writes success only after all assertions, malformed links and overflow checks.
-  verifyBrowserResult(result, review.assertions);
+  if (interactive) verifyInteractiveResult(result, review.checks);
+  else verifyBrowserResult(result, review.assertions);
   const imageHashes = new Set();
-  for (const path of captures) {
+  for (const path of requiredCaptures) {
     const content = bytes(path); const digest = hash(content); imageHashes.add(digest);
     assert.ok(content.length > 1000 && content[0] === 0xff && content[1] === 0xd8 && content.at(-2) === 0xff && content.at(-1) === 0xd9, `Invalid JPEG: ${path}`);
     const inspected = review.screenshots[path]; equal(inspected.sha256, digest, `Visual review bytes: ${path}`);

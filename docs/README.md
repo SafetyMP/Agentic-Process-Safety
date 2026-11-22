@@ -1,8 +1,8 @@
 # APS documentation map
 
-[Project overview](../README.md) · [Live app](https://safetymp.github.io/Agentic-Process-Safety/) · [User guide](USER_GUIDE.md) · [Vision](VISION.md)
+[Read the bearings case](https://safetymp.github.io/Agentic-Process-Safety/#/study) · [Technical workspace](https://safetymp.github.io/Agentic-Process-Safety/#/overview)
 
-APS now centers on a guided investigation: compare the same request, inspect or change a condition, and form an evidence-linked position. The browser experience and the Python/OPA research implementation are separate layers. Use the current guides below for navigation; use historical records to understand what a particular work unit actually established.
+Thursday’s assembly needs 24 bearings. Follow the current purchasing handoffs and the risk introduced by a delay, then test an approval check and compare the alternatives. The IT workspace connects the case to policy and recorded call evidence. The sources below support discussion, technical investigation and reproduction.
 
 **Status key:** **Current guide** describes how to use or contribute to the present project. **Technical reference** describes a retained implementation contract or research method; results still need source-bound verification. **Historical record** preserves a dated plan, checkpoint or acceptance boundary and does not establish the current release state. **Integrity contract** is an active machine-readable preservation boundary, not a document to refresh by rewriting its evidence.
 
@@ -11,8 +11,9 @@ APS now centers on a guided investigation: compare the same request, inspect or 
 | Intent | Start here | Status |
 | --- | --- | --- |
 | Understand the project and run it locally | [Project README](../README.md) | Current guide |
-| Explore the app and its nine cases | [User guide](USER_GUIDE.md) | Current guide |
-| Test executive decisions, shift handoffs, replication and teaching on one build | [Walkthroughs and observation sheet](AUDIENCE_WALKTHROUGHS.md) | Moderator guide |
+| Review the assumptions behind the investment decision | [Business-case worksheet](BUSINESS_CASE.md) | Current guide |
+| Explore the interactive case or implementation guide | [User guide](USER_GUIDE.md) | Current guide |
+| Discuss the case with a sponsor, shift team or class | [Shared discussion prompts](AUDIENCE_WALKTHROUGHS.md) | Moderator guide |
 | Understand the problem, scope and unanswered research questions | [Vision](VISION.md) | Current guide |
 | Navigate all documentation | [Documentation map](README.md) | Current guide |
 | Develop or verify a change | [Development reference](DEVELOPMENT_REFERENCE.md) | Current workflow with separately retained historical notes |
@@ -40,7 +41,7 @@ These describe mechanisms and assumptions, not a replacement for the current app
 
 ## Browser design and release history
 
-The current guided experience was deployed through [PR #32](https://github.com/SafetyMP/Agentic-Process-Safety/pull/32) on 2026-11-14. [Run 43645203614](https://github.com/SafetyMP/Agentic-Process-Safety/actions/runs/43645203614) binds that deployment to commit `3ddc4ae9a0dc42c5af98fa7818121cf18a1b364f`. This is a dated release reference; later changes need their own verification.
+An earlier guided experience was deployed through [PR #32](https://github.com/SafetyMP/Agentic-Process-Safety/pull/32) on 2026-11-14. [Run 43645203614](https://github.com/SafetyMP/Agentic-Process-Safety/actions/runs/43645203614) binds that deployment to commit `3ddc4ae9a0dc42c5af98fa7818121cf18a1b364f`. This is a dated release reference; later changes need their own verification.
 
 All entries in the following table are **historical records**. Read their failures, limitations and original approval state in context. Older statements such as “deployment unverified” or instructions for timer controls and the saved decision-brief interface describe those revisions, not the present guided app.
 

@@ -3,7 +3,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { deflateRawSync } from 'node:zlib';
-import { BOUNDS, PINS, WORKFLOW, REPOSITORY, RELEASE_HEAD_REFS, CAPTURES, hash, blob, strictJSON, readArchive, verifyPredeploy, crc32 } from './verify-linux-predeploy-evidence.mjs';
+import { interactiveChecks, interactiveCaptures as CAPTURES } from './interactive-case-evidence.mjs';
+import { BOUNDS, interactivePins as PINS, WORKFLOW, REPOSITORY, RELEASE_HEAD_REFS, hash, blob, strictJSON, readArchive, verifyPredeploy, crc32 } from './verify-linux-predeploy-evidence.mjs';
 
 const root = new URL('../', import.meta.url);
 const content = new Map(await Promise.all(Object.entries(PINS).map(async ([path, expected]) => {
@@ -35,12 +36,12 @@ function fixture() {
   const sourceDigest = hash(JSON.stringify(source)); const distDigest = hash(JSON.stringify(dist));
   const runId = 123; const runAttempt = 2; const artifactId = 456;
   const runUrl = 'https://github.com/SafetyMP/Agentic-Process-Safety/actions/runs/123/attempts/2';
-  const browser = { status: 'passed', platform: 'linux', engine: 'chromium', version: '140.0.7339.0', assertions: 257, errors: [], violations: [], prefix: '/agentic-process-safety/', screenshots: [...CAPTURES], experience: 'APS guided investigation' };
+  const browser = { schema: 'aps-interactive-case-browser-1', status: 'passed', platform: 'linux', engine: 'chromium', version: '140.0.7339.0', checks: [...interactiveChecks], errors: [], violations: [], prefix: '/agentic-process-safety/', screenshots: [...CAPTURES], experience: 'APS interactive purchasing case' };
   const images = new Map(CAPTURES.map((path, i) => [path, Buffer.concat([Buffer.from([0xff, 0xd8]), Buffer.alloc(1100, i), Buffer.from([0xff, 0xd9])])]));
   const review = {
-    schema: 'aps-linux-predeploy-review-1', repository: REPOSITORY, repositoryId: 1430231911, pullRequest: 73,
+    schema: 'aps-linux-predeploy-review-2', repository: REPOSITORY, repositoryId: 1430231911, pullRequest: 73,
     headSha: head, baseSha: base, checkoutSha: checkout, checkoutTree: tree, workflowSha: checkout, workflowBlob, workflowRef,
-    runId, runAttempt, artifactId, runUrl, reviewer: 'Synthetic unit reviewer', reviewedAt: '2026-10-25T20:00:00Z', limitations: 'Synthetic unit fixture; no browser or CI run occurred.', assertions: 257,
+    runId, runAttempt, artifactId, runUrl, reviewer: 'Synthetic unit reviewer', reviewedAt: '2026-10-25T20:00:00Z', limitations: 'Synthetic unit fixture; no browser or CI run occurred.', checks: [...interactiveChecks],
     nodeVersion: 'v22.23.2', browserVersion: browser.version, sourceDigest, distDigest,
     screenshots: Object.fromEntries([...images].map(([path, image]) => [path, { sha256: hash(image), accepted: true, observations: `Synthetic fixture ${path}; not a real visual review.` }])),
   };
@@ -174,9 +175,12 @@ const mutations = {
   'wrong Node major': f => { f.review.nodeVersion = 'v24.1.0'; },
   'unknown Vite version': f => { f.observed.versions.vite = 'latest'; },
   'unknown Playwright version': f => { f.observed.versions.playwright = 'latest'; },
-  'changed runner pin': f => { f.observed.pins['apps/aps-demo/scripts/e2e.mjs'] = '0'.repeat(64); },
-  'partial browser count': f => { f.browser.assertions--; },
-  'forged low reviewed count': f => { f.review.assertions = f.browser.assertions = 136; },
+  'changed runner pin': f => { f.observed.pins['apps/aps-demo/scripts/audience-e2e.mjs'] = '0'.repeat(64); },
+  'missing browser scenario': f => { f.browser.checks.pop(); },
+  'forged matching partial coverage': f => { f.review.checks.pop(); f.browser.checks.pop(); },
+  'downgraded review contract': f => { f.review.schema = 'aps-linux-predeploy-review-1'; },
+  'legacy browser result': f => { f.browser.experience = 'APS guided investigation'; delete f.browser.checks; f.browser.assertions = 257; },
+  'changed npm dispatch': f => { f.observed.pins['package.json'] = '0'.repeat(64); },
   'browser failure': f => { f.browser.status = 'failed'; },
   'wrong browser platform': f => { f.browser.platform = 'darwin'; },
   'network violation': f => { f.browser.violations = ['external request']; },
