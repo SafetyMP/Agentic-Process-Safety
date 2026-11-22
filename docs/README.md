@@ -2,7 +2,7 @@
 
 [Read the bearings case](https://safetymp.github.io/Agentic-Process-Safety/#/study) · [Technical workspace](https://safetymp.github.io/Agentic-Process-Safety/#/overview)
 
-Thursday’s assembly needs 24 bearings. Follow the current purchasing handoffs and the risk introduced by a delay, then test an approval check and compare the alternatives. The IT workspace connects the case to policy and recorded call evidence. The sources below support discussion, technical investigation and reproduction.
+Requisition REQ-218 calls for 24 bearings by Thursday at 08:00. Follow the planner, buyer and receiving team to see how a late order can lose its quoted terms or finance approval. Try a release and a hold, then use the buyer’s remaining work to judge whether a change would earn its cost. The IT workspace carries the same request into a policy check and compares the result with a recorded trial.
 
 **Status key:** **Current guide** describes how to use or contribute to the present project. **Technical reference** describes a retained implementation contract or research method; results still need source-bound verification. **Historical record** preserves a dated plan, checkpoint or acceptance boundary and does not establish the current release state. **Integrity contract** is an active machine-readable preservation boundary, not a document to refresh by rewriting its evidence.
 
@@ -16,6 +16,7 @@ Thursday’s assembly needs 24 bearings. Follow the current purchasing handoffs 
 | Discuss the case with a sponsor, shift team or class | [Shared discussion prompts](AUDIENCE_WALKTHROUGHS.md) | Moderator guide |
 | Understand the problem, scope and unanswered research questions | [Vision](VISION.md) | Current guide |
 | Navigate all documentation | [Documentation map](README.md) | Current guide |
+| Verify the published REQ-218 case | [Deployment and historical releases](#browser-design-and-release-history) | Release evidence |
 | Develop or verify a change | [Development reference](DEVELOPMENT_REFERENCE.md) | Current workflow with separately retained historical notes |
 | Contribute, report a bug or request help | [Contributing](../CONTRIBUTING.md) · [Support](../SUPPORT.md) · [PR template](../.github/PULL_REQUEST_TEMPLATE.md) | Current guides |
 | Use a coding agent or cite the project | [Agent guide](../AGENTS.md) · [Citation metadata](../CITATION.cff) | Current repository metadata |
@@ -41,13 +42,15 @@ These describe mechanisms and assumptions, not a replacement for the current app
 
 ## Browser design and release history
 
+The published REQ-218 case includes shareable comparisons of the modeled request with recorded trials 14 and 15. GitHub Pages deployed commit `89c7389fb84d37e2119c764da7eab571f4db02a9` on 2026-11-22 UTC. [PR #36](https://github.com/SafetyMP/Agentic-Process-Safety/pull/36) · [Successful Pages run 44985475399](https://github.com/SafetyMP/Agentic-Process-Safety/actions/runs/44985475399)
+
 An earlier guided experience was deployed through [PR #32](https://github.com/SafetyMP/Agentic-Process-Safety/pull/32) on 2026-11-14. [Run 43645203614](https://github.com/SafetyMP/Agentic-Process-Safety/actions/runs/43645203614) binds that deployment to commit `3ddc4ae9a0dc42c5af98fa7818121cf18a1b364f`. This is a dated release reference; later changes need their own verification.
 
 All entries in the following table are **historical records**. Read their failures, limitations and original approval state in context. Older statements such as “deployment unverified” or instructions for timer controls and the saved decision-brief interface describe those revisions, not the present guided app.
 
 | Record | What it preserves |
 | --- | --- |
-| [Guided investigation improvements](APS_GUIDED_INVESTIGATION.md) | Latest guided interaction implementation and local acceptance scope |
+| [Guided investigation improvements](APS_GUIDED_INVESTIGATION.md) | Earlier guided interaction implementation and its local acceptance scope |
 | [Experience redesign plan](APS_EXPERIENCE_REDESIGN_PLAN.md) | Comparison, causal path and human-reasoning design proposal |
 | [Redesign implementation](APS_REDESIGN_IMPLEMENTATION.md) | Original implementation receipt, including its then-unresolved checks |
 | [Redesign release candidate](APS_REDESIGN_RELEASE.md) | Reconciliation and preservation requirements for that candidate |
@@ -101,7 +104,8 @@ All entries in this table are **historical records**. Their code may remain part
 | --- | --- |
 | [Original production inspection](STATIC_DEMO_INSPECTION.json) | Integrity contract: exact original source pins; preserve the original mapping |
 | [Approved production test additions](STATIC_DEMO_PRODUCTION_ADDITIONS.json) | Integrity contract: exact separately pinned additions |
-| [Current README preview provenance](assets/README.md) · [comparison preview](assets/aps-comparison.jpg) | Dated visual evidence from the deployed guided app |
+| [REQ-218 case opening](assets/req-218-case.jpg) · [Project image provenance](assets/README.md) | Published case captured in Pages run 44985475399 |
+| [Earlier comparison preview](assets/aps-comparison.jpg) | Historical screenshot of the PR #32 guided interface |
 | [Continuity screenshot provenance](verification-evidence/aps-continuity/README.md) · [saved-brief capture](verification-evidence/aps-continuity/continuity-saved-brief.jpg) | Historical PR #28 evidence |
 | [Redesign artifact hashes](verification-evidence/aps-redesign-20261114/artifact-hashes.json) · [layout checks](verification-evidence/aps-redesign-20261114/browser-layout-checks.json) | Historical redesign evidence; not current release receipts |
 | [Desktop comparison](verification-evidence/aps-redesign-20261114/comparison-desktop.jpg) · [mobile comparison](verification-evidence/aps-redesign-20261114/comparison-mobile.jpg) · [failure path](verification-evidence/aps-redesign-20261114/failure-path.jpg) · [topology](verification-evidence/aps-redesign-20261114/topology.jpg) | Historical captures of the earlier redesign |

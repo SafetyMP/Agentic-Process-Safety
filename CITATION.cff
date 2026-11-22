@@ -9,12 +9,12 @@ repository-code: "https://github.com/SafetyMP/Agentic-Process-Safety"
 url: "https://safetymp.github.io/Agentic-Process-Safety/"
 license: Apache-2.0
 abstract: >-
-  An open-source research sandbox for investigating agent workflow hazards
-  through same-request control comparisons, case-specific causal paths,
-  recorded synthetic evidence and human reasoning. APS includes a static
-  guided investigation app and a separate HAZOP-inspired Python/OPA research
-  implementation. Illustrative outcomes and finite experiments do not
-  establish operational safety or the superiority of an analysis method.
+  An interactive supply chain business case following purchase request REQ-218
+  from finance approval to Thursday’s assembly run. Readers use a HAZOP worksheet,
+  test when a purchasing agent should release or hold the order, and weigh buyer
+  time and material availability in a pilot decision. A technical workspace
+  compares the selected request with recorded synthetic trials from the separate
+  Python and Open Policy Agent research implementation.
 keywords:
   - agentic process safety
   - multi-agent systems
@@ -22,3 +22,6 @@ keywords:
   - HAZOP
   - agent governance
   - human reasoning
+  - supply chain
+  - procurement
+  - business case
