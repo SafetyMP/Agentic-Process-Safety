@@ -1,10 +1,20 @@
-# Explore APS: from comparison to a position
+# Explore APS with one purchasing case
 
-[Open the live app](https://safetymp.github.io/Agentic-Process-Safety/) · [Project vision](VISION.md) · [Documentation map](README.md)
+[Open APS at the site root](https://safetymp.github.io/Agentic-Process-Safety/) · [Short study](https://safetymp.github.io/Agentic-Process-Safety/#/study) · [Full workspace](https://safetymp.github.io/Agentic-Process-Safety/#/overview) · [Project vision](VISION.md) · [Documentation map](README.md)
 
-APS runs entirely in your browser. It needs no account or API key and sends no discussion notes to a server. The browser model illustrates declared rules; it does not execute the Python/OPA research gateway, buy stock, issue finance approval or establish production safety.
+## Start with the short study
 
-## Follow the opening case
+APS opens the short study at the site root, including when you load `index.html`. Use `#/study` to link directly to it or return via the study navigation. The shared walkthrough follows a fictional need for 24 bearings by Thursday and a request for 300 simulated spend units.
+
+1. **Follow the handoff.** Buyer-led ERP and agent-delegated purchasing can both automate approvals and order release, and both can act on stale facts. With delegation, a later worker can act on earlier workers’ results.
+2. **Ask what happens when purchase is LATE.** The intent is one currently authorized order. Make a prediction before revealing the model result, then compare 59, 60 and 61 logical seconds of approval age. Both bundles evaluate the same agent request from the same starting state. B checks tool permission and spend. C adds lifecycle checks, including approval freshness.
+3. **Record one proposed decision after the reveal.** As an executive, decide whether to sponsor a shadow pilot and give a stop condition. As a field manager, use a 60- or 61-second comparison where C holds the order. Select one fictional purchasing update and propose a disposition with evidence, an owner and a deadline. As a professor or researcher, interpret the timing boundary and name one limit or field observation. Review your summary and revise your decision if needed. The proposal stays with its comparison during the visit. Use **Back to comparison** to return to that approval age.
+
+The source scenario **REF-008** is unverified. It asks whether a late purchase would use an expired supplier quotation and commit above the authorized price. The browser models the related finance approval age check. A current approval leaves quotation validity, stock and demand open. Expand **Sources and full workspace** after the reveal for the exact hazard, proposed control and frozen stale-approval trials (B sequence 14 and C sequence 15). Those trials are separate synthetic evidence. Recorded visitor decisions are proposals for discussion.
+
+## Follow the opening case in Case Lab
+
+Use the established workspace for all nine cases, retained comparisons and the full discussion and download tools. The audience sections below describe the detailed workspace tasks. APS runs in your browser without an account or API key. The browser model illustrates declared rules, and the Python/OPA research gateway runs separately. [Start here](https://safetymp.github.io/Agentic-Process-Safety/#/overview) · [Case Lab](https://safetymp.github.io/Agentic-Process-Safety/#/simulator) · [Hazard study](https://safetymp.github.io/Agentic-Process-Safety/#/hazop?hazard=APS-f47191931b96a999a61c) · [Controls](https://safetymp.github.io/Agentic-Process-Safety/#/governance?control=CTL-EXPIRY) · [Evidence](https://safetymp.github.io/Agentic-Process-Safety/#/assurance?story=stale)
 
 ### 1. Compare one request
 
@@ -39,7 +49,7 @@ Use **Attach this comparison’s decisive check** to append the actual modeled c
 
 ## Review a held order with a buying team
 
-From **Start here**, select **Prepare a shift handoff**, then **Run comparison** with approval age at 61. You can also select a retained result in Case Lab and choose the task under **Use this comparison**. At 61 seconds lane C holds the order. The request amount of 300 is simulated spend. The separate fictional requisition calls for 24 bearings at North assembly by Thursday at 08:00 plant time.
+From **Start here**, select **Prepare a shift handoff**, then **Run comparison** with approval age at 61. You can also select a retained result in Case Lab and choose the task under **Use this comparison**. The two fictional updates below apply when lane C holds the order at 60 or 61 seconds. At 59 seconds both bundles release the order, so reconcile whether the modeled order covers the requisition before considering another release. The request amount of 300 is simulated spend. The separate fictional requisition calls for 24 bearings at North assembly by Thursday at 08:00 plant time.
 
 | Purchasing update | Evidence the buyer receives | A disposition to consider |
 | --- | --- | --- |

@@ -1,52 +1,22 @@
 # Agentic Process Safety (APS)
 
-**Finance approved the purchase yesterday. Can the buyer release the order today?** A buyer would want to know whether the approval still covers this supplier, amount and requisition, and whether the stock is still needed. Agentic Process Safety (APS) lets supply chain teams and researchers investigate that same decision when software agents carry the request from replenishment planning to order release.
+**You need 24 bearings by Thursday. Can purchasing place one currently authorized order?** Start with a short, interactive hazard and operability (HAZOP) study of a request for 300 simulated spend units. Predict what might happen if the order goes out late, check the model, then record one proposed decision for your role.
 
-[**Explore the live app**](https://safetymp.github.io/Agentic-Process-Safety/) · [Start the guided investigation](docs/USER_GUIDE.md) · [Project vision](docs/VISION.md) · [Documentation](docs/README.md)
+[Open APS at the site root](https://safetymp.github.io/Agentic-Process-Safety/) · [Short study (`#/study`)](https://safetymp.github.io/Agentic-Process-Safety/#/study) · [Full workspace (`#/overview`)](https://safetymp.github.io/Agentic-Process-Safety/#/overview) · [User guide](docs/USER_GUIDE.md) · [Project vision](docs/VISION.md) · [Documentation](docs/README.md)
 
 [![Repository checks](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/repository-checks.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/repository-checks.yml)
 [![Pages deployment](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/SafetyMP/Agentic-Process-Safety/actions/workflows/deploy-pages.yml)
 [![License: Apache-2.0](https://img.shields.io/github/license/SafetyMP/Agentic-Process-Safety)](LICENSE)
 
-## How a replenishment request reaches a purchase order
+## Follow one purchase from handoff to decision
 
-Before AI agents, a planner could review a material requirements planning (MRP) recommendation against stock on hand and open orders. A buyer could check the supplier and terms, then send a requisition for approval. Enterprise resource planning (ERP) systems already routed approvals and could convert an approved requisition into a purchase order under configured rules. Buyers handled exceptions such as a changed quote. [Oracle Purchasing guide to requisitions](https://docs.oracle.com/cd/A60725_05/html/comnls/us/po/reqov.htm) · [Oracle Release 11 procurement workflows](https://docs.oracle.com/cd/A60725_05/html/comnls/us/ponew/ponew11.htm)
+1. **Compare the handoffs.** Buyer-led ERP purchasing and delegated agent workflows can both automate steps and carry stale facts. Delegation lets a later worker act on evidence inherited from planning, sourcing or finance.
+2. **Apply LATE at purchase.** Predict what could go stale before revealing the result. REF-008 is an unverified scenario in which using an expired supplier quotation could commit the buyer above the authorized price. The browser illustrates a related finance approval check with B and C evaluating the same agent request at selectable ages of 59, 60 and 61 logical seconds. Quote validity, stock and demand require their own evidence.
+3. **Record one decision.** An executive decides whether to sponsor a shadow pilot and names a stop condition. For a comparison where C holds the order, a field manager chooses one fictional purchasing update and proposes a disposition with evidence, an owner and a deadline. A professor or researcher interprets the timing boundary and names a limit or field observation. Review the summary and revise the decision as needed.
 
-| Purchasing decision | What an agent can contribute | What can go wrong at the handoff |
-| --- | --- | --- |
-| Do we need to buy? | An inventory agent can use a demand estimate to work out a replenishment need and pass it to sourcing. | An estimate for another requisition can travel with the request. A buyer tracing the quantity needs the underlying demand and stock records. |
-| Which supplier and terms can we use? | A sourcing agent can select an eligible supplier and hand its result to finance. | A quote can change while the request is waiting. Even a current spending approval leaves the price to be checked. |
-| May we place the order now? | A purchasing agent can invoke the order tool once it receives the finance decision. | An approval can expire before release. A retry after an uncertain response can also duplicate an order unless the prior outcome is checked. |
+Open the full workspace for all nine cases and richer audience exercises and exports. Use the linked hazard, controls and evidence to inspect the source scenario and the separate frozen trial pair. [Case Lab](https://safetymp.github.io/Agentic-Process-Safety/#/simulator) · [Hazard study](https://safetymp.github.io/Agentic-Process-Safety/#/hazop?hazard=APS-f47191931b96a999a61c) · [Controls](https://safetymp.github.io/Agentic-Process-Safety/#/governance?control=CTL-EXPIRY) · [Evidence](https://safetymp.github.io/Agentic-Process-Safety/#/assurance?story=stale) · [Audience task cards](docs/AUDIENCE_WALKTHROUGHS.md)
 
-A buyer given a shortage to resolve might check inbound deliveries first and ask for a new quote only if the shortage remains. An AI agent with access to those tools could choose its next step from what it finds and bring the buyer an exception to decide. That discretion creates a practical question at each handoff. Which supplier, requisition and authority does this result belong to? APS isolates that question using fixed worker roles and simulated tool calls. The browser runs no live AI inference.
-
-Risk review also predates agents. In a hazard and operability (HAZOP) study, a team works through a process and uses prompts such as “late” to ask what could go wrong. For purchasing, “late” might mean approval arrives after a supplier’s cutoff. APS applies that method to software handoffs and generates candidate findings for people to assess. A reviewer still has to establish whether the failure is plausible in their operation and what its consequences would be. [IEC guide to HAZOP studies](https://webstore.iec.ch/en/publication/24321) · [APS screening method](docs/METHODOLOGY.md)
-
-## One purchasing case for three audiences
-
-In the opening case, a purchasing agent attempts to commit 300 simulated spend units. Its request arrives 61 logical seconds after approval. The basic permission and spending checks release the order. An additional freshness check holds it. Thursday’s material requirement still needs an owner.
-
-| Choose a task on **Start here** | Decision or exercise | Take away |
-| --- | --- | --- |
-| **Prepare a shift handoff** | A fictional site needs 24 bearings. See how a confirmed inbound order or an uncovered shortage changes the buyer’s next action under the same hold. | A handoff for one update with its evidence, action owner, deadline and escalation condition. [Buying-team guide](docs/USER_GUIDE.md#review-a-held-order-with-a-buying-team) |
-| **Decide on a purchasing pilot** | Scope a shadow evaluation against the buyer-led ERP process, defer it pending evidence, or retain the current workflow. | A sponsor brief with a stop condition, review date, field measures and optional cost assumptions. [Executive guide](docs/USER_GUIDE.md#prepare-a-sponsor-decision) |
-| **Reproduce or teach the case** | Reproduce the expiry boundary and trace a related recorded event. For class, collect predictions and ask teams to defend different handoffs. | Browser and recorded CSVs, a field-study worksheet, a learner sheet and an instructor guide with rubric. [Research exercise](docs/USER_GUIDE.md#design-a-supply-chain-study) · [Teaching guide](docs/USER_GUIDE.md#teach-the-purchasing-case) |
-
-For a demonstration or audience study, record the build shown in the app and give everyone links to that same installation. The local setup below runs this checkout. [Audience task cards and observation sheet](docs/AUDIENCE_WALKTHROUGHS.md)
-
-## Try the experience
-
-The [live app](https://safetymp.github.io/Agentic-Process-Safety/) needs no account, API key, paid inference, installation or backend.
-
-1. Open the approval case and **Run comparison**. B checks tool permission and spend; C adds lifecycle conditions. Both receive the same request and starting state.
-2. Follow the decision path, then choose **Try 59 seconds** and run again. The original comparison remains available. C now permits the request because the approval is current.
-3. Choose **Form a position**. A recommendation opens a relevant evidence request, review question or eligible hypothetical recovery. Attach the modeled check or a related recorded event, explain the rationale, and state what would change your mind.
-
-Five connected views support that investigation: **Start here → Case Lab**, with **Hazard study**, **Controls** and **Evidence** available as supporting inspections. The [user guide](docs/USER_GUIDE.md) covers all nine cases, saved discussions, exports and the distinction between a new request and a retained result.
-
-![APS compares the same request: B executes with expired approval, while C stops the request and leaves the purchase outstanding.](docs/assets/aps-comparison.jpg)
-
-The guided experience was deployed on **2026-11-14** through [PR #32](https://github.com/SafetyMP/Agentic-Process-Safety/pull/32), at commit [`3ddc4ae`](https://github.com/SafetyMP/Agentic-Process-Safety/commit/3ddc4ae9a0dc42c5af98fa7818121cf18a1b364f). Its [deployment workflow](https://github.com/SafetyMP/Agentic-Process-Safety/actions/runs/43645203614) and 233-check browser run passed. This is a dated implementation result; badges and later runs describe subsequent revisions.
+The earlier full-workspace experience was deployed on **2026-11-14** through [PR #32](https://github.com/SafetyMP/Agentic-Process-Safety/pull/32), at commit [`3ddc4ae`](https://github.com/SafetyMP/Agentic-Process-Safety/commit/3ddc4ae9a0dc42c5af98fa7818121cf18a1b364f). Its [deployment workflow](https://github.com/SafetyMP/Agentic-Process-Safety/actions/runs/43645203614) and 233-check browser run passed. This is a dated implementation result; badges and later runs describe subsequent revisions.
 
 ## What the evidence means
 
