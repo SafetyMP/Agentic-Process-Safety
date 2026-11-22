@@ -1,12 +1,12 @@
 # Search and agent discovery
 
-APS presents one consistent project: an open-source HAZOP research sandbox for investigating AI agent workflow risk through same-request comparisons, concrete causal paths, evidence and human reasoning. The public description distinguishes this from operational authorization, safety certification or an established result about the analysis method.
+APS introduces agent workflow risk through an interactive purchasing case. The public README and Pages site follow REQ-218 from finance approval to Thursday’s assembly. Readers can explore the buyer’s options, assess a shadow pilot and inspect the policy check alongside recorded synthetic trials in the IT workspace.
 
 ## Public documents
 
 | Document | Purpose | Canonical target |
 | --- | --- | --- |
-| Interactive app | Guided comparison and local discussion; useful source introduction before JavaScript loads | `https://safetymp.github.io/Agentic-Process-Safety/` |
+| Interactive app | Interactive bearings case and IT workspace, with an introduction available before JavaScript loads | `https://safetymp.github.io/Agentic-Process-Safety/` |
 | Project and evidence guide | Complete, readable explanation of the case, workflow, evidence layers and source links; no runtime JavaScript | `https://safetymp.github.io/Agentic-Process-Safety/guide.html` |
 | Source index | Optional plain-text navigation for readers and tools that explicitly use it | `https://safetymp.github.io/Agentic-Process-Safety/llms.txt` |
 | Sitemap | Lists the app and guide as the two canonical HTML documents | `https://safetymp.github.io/Agentic-Process-Safety/sitemap.xml` |
@@ -17,7 +17,7 @@ The existing hash-based app routes remain application state. They are not listed
 
 ## Metadata and sharing
 
-Each HTML document has its own exact canonical URL, descriptive title and description, consistent Open Graph/Twitter metadata, and truthful structured data. The app is described as `SoftwareSourceCode`; the guide is a `WebPage` about that source project. Neither has fabricated ratings, reviews, certifications, modification dates or rich-result guarantees. The shared preview is a screenshot of the deployed comparison, with text alternative identifying its illustrative scope; it is served from this project's own assets.
+Each HTML document has its own exact canonical URL, descriptive title and description, consistent Open Graph/Twitter metadata, and truthful structured data. The app is described as `SoftwareSourceCode`; the guide is a `WebPage` about that source project. Neither has fabricated ratings, reviews, certifications, modification dates or rich-result guarantees. The Pages link preview shows the earlier comparison interface. The GitHub README shows the opening of the bearings case. Both captures come from verified deployments. [Project image provenance](assets/README.md)
 
 The sitemap contains only the two reviewed canonical HTML documents, with no invented `lastmod` values. Relative asset paths continue to work under both supported case-sensitive Pages prefixes. These choices follow ordinary [canonicalization guidance](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls) and [sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap), not a promise of indexing.
 
