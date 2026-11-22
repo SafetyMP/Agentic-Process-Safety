@@ -6,6 +6,10 @@ const titles = Object.freeze({
   'index.html': 'Agentic Process Safety | Investigate AI Agent Workflow Risk',
   'guide.html': 'APS Project Guide | Compare Controls, Trace Causes, Examine Evidence',
 });
+const sharingTitles = Object.freeze({
+  'index.html': 'REQ-218: The bearings are due Thursday | APS',
+  'guide.html': 'REQ-218: The bearings are due Thursday | APS case guide',
+});
 export const guideSources = Object.freeze([
   'https://github.com/SafetyMP/Agentic-Process-Safety',
   ...['docs/VISION.md', 'docs/USER_GUIDE.md', 'docs/README.md', 'docs/METHODOLOGY.md', 'CONTRIBUTING.md'].map(path => `https://github.com/SafetyMP/Agentic-Process-Safety/blob/main/${path}`),
@@ -44,21 +48,24 @@ function verifyPage(html, page) {
   assert.ok(html.includes(`<title>${title}</title>`), 'Missing current project title');
   const description = html.match(/<meta name="description" content="([^"]+)"/);
   assert.ok(description && description[1].includes('research sandbox'), 'Missing descriptive research scope');
+  assert.ok(description[1].includes('REQ-218') && description[1].includes('bearings'), 'Missing bearings case in sharing description');
   for (const attribute of ['property="og:description"', 'name="twitter:description"']) {
     assert.ok(html.includes(`<meta ${attribute} content="${description[1]}">`), 'Inconsistent sharing description');
   }
   for (const attribute of ['property="og:title"', 'name="twitter:title"']) {
-    assert.ok(html.includes(`<meta ${attribute} content="${title}">`), 'Inconsistent sharing title');
+    assert.ok(html.includes(`<meta ${attribute} content="${sharingTitles[page]}">`), 'Inconsistent sharing title');
   }
   assert.ok(html.includes(`<meta property="og:url" content="${pageCanonicals[page]}">`), 'Inconsistent Open Graph URL');
   assert.match(html, /<link rel="sitemap" type="application\/xml" href="\.\/sitemap.xml">/);
-  assert.match(html, /<link rel="image_src" href="\.\/social-preview.jpg">/);
+  assert.match(html, /<link rel="image_src" href="\.\/social-preview\.jpg">/);
   for (const attribute of ['property="og:image"', 'name="twitter:image"']) {
-    assert.ok(html.includes(`<meta ${attribute} content="${canonical}social-preview.jpg">`), 'Inconsistent local social image');
+    assert.ok(html.includes(`<meta ${attribute} content="${canonical}social-preview.jpg?v=req-218">`), 'Inconsistent local social image');
   }
+  assert.ok(html.includes('<meta property="og:image:width" content="1440">'), 'Incorrect preview width');
+  assert.ok(html.includes('<meta property="og:image:height" content="960">'), 'Incorrect preview height');
   assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);
   for (const attribute of ['property="og:image:alt"', 'name="twitter:image:alt"']) {
-    assert.ok(html.includes(`<meta ${attribute} content="APS comparison: an expired-approval request executes under B and is stopped under C. Illustrative model only.">`), 'Missing truthful image alternative');
+    assert.ok(html.includes(`<meta ${attribute} content="The bearings are due Thursday. The APS case opens with 24 bearings needed for assembly and shows how the order moves from planning to receiving.">`), 'Missing truthful image alternative');
   }
   const json = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   assert.ok(json, 'Missing structured data');

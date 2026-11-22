@@ -27,6 +27,13 @@ describe('public discovery contract', () => {
     expect(passesStaticRemoteMarkupCheck(withoutPublicNavigation(index))).toBe(true);
     expect(passesStaticRemoteMarkupCheck(withoutPublicNavigation(guide, 'guide.html'))).toBe(true);
   });
+  it('publishes the same case-opening image used in the repository README', () => {
+    const filename = 'req-218-case.jpg';
+    expect(read('../../../README.md')).toContain('](docs/assets/' + filename + ')');
+    const publicImage = readFileSync(new URL('../public/social-preview.jpg', import.meta.url));
+    const readmeImage = readFileSync(new URL('../../../docs/assets/' + filename, import.meta.url));
+    expect(publicImage.equals(readmeImage)).toBe(true);
+  });
   it('rejects unknown and cross-page canonical metadata', () => {
     expect(() => withoutCanonical(index, 'unknown.html')).toThrow('Unreviewed public document');
     expect(() => withoutCanonical(index, 'guide.html')).toThrow('Canonical must match');
